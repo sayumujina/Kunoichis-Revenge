@@ -1,14 +1,32 @@
-# A fast, small, safe, gradually typed embeddable scripting language derived from Lua
+# Project place file
+/kunoichi-game.rbxlx
+/kunoichi-game.rbxl
+
 #
-# https://github.com/luau-lang/luau
-# https://luau.org/
+Packages
+build
 
-# Code coverage
-coverage.out
+# Zap files
+zap.luau
+RemoteName.profiler.luau
 
-# Profiling
-profile.out
-profile.svg
+# Sourcemap files
+sourcemap.json
 
-# Time trace
-trace.json
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+# Wally lock files
+wally.lock
+
+# Temporary files
+node_modules
+pages
+moonwave.toml
+config.zap
+out
+temp
+
+# Environment files
+.env
