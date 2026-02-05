@@ -6,20 +6,23 @@
 
     "ReplicatedStorage": {
       "Shared": {
-        "$path": "game/src/shared"
+        "$path": "places/game/src/Shared"
+      },
+      "Packages": {
+        "$path": "Packages"
       }
     },
 
     "ServerScriptService": {
       "Server": {
-        "$path": "game/src/server"
+        "$path": "places/game/src/Server"
       }
     },
 
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Client": {
-          "$path": "game/src/client"
+          "$path": "places/game/src/Client"
         }
       }
     },
@@ -28,6 +31,12 @@
       "$properties": {
         "FilteringEnabled": true
       },
+      "Characters": {
+        "$className": "Folder",
+        "Enemies": {
+          "$className": "Folder"
+        }
+      },  
       "Baseplate": {
         "$className": "Part",
         "$properties": {

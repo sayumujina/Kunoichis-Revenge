@@ -30,3 +30,5 @@ temp
 
 # Environment files
 .env
+
+/assets/

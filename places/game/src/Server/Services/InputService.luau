@@ -1,0 +1,3 @@
+local InputService = {}
+
+return InputService

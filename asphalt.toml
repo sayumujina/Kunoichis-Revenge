@@ -1,0 +1,23 @@
+[creator]
+type = "user"
+id = 7409186113
+
+[inputs.ui]
+path = "assets/ui/**/*"
+output_path = "places/global/src/Shared/Asphalt"
+bleed = true
+
+[inputs.vfx]
+path = "assets/vfx/**/*"
+output_path = "places/game/src/Shared/Asphalt"
+bleed = true
+
+[inputs.icons]
+path = "assets/icons/**/*"
+output_path = "places/global/src/Shared/Asphalt"
+bleed = true
+
+[codegen]
+typescript = false
+style = "nested"
+strip_extensions = true
