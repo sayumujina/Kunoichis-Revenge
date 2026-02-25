@@ -1,4 +1,6 @@
 local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 -- Packages
 local rep = game:GetService("ReplicatedStorage")
 local Zap = require(game.StarterPlayer.StarterPlayerScripts.Client.zap)
@@ -7,23 +9,21 @@ local localPlayer = game:GetService("Players").LocalPlayer
 
 local CameraController = {}
 
-function CameraController.OnStart()
-	-- Listen for spawn successful event
-	Zap.SpawnSuccessful.On(function()
-		-- warn("Spawn successful event received in CameraController")
-		-- Camera.CameraType = Enum.CameraType.Scriptable
+-- Camera positioning constants
+local CAMERA_DISTANCE = 25 -- 20-30 studs from battlefield center
+local CAMERA_HEIGHT = 20 -- 15-25 studs above ground
+local CAMERA_SIDE_OFFSET = -20 -- Negative X offset to position camera to the side
 
-		-- -- Rotate the camera 180 degrees around the Y axis
-		-- local currentCFrame = Camera.CFrame
-		-- local rotation = CFrame.Angles(0, math.rad(180), 0)
-		-- Camera.CFrame = currentCFrame * rotation
-	end)
+function CameraController.OnStart()
+	-- Set camera to Scriptable mode
+	Camera.CameraType = Enum.CameraType.Scriptable
 	print("CameraController started")
 end
 
---- Look at a given target
-function CameraController.LookAt(targetCFrame: CFrame)
-	Camera.CFrame = CFrame.new(localPlayer.HumanoidRootPart.Position, targetCFrame.Position)
+--- Look at a given CFrame (legacy function)
+--- @param targetCFrame - The CFrame to look at
+function CameraController.LookAtTarget(targets: { _TYPES.Character }, origin: _TYPES.Character)
+	CameraController.SetCombatCamera(origin, targets)
 end
 
 return CameraController

@@ -27,24 +27,6 @@ end
 -- Spawns all enemies into the game'
 -- TO DO: RETRIEVE ENEMY DATA FROM A SPECIFIC FILE IN THE FUTURE
 function EnemyService.SpawnAll()
-	local startX = ((ENEMY_SPAWN_COUNT - 1) * ENEMY_SPAWN_DISTANCE_IN_BETWEEN) / 2
-
-	for count = 0, (ENEMY_SPAWN_COUNT - 1) do
-		warn("Spawning enemy")
-		local enemy = rep.Shared.Assets.Models.MockEnemy:Clone() :: _TYPES.Character
-		enemy.Parent = workspace.Characters.Enemies
-		enemy.Name = "MockEnemy" .. (count + 1)
-
-		-- Set the index of the enemy
-		-- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
-		if not enemy:GetAttribute("Index") then
-			enemy:SetAttribute("Index", count + 1)
-		end
-
-		-- Calculate spawn position
-		local spawnX = startX - (count * ENEMY_SPAWN_DISTANCE_IN_BETWEEN)
-		local spawnPosition = CFrame.new(spawnX, 30, ENEMY_SPAWN_Z_OFFSET)
-		SpawnService.SpawnCharacter(enemy, spawnPosition)
-	end
+	SpawnService.SpawnAllCharactersOfSide(ENEMY_SPAWN_COUNT, ENEMY_SPAWN_Z_OFFSET)
 end
 return EnemyService
