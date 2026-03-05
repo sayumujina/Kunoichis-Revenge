@@ -82,7 +82,7 @@ function CombatController.SwitchPrimarySelectedEnemy(mode: "set" | "increment", 
 
 	warn(CombatData[localPlayer].enemies[primaryIndex])
 	-- Look at the newly selected enemy
-	CameraController.LookAtTarget(CombatData[localPlayer].enemies, CombatData[localPlayer].currentCharacter)
+	CameraController.LookAtTarget(CombatData[localPlayer].enemies[primaryIndex], CombatData[localPlayer].currentCharacter)
 end
 
 --- Retrieve the current primary selected enemy index

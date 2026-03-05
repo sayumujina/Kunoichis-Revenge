@@ -17,7 +17,7 @@ local PlayersData = {} :: { [_TYPES.RobloxPlayerType]: { Characters: { _TYPES.Ch
 --- Called when the service starts
 function PlayerService.OnStart()
 	-- TO DO: IMPLEMENT PLAYER SPAWNING LOGIC
-	Players.PlayerAdded:Connect(function(player)
+	Players.PlayerAdded:Connect(function(player: _TYPES.RobloxPlayerType)
 		local char = player.Character or player.CharacterAdded:Wait() :: _TYPES.Character
 		if not char then
 			warn("Character not found for player: " .. player.Name)
@@ -46,7 +46,7 @@ function PlayerService.OnStart()
 	end)
 end
 
-function PlayerService.SpawnCharactersForPlayer(player)
+function PlayerService.SpawnCharactersForPlayer(player: _TYPES.RobloxPlayerType)
 	-- TO DO: IMPLEMENT PLAYER CHARACTERS SPAWNING LOGIC
 	-- For now, just spawn the current player
 end

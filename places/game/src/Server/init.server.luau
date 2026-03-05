@@ -5,7 +5,7 @@ local Server = game:GetService("ServerScriptService").Server
 local Loader = require(rep.Shared.Modules.Loader)
 
 -- Disable character autoload
--- game.Players.CharacterAutoLoads = false
+game.Players.CharacterAutoLoads = false
 
 -- Load all services
 Loader.SpawnAll(

@@ -22,8 +22,9 @@ end
 
 --- Look at a given CFrame (legacy function)
 --- @param targetCFrame - The CFrame to look at
-function CameraController.LookAtTarget(targets: { _TYPES.Character }, origin: _TYPES.Character)
-	CameraController.SetCombatCamera(origin, targets)
+function CameraController.LookAtTarget(target: _TYPES.Character, origin: _TYPES.Character)
+	-- CameraController.SetCombatCamera(origin, targets)
+	Camera.CFrame = CFrame.lookAt(origin.HumanoidRootPart.Position, target.HumanoidRootPart.Position)
 end
 
 return CameraController
