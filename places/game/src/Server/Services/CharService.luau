@@ -6,8 +6,8 @@ local CharService = {}
 --
 local Chars = {} :: { [_TYPES.Character]: _TYPES.CharacterCombatData }
 
--- Helper function to read character data from a data source
-local function readBaseCharacterStatsFromSource(char: _TYPES.Character)
+-- Helper function to import character data from a data source
+local function importBaseCharacterStatsFromSource(char: _TYPES.Character)
 	-- Get the path based on the character name
 	local dataSource = require(rep.Data.Characters[char.Name]["data_" .. char.Name .. "_Info"]) :: _TYPES.CharacterStats
 
