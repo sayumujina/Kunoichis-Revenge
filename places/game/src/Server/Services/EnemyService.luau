@@ -27,6 +27,6 @@ end
 -- Spawns all enemies into the game'
 -- TO DO: RETRIEVE ENEMY DATA FROM A SPECIFIC FILE IN THE FUTURE
 function EnemyService.SpawnAll()
-	SpawnService.SpawnAllCharactersOfSide(ENEMY_SPAWN_COUNT, ENEMY_SPAWN_Z_OFFSET)
+	-- SpawnService.SpawnAllCharactersOfSide(false, ENEMY_SPAWN_COUNT, ENEMY_SPAWN_Z_OFFSET)
 end
 return EnemyService

@@ -16,6 +16,8 @@ local InputToActions = {
 	[Enum.UserInputType.MouseButton1] = "SelectTarget",
 	-- Combat actions
 	[Enum.KeyCode.Space] = "ConfirmAction",
+	-- Spawn
+	[Enum.KeyCode.I] = "Spawn",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
 
 --- Listening to user's input
@@ -40,6 +42,8 @@ game.UserInputService.InputBegan:Connect(function(input, _)
 			-- 	CombatController.SwitchPrimarySelectedEnemy("set", primaryIndex)
 			-- end
 			Zap.AdvanceToNextTurn.Fire()
+		elseif actionName == "Spawn" then
+			Zap.RequestSpawn.Fire()
 		end
 	end
 end)

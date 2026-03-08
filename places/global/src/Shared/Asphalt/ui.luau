@@ -2,6 +2,9 @@
 -- It is not intended for manual editing.
 local ui = {
 	EnemySelection = "rbxassetid://118397931328858",
+	avatar = {
+		UI_Avatar_Setsuna = "rbxassetid://115097369602803",
+	},
 }
 
 return ui

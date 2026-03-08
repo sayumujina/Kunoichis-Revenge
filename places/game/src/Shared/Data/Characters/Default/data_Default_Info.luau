@@ -8,7 +8,7 @@ local info = {
 		atk = 200,
 		def = 140,
 		hp = 520,
-		spd = 120,
+		spd = 40,
 		--
 		critRate = 0,
 		critDmg = 0,

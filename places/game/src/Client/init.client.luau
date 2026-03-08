@@ -3,6 +3,9 @@ local Loader = require(rep.Shared.Modules.Loader)
 
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local Controllers = StarterPlayerScripts.Client.Controllers
+local HUDController = require(Controllers.HUDController)
+
+HUDController.Init()
 
 -- Load all controllerse
 Loader.SpawnAll(

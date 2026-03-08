@@ -3,6 +3,13 @@ event SpawnSuccessful = {
 	type: Reliable,
 	call: ManyAsync,
 	data: struct {
-		characters: Instance.Model[]
+		character: Instance.Model,
+		side: string,
 	},
+}
+
+event RequestSpawn = {
+	from: Client,
+	type: Reliable,
+	call: ManyAsync,
 }

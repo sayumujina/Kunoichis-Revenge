@@ -1,33 +1,96 @@
 local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local rep = game:GetService("ReplicatedStorage")
+local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
+local Services = game:GetService("ServerScriptService").Server.Services
+local EventService = require(Services.EventService)
 
 local CharService = {}
 
 --
 local Chars = {} :: { [_TYPES.Character]: _TYPES.CharacterCombatData }
 
+-- Stats template
+local statsTemplate = {
+	baseStats = {
+		atk = 1,
+		def = 1,
+		hp = 1,
+		spd = 1,
+		--
+		critRate = 0,
+		critDmg = 0,
+		--
+		maxEnergy = 0,
+		ultimateGainEfficiency = 0,
+	},
+
+	realStats = {
+		atk = 1,
+		def = 1,
+		hp = 1,
+		spd = 1,
+		--
+		critRate = 0,
+		critDmg = 0,
+		--
+		ultimateGainEfficiency = 0,
+	},
+} :: _TYPES.CharacterCombatData
+
 -- Helper function to import character data from a data source
-local function importBaseCharacterStatsFromSource(char: _TYPES.Character)
-	-- Get the path based on the character name
-	local dataSource = require(rep.Data.Characters[char.Name]["data_" .. char.Name .. "_Info"]) :: _TYPES.CharacterStats
+local function importBaseCharacterStatsFromSource(char: _TYPES.Character, side: _TYPES.Sides)
+	if not char then
+		return
+	end
+
+	-- Get the path based on the character name, defaults to the "Default" character
+	local dataSource
+	local dataFolder =
+		rep.Shared.Data.Characters[if side == "Ally" then "Allies" else "Enemies"]:FindFirstChild(char.Name)
+	if dataFolder then
+		dataSource = require(dataFolder["data_" .. char.Name .. "_Info"]) :: _TYPES.CharacterData
+	else
+		dataSource = require(rep.Shared.Data.Characters.Default.data_Default_Info) :: _TYPES.CharacterData
+	end
 
 	-- Get the stats that are needed for combat
-	for stat in pairs(dataSource) do
-		-- Verify with the base stats
-		if table.find(Chars[char].baseStats, stat) then
-			Chars[char].baseStats[stat] = dataSource[stat]
-		end
-		-- Verify with the real stats
-		if table.find(Chars[char].realStats, stat) then
-			Chars[char].realStats[stat] = dataSource[stat]
+	if dataSource then
+		for statName, stat in pairs(dataSource.baseStats) do
+			-- Verify with the base stats
+			if Chars[char].baseStats[statName] then
+				Chars[char].baseStats[statName] = stat
+			end
+			-- Verify with the real stats
+			if Chars[char].realStats[statName] then
+				Chars[char].realStats[statName] = stat
+			end
 		end
 	end
+
+	warn("Imported base stats for character:", char.Name, Chars[char].baseStats)
 	return
 end
 
 --- Called when the service starts
 function CharService.OnStart()
 	print("CharService started")
+
+	-- Initialize the chars table
+	Chars = {}
+
+	-- Listens to character spawning and initializes their combat data
+	EventService.Events.SpawnSuccessful:Connect(function(spawnSuccessfulEvent)
+		local char = spawnSuccessfulEvent.origin
+
+		-- Import base character stats from the data source
+		if not Chars[char] then
+			Chars[char] = TableUtil.Copy(statsTemplate, true)
+
+			-- Replace with actual stats
+			importBaseCharacterStatsFromSource(char, spawnSuccessfulEvent.side)
+		end
+	end)
 end
 
 --- Retrieve data from a specified character
@@ -36,21 +99,35 @@ function CharService.GetCharacterCombatData(char: _TYPES.Character): _TYPES.Char
 	return Chars[char]
 end
 
---- Retrieve a specific stat of a character
+--- Retrieve a specific base stat of a character
 --- @param char -- The character to retrieve the stat for
 --- @param statName -- The name of the stat to retrieve (e.g., "atk", "def", "hp", "spd")
-function CharService.GetCharacterStat(char: _TYPES.Character, statName: string): number
-	local charData = CharService.GetCharacterCombatData(char)
-	return charData[statName] or 0
+function CharService.GetBaseCharacterStat(char: _TYPES.Character, statName: string): number
+	warn(Chars[char].baseStats[statName])
+	return Chars[char].baseStats[statName] or 0
 end
 
---- Update a specific stat of a character
+--- Retrieve a specific real stat of a character
+--- @param char -- The character to retrieve the stat for
+--- @param statName -- The name of the stat to retrieve (e.g., "atk", "def", "hp", "spd")
+function CharService.GetRealCharacterStat(char: _TYPES.Character, statName: string): number
+	return Chars[char].realStats[statName] or 0
+end
+
+--- Update a specific base stat of a character
 --- @param char -- The character to update the stat for
 --- @param statName -- The name of the stat to update (e.g., "atk", "def", "hp", "spd")
 --- @param newValue -- The new value to set for the stat
-function CharService.UpdateCharacterStat(char: _TYPES.Character, statName: string, newValue: number)
-	local charData = CharService.GetCharacterCombatData(char)
-	charData[statName] = newValue
+function CharService.UpdateBaseCharacterStat(char: _TYPES.Character, statName: string, newValue: number)
+	Chars[char].baseStats[statName] = newValue
+end
+
+--- Update a specific real stat of a character
+--- @param char -- The character to update the stat for
+--- @param statName -- The name of the stat to update (e.g., "atk", "def", "hp", "spd")
+--- @param newValue -- The new value to set for the stat
+function CharService.UpdateRealCharacterStat(char: _TYPES.Character, statName: string, newValue: number)
+	Chars[char].realStats[statName] = newValue
 end
 
 return CharService

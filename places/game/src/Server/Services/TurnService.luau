@@ -32,10 +32,23 @@ local function sortTurnQueue(queue: { TurnEntry })
 	end)
 end
 
+--- Helper function to normalise the turn queue after a turn is completed
+--- This makes sure the action on top is always at 0 action value
+local function normalizeTurnQueue()
+	if #turnQueue == 0 then
+		return
+	end
+
+	local topActionValue = turnQueue[1].actionValue
+	for _, entry in pairs(turnQueue) do
+		entry.actionValue = entry.actionValue - topActionValue
+	end
+end
+
 --- Helper function to calculolate action value based on character speed (lower is faster)
 --- @param char -- The character to calculate the action value for
 local function calculateActionValue(char: _TYPES.Character): number
-	local charSpd = CharService.GetCharacterStat(char, "spd")
+	local charSpd = CharService.GetBaseCharacterStat(char, "spd")
 	return BASE_ACTION_VALUE / charSpd
 end
 
@@ -46,7 +59,7 @@ function TurnService.OnStart()
 	activeCharacters = {}
 
 	-- For testing, add all characters in the workspace to the turn system
-	task.delay(3, function()
+	task.delay(5, function()
 		for _, char in pairs(workspace.Characters:GetDescendants()) do
 			if char:IsA("Model") and char:FindFirstChildOfClass("Humanoid") then
 				TurnService.AddActiveCharacter(char)
@@ -54,6 +67,11 @@ function TurnService.OnStart()
 		end
 
 		warn("TurnService started with " .. tostring(#activeCharacters) .. " active characters.")
+		warn(turnQueue)
+
+		-- Normalize the turn queue
+		normalizeTurnQueue()
+		warn("Normalised turn queue:")
 		warn(turnQueue)
 	end)
 
@@ -125,26 +143,15 @@ function TurnService.MoveToNextTurn()
 		return
 	end
 
-	-- Subtract all action values by the completed turn's action value to normalise the queue
-	for _, entry in ipairs(turnQueue) do
-		entry.actionValue = entry.actionValue - completedTurn.actionValue
-	end
-
 	-- Check if this character is still active
 	if table.find(activeCharacters, completedTurn.char) then
-		-- Calculate next turn for this character
-		local nextActionValue = calculateActionValue(completedTurn.char)
-
-		-- Find the base action value to add to (highest current action value for proper sequencing)
-		local baseActionValue = 0
-		for _, entry in ipairs(turnQueue) do
-			baseActionValue = math.max(baseActionValue, entry.actionValue)
-		end
+		-- Normalize the turn queue
+		normalizeTurnQueue()
 
 		-- Add the new turn to the queue
 		table.insert(turnQueue, {
 			char = completedTurn.char,
-			actionValue = baseActionValue + nextActionValue,
+			actionValue = calculateActionValue(completedTurn.char),
 		})
 
 		-- Re-sort the turn queue

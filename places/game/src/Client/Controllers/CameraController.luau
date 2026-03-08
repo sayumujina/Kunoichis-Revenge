@@ -18,13 +18,15 @@ function CameraController.OnStart()
 	-- Set camera to Scriptable mode
 	Camera.CameraType = Enum.CameraType.Scriptable
 	print("CameraController started")
+
+	Camera.CFrame = CFrame.new(-12.526, 15.672, -15.471) * CFrame.Angles(math.rad(20), math.rad(-180), 0)
 end
 
 --- Look at a given CFrame (legacy function)
 --- @param targetCFrame - The CFrame to look at
 function CameraController.LookAtTarget(target: _TYPES.Character, origin: _TYPES.Character)
 	-- CameraController.SetCombatCamera(origin, targets)
-	Camera.CFrame = CFrame.lookAt(origin.HumanoidRootPart.Position, target.HumanoidRootPart.Position)
+	-- Camera.CFrame = CFrame.lookAt(origin.HumanoidRootPart.Position, target.HumanoidRootPart.Position)
 end
 
 return CameraController
