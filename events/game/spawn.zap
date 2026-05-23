@@ -1,15 +1,21 @@
 event SpawnSuccessful = {
 	from: Server,
-	type: Reliable,
+	type: Unreliable,
 	call: ManyAsync,
 	data: struct {
-		character: Instance.Model,
-		side: string,
+		char: Instance.Model,
+		side: enum { Allies, Enemies },
 	},
+}
+
+event SpawnFinished = {
+	from: Server,
+	type: Unreliable,
+	call: ManyAsync,
 }
 
 event RequestSpawn = {
 	from: Client,
-	type: Reliable,
+	type: Unreliable,
 	call: ManyAsync,
 }

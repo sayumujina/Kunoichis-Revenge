@@ -1,13 +1,17 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local t = require(ReplicatedStorage.Packages.t)
 local CharService = require(script.Parent.CharService)
-local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
+local EventService = require(script.Parent.EventService)
+local rep = game.ReplicatedStorage
+local _TYPES = require(rep.Shared.data_Types)
 --
 local Services = game:GetService("ServerScriptService").Server.Services
 local Zap = require(Services.Parent.zap)
+--
+local Utility = require(rep.Shared.Modules.Utility)
 
 -- Constants
 local BASE_ACTION_VALUE = 10000
+-- Variables
+local currentTurnCount: number
 
 --- @class TurnService
 --- @server
@@ -16,34 +20,9 @@ local TurnService = {}
 
 -- Turn queue stores characters and their action values
 -- Each character gets 2 entries for upcoming turns
-type TurnEntry = {
-	char: _TYPES.Character,
-	actionValue: number,
-}
 
-local turnQueue: { TurnEntry } = {}
+local turnQueue: { _TYPES.TurnEntry } = {}
 local activeCharacters: { _TYPES.Character } = {}
-
---- Helper function to sort the turn queue by action value
---- @param queue -- The turn queue to sort
-local function sortTurnQueue(queue: { TurnEntry })
-	table.sort(queue, function(a, b)
-		return a.actionValue < b.actionValue
-	end)
-end
-
---- Helper function to normalise the turn queue after a turn is completed
---- This makes sure the action on top is always at 0 action value
-local function normalizeTurnQueue()
-	if #turnQueue == 0 then
-		return
-	end
-
-	local topActionValue = turnQueue[1].actionValue
-	for _, entry in pairs(turnQueue) do
-		entry.actionValue = entry.actionValue - topActionValue
-	end
-end
 
 --- Helper function to calculolate action value based on character speed (lower is faster)
 --- @param char -- The character to calculate the action value for
@@ -57,24 +36,15 @@ function TurnService.OnStart()
 	-- Initialise an empty turn system
 	turnQueue = {}
 	activeCharacters = {}
+	currentTurnCount = 0
 
-	-- For testing, add all characters in the workspace to the turn system
-	task.delay(5, function()
-		for _, char in pairs(workspace.Characters:GetDescendants()) do
-			if char:IsA("Model") and char:FindFirstChildOfClass("Humanoid") then
-				TurnService.AddActiveCharacter(char)
-			end
-		end
-
-		warn("TurnService started with " .. tostring(#activeCharacters) .. " active characters.")
-		warn(turnQueue)
-
-		-- Normalize the turn queue
-		normalizeTurnQueue()
-		warn("Normalised turn queue:")
-		warn(turnQueue)
+	-- Listens to spawn finished event to add the spawned character to the turn system
+	-- This event is used ONCE per battle, to ensure that the battle is ready for proceeding
+	EventService.Events.SpawnFinished:Connect(function()
+		Utility.NormaliseTurnQueue(turnQueue)
 	end)
 
+	-- Listens to advance turn event from clients
 	Zap.AdvanceToNextTurn.On(function()
 		TurnService.MoveToNextTurn()
 		warn("Advanced to next turn. Current turn queue:")
@@ -90,21 +60,44 @@ function TurnService.AddActiveCharacter(char: _TYPES.Character)
 		return
 	end
 
+	warn(char.Name .. " added to active characters")
 	table.insert(activeCharacters, char)
 
-	-- Add 2 turns for this character to the queue
+	-- Add 2 turns for this character to the queue and notify clients about the new turns
 	local actionValue = calculateActionValue(char)
+
+	-- Turn 1
+	currentTurnCount = currentTurnCount + 1
 	table.insert(turnQueue, {
+		turnId = currentTurnCount,
 		char = char,
+		side = CharService.GetCharacterCombatData(char).side,
 		actionValue = actionValue,
 	})
-	table.insert(turnQueue, {
+	EventService.Events.TurnAdded:Fire({
+		turnId = currentTurnCount,
 		char = char,
+		side = CharService.GetCharacterCombatData(char).side,
+		actionValue = actionValue,
+	})
+
+	-- Turn 2
+	currentTurnCount = currentTurnCount + 1
+	table.insert(turnQueue, {
+		turnId = currentTurnCount,
+		char = char,
+		side = CharService.GetCharacterCombatData(char).side,
+		actionValue = actionValue * 2,
+	})
+	EventService.Events.TurnAdded:Fire({
+		turnId = currentTurnCount,
+		char = char,
+		side = CharService.GetCharacterCombatData(char).side,
 		actionValue = actionValue * 2,
 	})
 
 	-- Re-sort the turn queue with the new character
-	sortTurnQueue(turnQueue)
+	Utility.SortTurnQueue(turnQueue)
 end
 
 --- Remove a character from the turn system
@@ -112,16 +105,23 @@ end
 function TurnService.RemoveActiveCharacter(char: _TYPES.Character)
 	-- Remove from active characters
 	local index = table.find(activeCharacters, char)
+
 	if index then
 		table.remove(activeCharacters, index)
+
+		-- Notify the client about the turn removal
+		Zap.TurnRemovedForCharacter.FireAll({
+			char = char,
+			side = CharService.GetCharacterCombatData(char).side,
+		})
 	end
 
 	-- Re-sort the turn queue after removal
-	sortTurnQueue(turnQueue)
+	Utility.SortTurnQueue(turnQueue)
 end
 
 --- Get the current turn data
-function TurnService.GetCurrentTurn(): TurnEntry?
+function TurnService.GetCurrentTurn(): _TYPES.TurnEntry?
 	if #turnQueue == 0 then
 		return nil
 	end
@@ -136,26 +136,42 @@ function TurnService.MoveToNextTurn()
 		return
 	end
 
+	-- Notify the client about the turn completion
+	Zap.TurnCompleted.FireAll({
+		turnId = turnQueue[1].turnId,
+	})
+
 	-- Remove the current turn from the queue
 	local completedTurn = table.remove(turnQueue, 1)
 
 	if not completedTurn then
-		return
+		return -- bro there's no way this check ever fails cuz there's alraedy an empty table check earlier, I just don't want the Language server to yell
 	end
 
 	-- Check if this character is still active
 	if table.find(activeCharacters, completedTurn.char) then
-		-- Normalize the turn queue
-		normalizeTurnQueue()
+		-- Normalise the turn queue
+		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
 
 		-- Add the new turn to the queue
+		currentTurnCount = currentTurnCount + 1
 		table.insert(turnQueue, {
+			turnId = currentTurnCount,
 			char = completedTurn.char,
+			side = completedTurn.side,
 			actionValue = calculateActionValue(completedTurn.char),
 		})
 
 		-- Re-sort the turn queue
-		sortTurnQueue(turnQueue)
+		Utility.SortTurnQueue(turnQueue)
+
+		-- Send update to clients about the new turn
+		EventService.Events.TurnAdded:Fire({
+			turnId = currentTurnCount,
+			char = completedTurn.char,
+			side = completedTurn.side,
+			actionValue = calculateActionValue(completedTurn.char),
+		})
 	end
 end
 
@@ -172,11 +188,11 @@ function TurnService.ModifyCharacterActionValue(char: _TYPES.Character, newActio
 	end
 
 	-- Re-sort the turn queue after modification
-	sortTurnQueue(turnQueue)
+	Utility.SortTurnQueue(turnQueue)
 end
 
 --- Get the turn order preview
-function TurnService.GetTurnQueue(): { TurnEntry }
+function TurnService.GetTurnQueue(): { _TYPES.TurnEntry }
 	return turnQueue
 end
 

@@ -17,11 +17,11 @@ local InputToActions = {
 	-- Combat actions
 	[Enum.KeyCode.Space] = "ConfirmAction",
 	-- Spawn
-	[Enum.KeyCode.I] = "Spawn",
+	[Enum.KeyCode.U] = "Spawn",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
 
 --- Listening to user's input
-game.UserInputService.InputBegan:Connect(function(input, _)
+UserInputService.InputBegan:Connect(function(input, _)
 	if input.UserInputState == Enum.UserInputState.Begin then
 		local actionName = InputToActions[input.KeyCode] or InputToActions[input.UserInputType]
 

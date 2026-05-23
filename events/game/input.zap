@@ -3,6 +3,6 @@ event InputSent = {
 	type: Reliable,
 	call: ManyAsync,
 	data: struct {
-        action: string,
+        action: string.binary,
     },
 }

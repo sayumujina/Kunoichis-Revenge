@@ -1,8 +1,10 @@
-local CharacterData = require(game.ReplicatedStorage.Shared.data_Types.type_CharacterData)
+local SideTypes = require(script.Parent.type_Sides)
 
 --- @within data_TYPES
 --- @type CharacterCombatData = {atk: number, def: number, hp: number, spd: number, maxEnergy: number, currentEnergy: number}
 export type CharacterCombatData = {
+	-- Side
+	side: SideTypes.Sides,
 	-- Base stats
 	baseStats: {
 		atk: number,

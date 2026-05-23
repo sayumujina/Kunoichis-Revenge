@@ -1,13 +1,12 @@
+local Services = game:GetService("ServerScriptService").Server.Services
 local Players = game:GetService("Players")
-local SpawnService = require(script.Parent.SpawnService)
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
+local EventService = require(Services.EventService)
 -- Packages
 local Zap = require(game.ServerScriptService.Server.zap)
 
 -- Number of characters per player
-local CHARACTERS_PER_PLAYER = 3
-local CHARACTER_SPAWN_OFFSET = -20
 
 --- @class PlayerService
 local PlayerService = {}
@@ -17,38 +16,26 @@ local PlayersData = {} :: { [_TYPES.RobloxPlayerType]: { Characters: { _TYPES.Ch
 --- Called when the service starts
 function PlayerService.OnStart()
 	-- TO DO: IMPLEMENT PLAYER SPAWNING LOGIC
-	-- Players.PlayerAdded:Connect(function(player: _TYPES.RobloxPlayerType)
-	-- 	local char = player.Character or player.CharacterAdded:Wait() :: _TYPES.Character
-	-- 	if not char then
-	-- 		warn("Character not found for player: " .. player.Name)
-	-- 		return
-	-- 	end
+	Players.PlayerAdded:Connect(function(player: _TYPES.RobloxPlayerType)
+		if not PlayersData[player] then
+			PlayersData[player] = {
+				Characters = {},
+			}
+		end
+	end)
 
-	-- 	if not PlayersData[player] then
-	-- 		PlayersData[player] = {
-	-- 			Characters = {},
-	-- 		}
-	-- 	end
-
-	-- 	-- Spawn player's characters
-	-- 	SpawnService.SpawnCharacter(true, char, CFrame.new(0, 30, CHARACTER_SPAWN_OFFSET))
-	-- 	table.insert(PlayersData[player].Characters, char)
-
-	-- 	-- Set active character index
-	-- 	if not player:GetAttribute("ActiveCharacter") then
-	-- 		-- For now, use my own character
-	-- 		player:SetAttribute("ActiveCharacter", 1)
-	-- 	end
-
-	-- 	-- Notify client that spawn was successful
-	-- 	char.Humanoid.WalkSpeed = 0
-	-- 	-- Zap.SpawnSuccessful.Fire(player, PlayersData[player].Characters)
-	-- end)
+	-- Listens to character spawning and adds them to the player's data
+	EventService.Events.SpawnSuccessful:Connect(function(spawnSuccessfulEvent)
+		local player = spawnSuccessfulEvent.player
+		local char = spawnSuccessfulEvent.data.char
+		--
+		table.insert(PlayersData[player].Characters, char)
+	end)
 end
 
 function PlayerService.SpawnCharactersForPlayer(player: _TYPES.RobloxPlayerType)
-	-- TO DO: IMPLEMENT PLAYER CHARACTERS SPAWNING LOGIC
-	-- For now, just spawn the current player
+	-- Spawn player's characters
+	-- SpawnService.SpawnAllCharactersOfSide("Allies", { "Setsuna", "Setsuna" }, CHARACTER_SPAWN_OFFSET)
 end
 
 function PlayerService.GetHumanoidDescription(player: _TYPES.RobloxPlayerType)
@@ -58,6 +45,21 @@ function PlayerService.GetHumanoidDescription(player: _TYPES.RobloxPlayerType)
 		humanoidDescription = Players:GetHumanoidDescriptionFromUserId(player.UserId)
 		task.wait()
 	until humanoidDescription
+end
+
+--- Get the associated player for a character
+--- @within PlayerService
+--- @param char -- The character to find the player for
+--- @return The player associated with the character, or nil if not found
+function PlayerService.GetPlayerFromCharacter(char: _TYPES.Character): _TYPES.RobloxPlayerType?
+	warn(PlayersData)
+	-- Loop through the players data to find the player associated with the character
+	for player, data in pairs(PlayersData) do
+		if table.find(data.Characters, char) then
+			return player
+		end
+	end
+	return nil
 end
 
 return PlayerService

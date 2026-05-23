@@ -12,6 +12,8 @@ local Chars = {} :: { [_TYPES.Character]: _TYPES.CharacterCombatData }
 
 -- Stats template
 local statsTemplate = {
+	side = "Allies" :: _TYPES.Sides,
+	--
 	baseStats = {
 		atk = 1,
 		def = 1,
@@ -46,13 +48,15 @@ local function importBaseCharacterStatsFromSource(char: _TYPES.Character, side: 
 
 	-- Get the path based on the character name, defaults to the "Default" character
 	local dataSource
-	local dataFolder =
-		rep.Shared.Data.Characters[if side == "Ally" then "Allies" else "Enemies"]:FindFirstChild(char.Name)
+	local dataFolder = rep.Shared.Data.Characters[side]:FindFirstChild(char.Name)
 	if dataFolder then
 		dataSource = require(dataFolder["data_" .. char.Name .. "_Info"]) :: _TYPES.CharacterData
 	else
 		dataSource = require(rep.Shared.Data.Characters.Default.data_Default_Info) :: _TYPES.CharacterData
 	end
+
+	-- Set the character's side
+	Chars[char].side = side
 
 	-- Get the stats that are needed for combat
 	if dataSource then
@@ -68,7 +72,6 @@ local function importBaseCharacterStatsFromSource(char: _TYPES.Character, side: 
 		end
 	end
 
-	warn("Imported base stats for character:", char.Name, Chars[char].baseStats)
 	return
 end
 
@@ -78,19 +81,17 @@ function CharService.OnStart()
 
 	-- Initialize the chars table
 	Chars = {}
+end
 
-	-- Listens to character spawning and initializes their combat data
-	EventService.Events.SpawnSuccessful:Connect(function(spawnSuccessfulEvent)
-		local char = spawnSuccessfulEvent.origin
+--- Load base stats of a character into the service's data structure
+--- @param char -- The character to load stats for
+--- @param side -- The side the character belongs to (Allies or Enemies)
+function CharService.LoadCharacterBaseStats(char: _TYPES.Character, side: _TYPES.Sides)
+	if not Chars[char] then
+		Chars[char] = TableUtil.Copy(statsTemplate, true)
+	end
 
-		-- Import base character stats from the data source
-		if not Chars[char] then
-			Chars[char] = TableUtil.Copy(statsTemplate, true)
-
-			-- Replace with actual stats
-			importBaseCharacterStatsFromSource(char, spawnSuccessfulEvent.side)
-		end
-	end)
+	importBaseCharacterStatsFromSource(char, side)
 end
 
 --- Retrieve data from a specified character

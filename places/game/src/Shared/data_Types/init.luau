@@ -4,6 +4,7 @@ local CharacterTypes = require(script.type_Character)
 local CharacterCombatDataTypes = require(script.Combat.type_CharacterCombatData)
 local PlayerCombatDataTypes = require(script.Combat.type_PlayerCombatData)
 local SidesTypes = require(script.Combat.type_Sides)
+local TurnTypes = require(script.Combat.type_Turns)
 
 local CharacterDataTypes = require(script.type_CharacterData)
 
@@ -18,5 +19,8 @@ export type Sides = SidesTypes.Sides
 -- Character data types
 export type CharacterStats = CharacterDataTypes.CharacterStats
 export type CharacterData = CharacterDataTypes.CharacterData
+
+-- Turn types
+export type TurnEntry = TurnTypes.TurnEntry
 
 return nil

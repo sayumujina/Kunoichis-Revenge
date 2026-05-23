@@ -1,0 +1,167 @@
+local HUDController = {}
+local Zap = require(game.StarterPlayer.StarterPlayerScripts.Client.zap)
+local rep = game.ReplicatedStorage
+local _TYPES = require(rep.Shared.data_Types)
+-- Utility
+local Utility = require(rep.Shared.Modules.Utility)
+local QueueUIUtility = require(script.Helper.QueueUIUtility)
+--
+local createTurnCard = require(script.Components.TurnCard)
+local createTurnCardFrame = require(script.Components.TurnsFrame)
+
+--
+local turnQueue = {} :: { _TYPES.TurnEntry }
+
+-- PlayerGui reference for creating UI elements
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Helper function to determine the index of a turn in the turn queue
+local function findTurnIndex(turnId: number): number?
+	for index, turn in pairs(turnQueue) do
+		if turn.turnId == turnId then
+			return index
+		end
+	end
+	return nil
+end
+
+--- Called when the controller starts
+function HUDController.OnStart()
+	-- Normalise the turn queue once all characters are spawned and the battle is ready to proceed
+	Zap.SpawnFinished.On(function()
+		-- Normalize the turn queue
+		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
+
+		-- Update the turn queue UI after normalisation
+		QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+	end)
+
+	-- Listen to completed turns to update the turn queue
+	Zap.TurnCompleted.On(function(completedTurnData)
+		-- Find the corresponding turn card using index and remove it
+		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
+		if turnCardContainer then
+			local turnCard = turnCardContainer:FindFirstChild("Turn_Card_" .. completedTurnData.turnId, true)
+			if turnCard then
+				turnCard:Destroy()
+			end
+		end
+
+		-- Renmove the turn from the local turn list
+		for index, turn in pairs(turnQueue) do
+			if turn.turnId == completedTurnData.turnId then
+				table.remove(turnQueue, index)
+				break
+			end
+		end
+
+		-- Normalise the turn queue after removal
+		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
+
+		warn("Turn completed:", completedTurnData.turnId)
+	end)
+
+	-- Listens to added turns
+	Zap.TurnAdded.On(function(turnData)
+		local turn = {
+			turnId = turnData.turnId,
+			char = turnData.char :: _TYPES.Character,
+			side = turnData.side,
+			actionValue = turnData.actionValue,
+		}
+
+		warn(turnData)
+
+		-- Add the new turn to the local turn list
+		table.insert(turnQueue, turn)
+
+		-- Sort the turn list after adding the new turn
+		Utility.SortTurnQueue(turnQueue)
+
+		-- Create a new turn card for the added turn
+		local turnCard = createTurnCard(
+			turn.char :: _TYPES.Character,
+			turn.turnId,
+			findTurnIndex(turn.turnId) or 0,
+			turn.side,
+			turn.actionValue
+		)
+
+		-- Update the turn queue UI after adding the new turn
+		QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+
+		-- Parent the turn card to the container
+		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
+		if turnCardContainer then
+			turnCard.Parent = turnCardContainer
+		end
+
+		warn(turnQueue, "after turn added")
+	end)
+
+	-- Listens to removed turns
+	Zap.TurnRemoved.On(function(data)
+		-- Find the corresponding turn card using index and remove it
+		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
+		if turnCardContainer then
+			local turnCard = turnCardContainer:FindFirstChild("Turn_Card_" .. data.turnId, true)
+			if turnCard then
+				turnCard:Destroy()
+			end
+		end
+
+		-- Remove the turn from the local turn list
+		for index, turn in pairs(turnQueue) do
+			if turn.turnId == data.turnId then
+				table.remove(turnQueue, index)
+				break
+			end
+		end
+
+		-- Update the turn queue UI after removing the turn
+		QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+	end)
+
+	-- Listens to character-wide turn removals (for character deaths, etc.)
+	Zap.TurnRemovedForCharacter.On(function(data)
+		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
+
+		-- Remove all turns for the character from the local turn list
+		for index, turn in pairs(turnQueue) do
+			if turn.char :: any ~= data.char then
+				continue
+			end
+
+			-- Remove the entry from the turn queue
+			table.remove(turnQueue, index)
+
+			-- Remove the corresponding turn card UI as well
+			if turnCardContainer then
+				local turnCard = turnCardContainer:FindFirstChild("Turn_Card_" .. turn.turnId)
+				if turnCard then
+					turnCard:Destroy()
+				end
+			end
+		end
+
+		-- Re-sort the turn list after removal
+		Utility.SortTurnQueue(turnQueue)
+	end)
+end
+
+function HUDController.Init()
+	-- Create a screen GUI for the player if it doesn't exist
+	if not playerGui:FindFirstChild("ScreenGui", true) then
+		local hud = Instance.new("ScreenGui")
+		hud.Name = "ScreenGui"
+		hud.Parent = playerGui
+	end
+
+	-- Create the turn card container if it doesn't exist
+	if not playerGui:FindFirstChild("UI_TurnsFrame", true) then
+		local turnsFrame = createTurnCardFrame()
+		turnsFrame.Parent = playerGui:FindFirstChild("ScreenGui", true)
+	end
+end
+
+return HUDController
