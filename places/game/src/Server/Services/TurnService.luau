@@ -1,9 +1,11 @@
-local CharService = require(script.Parent.CharService)
-local EventService = require(script.Parent.EventService)
 local rep = game.ReplicatedStorage
 local _TYPES = require(rep.Shared.data_Types)
 --
 local Services = game:GetService("ServerScriptService").Server.Services
+local PlayerService = require(Services.PlayerService)
+local CharService = require(script.Parent.CharService)
+local EventService = require(script.Parent.EventService)
+--
 local Zap = require(Services.Parent.zap)
 --
 local Utility = require(rep.Shared.Modules.Utility)
@@ -42,13 +44,12 @@ function TurnService.OnStart()
 	-- This event is used ONCE per battle, to ensure that the battle is ready for proceeding
 	EventService.Events.SpawnFinished:Connect(function()
 		Utility.NormaliseTurnQueue(turnQueue)
+		TurnService.StartTurn()
 	end)
 
 	-- Listens to advance turn event from clients
 	Zap.AdvanceToNextTurn.On(function()
 		TurnService.MoveToNextTurn()
-		warn("Advanced to next turn. Current turn queue:")
-		warn(turnQueue)
 	end)
 end
 
@@ -60,7 +61,6 @@ function TurnService.AddActiveCharacter(char: _TYPES.Character)
 		return
 	end
 
-	warn(char.Name .. " added to active characters")
 	table.insert(activeCharacters, char)
 
 	-- Add 2 turns for this character to the queue and notify clients about the new turns
@@ -173,6 +173,9 @@ function TurnService.MoveToNextTurn()
 			actionValue = calculateActionValue(completedTurn.char),
 		})
 	end
+
+	-- Start the next turn
+	TurnService.StartTurn()
 end
 
 --- Modifies a character's action value (in case of action delay/ advance)
@@ -197,7 +200,15 @@ function TurnService.GetTurnQueue(): { _TYPES.TurnEntry }
 end
 
 --- Start the turn
-function TurnService.StartTurn() end
+function TurnService.StartTurn()
+	-- If the turn belongs to the ally, set that as the active character value
+	if turnQueue[1] and turnQueue[1].side == "Allies" then
+		local player = PlayerService.GetPlayerFromCharacter(turnQueue[1].char)
+		if player then
+			player.ActiveCharacter.Value = turnQueue[1].char
+		end
+	end
+end
 
 --- Check if there are any active characters
 function TurnService.HasActiveCharacters(): boolean

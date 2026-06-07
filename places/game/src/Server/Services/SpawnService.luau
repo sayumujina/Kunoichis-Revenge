@@ -22,27 +22,35 @@ local SpawnService = {}
 
 --- Called when the service starts
 function SpawnService.OnStart()
-	print("SpawnService started")
 	-- Listens to spawn request from clients
 	Zap.RequestSpawn.On(function(player)
+		local allies = { "Setsuna", "Setsuna" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+		local enemies = { "MockEnemy", "MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+		
 		-- Spawn charactersfor both sides, for now
-		warn("Received spawn request from client, spawning characters...")
 		SpawnService.SpawnAllCharactersOfSide(
 			player :: _TYPES.RobloxPlayerType,
 			"Allies",
-			{ "Setsuna", "Setsuna" },
+			allies,
 			ALLY_SPAWN_Z_OFFSET
 		)
 		SpawnService.SpawnAllCharactersOfSide(
 			player :: _TYPES.RobloxPlayerType,
 			"Enemies",
-			{ "MockEnemy", "MockEnemy", "MockEnemy" },
+			enemies,
 			ENEMY_SPAWN_Z_OFFSET
 		)
+
+		-- Create an active character object value for the player
+		local activeCharValue = Instance.new("ObjectValue")
+		activeCharValue.Name = "ActiveCharacter"
+		activeCharValue.Parent = player
+
 		-- After spawning is done, send a signal back to the client
 		EventService.Events.SpawnFinished:Fire({
-			player = player :: _TYPES.RobloxPlayerType,
+			player = player :: _TYPES.RobloxPlayerType
 		})
+
 	end)
 end
 
@@ -73,7 +81,7 @@ function SpawnService.SpawnCharacter(
 		player = player,
 		data = {
 			char = char,
-			side = side,
+			data = CharService.GetCharacterCombatData(char)
 		},
 	})
 end

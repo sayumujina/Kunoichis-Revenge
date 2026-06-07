@@ -18,9 +18,9 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 	sideValue.Name = "SideValue"
 	sideValue.Value = side
 
-	local charNameValue = Instance.new("StringValue")
-	charNameValue.Name = "CharNameValue"
-	charNameValue.Value = char.Name
+	local charValue = Instance.new("ObjectValue")
+	charValue.Name = "CharValue"
+	charValue.Value = char
 
 	-- Create the turn card frame
 	local turnCard = Instance.new("Frame")
@@ -35,7 +35,7 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 	idValue.Parent = turnCard
 	sideValue.Parent = turnCard
 	orderValue.Parent = turnCard
-	charNameValue.Parent = turnCard
+	charValue.Parent = turnCard
 
 	local leftBorder = Instance.new("Frame")
 	leftBorder.Name = "Left_Border"

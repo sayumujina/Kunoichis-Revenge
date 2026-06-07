@@ -41,7 +41,6 @@ function Loader.SpawnAll(loadedModules: { [string]: any }, methodName: string)
 	end
 end
 
-
 --[=[
 	Requires all descendant ModuleScripts.
 

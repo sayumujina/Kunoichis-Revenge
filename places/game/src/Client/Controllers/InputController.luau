@@ -2,6 +2,8 @@ local CombatController = require(script.Parent.CombatController)
 local UserInputService = game:GetService("UserInputService")
 local mouse = game:GetService("Players").LocalPlayer:GetMouse()
 --
+local player = game.Players.LocalPlayer
+--
 local Zap = require(game.StarterPlayer.StarterPlayerScripts.Client.zap)
 
 --- @class InputController
@@ -16,10 +18,13 @@ local InputToActions = {
 	[Enum.UserInputType.MouseButton1] = "SelectTarget",
 	-- Combat actions
 	[Enum.KeyCode.Space] = "ConfirmAction",
+	[Enum.KeyCode.Q] = "BasicAttack",
+	[Enum.KeyCode.E] = "Skill",
 	-- Spawn
 	[Enum.KeyCode.U] = "Spawn",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
 
+local CombatActions = {"BasicAttack", "Skill", "Ultimate"}
 --- Listening to user's input
 UserInputService.InputBegan:Connect(function(input, _)
 	if input.UserInputState == Enum.UserInputState.Begin then
@@ -42,6 +47,8 @@ UserInputService.InputBegan:Connect(function(input, _)
 			-- 	CombatController.SwitchPrimarySelectedEnemy("set", primaryIndex)
 			-- end
 			Zap.AdvanceToNextTurn.Fire()
+		elseif table.find(CombatActions, actionName) then
+			Zap.InputSent.Fire({origin = player.ActiveCharacter.Value, action = actionName})
 		elseif actionName == "Spawn" then
 			Zap.RequestSpawn.Fire()
 		end

@@ -23,6 +23,7 @@ local statsTemplate = {
 		critRate = 0,
 		critDmg = 0,
 		--
+		startingEnergy = 0,
 		maxEnergy = 0,
 		ultimateGainEfficiency = 0,
 	},
@@ -36,6 +37,7 @@ local statsTemplate = {
 		critRate = 0,
 		critDmg = 0,
 		--
+		currentEnergy = 0,
 		ultimateGainEfficiency = 0,
 	},
 } :: _TYPES.CharacterCombatData
@@ -104,7 +106,6 @@ end
 --- @param char -- The character to retrieve the stat for
 --- @param statName -- The name of the stat to retrieve (e.g., "atk", "def", "hp", "spd")
 function CharService.GetBaseCharacterStat(char: _TYPES.Character, statName: string): number
-	warn(Chars[char].baseStats[statName])
 	return Chars[char].baseStats[statName] or 0
 end
 

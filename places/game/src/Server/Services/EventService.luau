@@ -23,7 +23,7 @@ export type SpawnSuccessfulEvent = {
 	player: _TYPES.RobloxPlayerType,
 	data: {
 		char: _TYPES.Character,
-		side: _TYPES.Sides,
+		data: _TYPES.CharacterCombatData,
 	},
 }
 

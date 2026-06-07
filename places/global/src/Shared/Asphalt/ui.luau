@@ -5,6 +5,15 @@ local ui = {
 	avatar = {
 		UI_Avatar_Setsuna = "rbxassetid://115097369602803",
 	},
+	hud = {
+		Combat = {
+			UI_CombatHud_EnergyCircle = "rbxassetid://75345050398965",
+			UI_CombatHud_EnergyFill = "rbxassetid://119247488685815",
+			UI_CombatHud_HealthBorder = "rbxassetid://84100549722129",
+			UI_CombatHud_HealthFill = "rbxassetid://93013412082634",
+			UI_CombatHud_ShieldBorder = "rbxassetid://83728712714494",
+		},
+	},
 }
 
 return ui

@@ -6,8 +6,20 @@ local _TYPES = require(rep.Shared.data_Types)
 local Utility = require(rep.Shared.Modules.Utility)
 local QueueUIUtility = require(script.Helper.QueueUIUtility)
 --
-local createTurnCard = require(script.Components.TurnCard)
-local createTurnCardFrame = require(script.Components.TurnsFrame)
+local ComponentsPath = game.StarterPlayer.StarterPlayerScripts.Client.Controllers.HUDController.Components
+local Components = {
+	Combat = {
+		CharacterCombatInfo = {
+			createCharacterCombatInfoFrame = require(ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoFrame),
+			createCharacterCombatInfoCard = require(ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoCard),
+		},
+		Turns = {
+			createTurnsFrame = require(ComponentsPath.Combat.Turns.Turns_Frame),
+			createTurnCard = require(ComponentsPath.Combat.Turns.Turn_Card),
+		},
+	},
+}
+
 
 --
 local turnQueue = {} :: { _TYPES.TurnEntry }
@@ -36,6 +48,48 @@ function HUDController.OnStart()
 		QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 	end)
 
+	-- Listens to spawn successful events to create character info cards for the spawned characters
+	Zap.SpawnSuccessful.On(function(spawnSuccessfulEvent)
+		-- If the spawned character is not an ally, return early
+		if spawnSuccessfulEvent.data.side ~= "Allies" then
+			return
+		end
+
+		local char = spawnSuccessfulEvent.char
+
+		-- Create a character info card for the spawned character
+		local characterInfoCard = Components.Combat.CharacterCombatInfo.createCharacterCombatInfoCard(char)
+		local characterInfoFrame = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
+		if characterInfoFrame then
+			characterInfoCard.Parent = characterInfoFrame
+		end
+
+		-- Change the energy current value and max value to match the spawned character's energy values
+		characterInfoCard:FindFirstChild("CharacterCurrentEnergyValue", true).Value = spawnSuccessfulEvent.data.baseStats.startingEnergy
+		characterInfoCard:FindFirstChild("CharacterMaxEnergyValue", true).Value = spawnSuccessfulEvent.data.baseStats.maxEnergy
+	end)
+
+	-- Listens to energy changed events to update the energy values on the character info cards
+	Zap.EnergyChanged.On(function(energyChangedData)
+		local characterInfoFrame = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
+		if not characterInfoFrame then
+			return
+		end
+
+		-- Find the corresponding character info card using the character reference and update the energy values
+		for _, card in pairs(characterInfoFrame:GetChildren()) do
+			-- Check if the card is a Frame and has the AssociatedCharValue object value, then compare the character reference
+			local associatedCharValue = card:FindFirstChild("AssociatedCharValue", true)
+			if not card:IsA("Frame") or not associatedCharValue then
+				continue
+			end
+
+			if associatedCharValue.Value == energyChangedData.char then
+				card:FindFirstChild("CharacterCurrentEnergyValue", true).Value = energyChangedData.data.newEnergy
+				break
+			end
+		end
+	end)
 	-- Listen to completed turns to update the turn queue
 	Zap.TurnCompleted.On(function(completedTurnData)
 		-- Find the corresponding turn card using index and remove it
@@ -47,7 +101,7 @@ function HUDController.OnStart()
 			end
 		end
 
-		-- Renmove the turn from the local turn list
+		-- Remove the turn from the local turn list
 		for index, turn in pairs(turnQueue) do
 			if turn.turnId == completedTurnData.turnId then
 				table.remove(turnQueue, index)
@@ -57,8 +111,6 @@ function HUDController.OnStart()
 
 		-- Normalise the turn queue after removal
 		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
-
-		warn("Turn completed:", completedTurnData.turnId)
 	end)
 
 	-- Listens to added turns
@@ -70,8 +122,6 @@ function HUDController.OnStart()
 			actionValue = turnData.actionValue,
 		}
 
-		warn(turnData)
-
 		-- Add the new turn to the local turn list
 		table.insert(turnQueue, turn)
 
@@ -79,7 +129,7 @@ function HUDController.OnStart()
 		Utility.SortTurnQueue(turnQueue)
 
 		-- Create a new turn card for the added turn
-		local turnCard = createTurnCard(
+		local turnCard = Components.Combat.Turns.createTurnCard(
 			turn.char :: _TYPES.Character,
 			turn.turnId,
 			findTurnIndex(turn.turnId) or 0,
@@ -95,8 +145,6 @@ function HUDController.OnStart()
 		if turnCardContainer then
 			turnCard.Parent = turnCardContainer
 		end
-
-		warn(turnQueue, "after turn added")
 	end)
 
 	-- Listens to removed turns
@@ -157,10 +205,18 @@ function HUDController.Init()
 		hud.Parent = playerGui
 	end
 
+	local screenGui = playerGui:FindFirstChild("ScreenGui", true)
+	
 	-- Create the turn card container if it doesn't exist
-	if not playerGui:FindFirstChild("UI_TurnsFrame", true) then
-		local turnsFrame = createTurnCardFrame()
-		turnsFrame.Parent = playerGui:FindFirstChild("ScreenGui", true)
+	if not screenGui:FindFirstChild("UI_TurnsFrame", true) then
+		local turnsFrame = Components.Combat.Turns.createTurnsFrame()
+		turnsFrame.Parent = screenGui
+	end
+
+	-- Create the character info card container if it doesn't exist
+	if not screenGui:FindFirstChild("UI_CharacterInfoFrame", true) then
+		local characterInfoFrame = Components.Combat.CharacterCombatInfo.createCharacterCombatInfoFrame()
+		characterInfoFrame.Parent = screenGui
 	end
 end
 

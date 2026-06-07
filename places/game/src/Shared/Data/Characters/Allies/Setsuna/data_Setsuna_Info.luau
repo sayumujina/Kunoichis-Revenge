@@ -13,8 +13,9 @@ local info = {
 		critRate = 0,
 		critDmg = 0,
 		--
+		startingEnergy = 0,
 		maxEnergy = 100,
-		ultimateGainEfficiency = 100,
+		ultimateGainEfficiency = 120,
 	},
 } :: CharacterDataTypes.CharacterData
 

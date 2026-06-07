@@ -15,6 +15,7 @@ export type CharacterCombatData = {
 		critRate: number,
 		critDmg: number,
 		--
+		startingEnergy: number,
 		maxEnergy: number,
 		ultimateGainEfficiency: number,
 	},
@@ -28,6 +29,7 @@ export type CharacterCombatData = {
 		critRate: number,
 		critDmg: number,
 		--
+		currentEnergy: number,
 		ultimateGainEfficiency: number,
 	},
 }

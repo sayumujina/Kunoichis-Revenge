@@ -10,6 +10,7 @@ export type CharacterStats = {
 	critRate: number,
 	critDmg: number,
 	--
+	startingEnergy: number,
 	maxEnergy: number,
 	ultimateGainEfficiency: number,
 }

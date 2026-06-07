@@ -52,7 +52,6 @@ end
 --- @param char -- The character to find the player for
 --- @return The player associated with the character, or nil if not found
 function PlayerService.GetPlayerFromCharacter(char: _TYPES.Character): _TYPES.RobloxPlayerType?
-	warn(PlayersData)
 	-- Loop through the players data to find the player associated with the character
 	for player, data in pairs(PlayersData) do
 		if table.find(data.Characters, char) then

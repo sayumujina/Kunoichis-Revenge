@@ -5,8 +5,8 @@ local CharacterCombatDataTypes = require(script.Combat.type_CharacterCombatData)
 local PlayerCombatDataTypes = require(script.Combat.type_PlayerCombatData)
 local SidesTypes = require(script.Combat.type_Sides)
 local TurnTypes = require(script.Combat.type_Turns)
-
 local CharacterDataTypes = require(script.type_CharacterData)
+local AttackDataTypes = require(script.Combat.type_AttackData)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
@@ -22,5 +22,8 @@ export type CharacterData = CharacterDataTypes.CharacterData
 
 -- Turn types
 export type TurnEntry = TurnTypes.TurnEntry
+
+-- Combat data
+export type AttackData = AttackDataTypes.AttackData
 
 return nil
