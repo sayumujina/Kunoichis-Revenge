@@ -1,22 +1,24 @@
-return function()
-    local characterInfoAvatar = Instance.new("Frame")
-    characterInfoAvatar.Name = "CharacterInfo_Avatar"
-    characterInfoAvatar.BackgroundTransparency = 1
-    characterInfoAvatar.Position = UDim2.fromScale(0.03, 0)
-    characterInfoAvatar.Size = UDim2.fromScale(0.63, 0.63)
+local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local GetAvatarImageForCharacter =
+	require(StarterPlayerScripts.Client.Controllers.HUDController.Helper.GetAvatarImageForCharacter)
 
-    local characterInfoAvatarImageLabel = Instance.new("ImageLabel")
-    characterInfoAvatarImageLabel.Name = "ImageLabel"
-    characterInfoAvatarImageLabel.BackgroundColor3 = Color3.new(1, 1, 1)
-    characterInfoAvatarImageLabel.BorderColor3 = Color3.new()
-    characterInfoAvatarImageLabel.BorderSizePixel = 0
-    characterInfoAvatarImageLabel.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-    characterInfoAvatarImageLabel.Size = UDim2.fromScale(1, 1)
-    characterInfoAvatarImageLabel.Parent = characterInfoAvatar
+return function(charName: string): Frame
+	local characterInfoAvatar = Instance.new("Frame")
+	characterInfoAvatar.Name = "CharacterInfo_Avatar"
+	characterInfoAvatar.BackgroundTransparency = 1
+	characterInfoAvatar.Position = UDim2.fromScale(0.03, 0)
+	characterInfoAvatar.Size = UDim2.fromScale(0.63, 0.63)
 
-    local characterInfoAvatarAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
-    characterInfoAvatarAspectRatioConstraint.Name = "UIAspectRatioConstraint"
-    characterInfoAvatarAspectRatioConstraint.Parent = characterInfoAvatar
+	local characterInfoAvatarImageLabel = Instance.new("ImageLabel")
+	characterInfoAvatarImageLabel.Name = "ImageLabel"
+	characterInfoAvatarImageLabel.BackgroundTransparency = 1
+	characterInfoAvatarImageLabel.Image = GetAvatarImageForCharacter(charName)
+	characterInfoAvatarImageLabel.Size = UDim2.fromScale(1, 1)
+	characterInfoAvatarImageLabel.Parent = characterInfoAvatar
 
-    return characterInfoAvatar
+	local characterInfoAvatarAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+	characterInfoAvatarAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+	characterInfoAvatarAspectRatioConstraint.Parent = characterInfoAvatar
+
+	return characterInfoAvatar
 end

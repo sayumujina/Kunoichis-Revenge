@@ -13,7 +13,9 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Constants
 local SPAWN_DISTANCE_BETWEEN_CHARACTERS = 10
 local ENEMY_SPAWN_Z_OFFSET = 20
+local BASE_ENEMY_SPAWN_POSITION = Vector3.new(0, 0, 40)
 local ALLY_SPAWN_Z_OFFSET = 0
+local BASE_ALLY_SPAWN_POSITION = Vector3.new(0, 0, 0)
 
 --- @class SpawnService
 --- @server
@@ -24,16 +26,11 @@ local SpawnService = {}
 function SpawnService.OnStart()
 	-- Listens to spawn request from clients
 	Zap.RequestSpawn.On(function(player)
-		local allies = { "Setsuna", "Setsuna" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+		local allies = { "Setsuna", "Hayumi" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 		local enemies = { "MockEnemy", "MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
-		
+
 		-- Spawn charactersfor both sides, for now
-		SpawnService.SpawnAllCharactersOfSide(
-			player :: _TYPES.RobloxPlayerType,
-			"Allies",
-			allies,
-			ALLY_SPAWN_Z_OFFSET
-		)
+		SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "Allies", allies, ALLY_SPAWN_Z_OFFSET)
 		SpawnService.SpawnAllCharactersOfSide(
 			player :: _TYPES.RobloxPlayerType,
 			"Enemies",
@@ -48,9 +45,8 @@ function SpawnService.OnStart()
 
 		-- After spawning is done, send a signal back to the client
 		EventService.Events.SpawnFinished:Fire({
-			player = player :: _TYPES.RobloxPlayerType
+			player = player :: _TYPES.RobloxPlayerType,
 		})
-
 	end)
 end
 
@@ -67,6 +63,9 @@ function SpawnService.SpawnCharacter(
 	char: _TYPES.Character,
 	cframe: CFrame
 )
+	-- Set the hrp as the primary part
+	char.PrimaryPart = char.HumanoidRootPart
+
 	-- Spawn from above the baseplate
 	char:PivotTo(cframe)
 
@@ -81,7 +80,7 @@ function SpawnService.SpawnCharacter(
 		player = player,
 		data = {
 			char = char,
-			data = CharService.GetCharacterCombatData(char)
+			data = CharService.GetCharacterCombatData(char),
 		},
 	})
 end
@@ -101,7 +100,13 @@ function SpawnService.SpawnAllCharactersOfSide(
 )
 	-- Calculate starting X position based on number of characters
 	local characterCount = #charactersToSpawn
-	local startX = ((characterCount - 1) * SPAWN_DISTANCE_BETWEEN_CHARACTERS) / 2
+	local startX
+	if side == "Allies" then
+		startX = BASE_ALLY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_DISTANCE_BETWEEN_CHARACTERS) / 2
+	else
+		startX = BASE_ENEMY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_DISTANCE_BETWEEN_CHARACTERS) / 2
+	end
+
 	local charModelPath = rep.Shared.Assets.Models[side]
 
 	for count, charName in charactersToSpawn do
@@ -109,12 +114,15 @@ function SpawnService.SpawnAllCharactersOfSide(
 
 		-- Calculate spawn position
 		local spawnX = startX - (count * SPAWN_DISTANCE_BETWEEN_CHARACTERS)
-		local spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, startingZOffset)
+		local spawnPosition
 
 		-- Spawn the character
 		if side == "Allies" then
+			spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, startingZOffset)
+				* CFrame.Angles(0, math.rad(180), 0) -- Rotate allies to face enemies
 			char.Parent = workspace.Characters.Allies
 		else
+			spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, startingZOffset)
 			-- Clone the character model and set its name
 			char.Parent = workspace.Characters.Enemies
 

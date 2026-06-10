@@ -10,6 +10,16 @@
       },
       "Packages": {
         "$path": "Packages"
+      },
+
+      "Assets": {
+        "$className": "Folder",
+        "Asphalt": {
+          "$className": "Folder",
+          "UI": {
+            "$path": "places/global/src/Shared/Asphalt/ui.luau"
+          }
+        }
       }
     },
 

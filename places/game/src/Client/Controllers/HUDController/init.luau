@@ -10,7 +10,9 @@ local ComponentsPath = game.StarterPlayer.StarterPlayerScripts.Client.Controller
 local Components = {
 	Combat = {
 		CharacterCombatInfo = {
-			createCharacterCombatInfoFrame = require(ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoFrame),
+			createCharacterCombatInfoFrame = require(
+				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoFrame
+			),
 			createCharacterCombatInfoCard = require(ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoCard),
 		},
 		Turns = {
@@ -19,7 +21,6 @@ local Components = {
 		},
 	},
 }
-
 
 --
 local turnQueue = {} :: { _TYPES.TurnEntry }
@@ -58,15 +59,18 @@ function HUDController.OnStart()
 		local char = spawnSuccessfulEvent.char
 
 		-- Create a character info card for the spawned character
-		local characterInfoCard = Components.Combat.CharacterCombatInfo.createCharacterCombatInfoCard(char)
+		local characterInfoCard =
+			Components.Combat.CharacterCombatInfo.createCharacterCombatInfoCard(char :: _TYPES.Character)
 		local characterInfoFrame = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
 		if characterInfoFrame then
 			characterInfoCard.Parent = characterInfoFrame
 		end
 
 		-- Change the energy current value and max value to match the spawned character's energy values
-		characterInfoCard:FindFirstChild("CharacterCurrentEnergyValue", true).Value = spawnSuccessfulEvent.data.baseStats.startingEnergy
-		characterInfoCard:FindFirstChild("CharacterMaxEnergyValue", true).Value = spawnSuccessfulEvent.data.baseStats.maxEnergy
+		characterInfoCard:FindFirstChild("CharacterCurrentEnergyValue", true).Value =
+			spawnSuccessfulEvent.data.baseStats.startingEnergy
+		characterInfoCard:FindFirstChild("CharacterMaxEnergyValue", true).Value =
+			spawnSuccessfulEvent.data.baseStats.maxEnergy
 	end)
 
 	-- Listens to energy changed events to update the energy values on the character info cards
@@ -206,7 +210,7 @@ function HUDController.Init()
 	end
 
 	local screenGui = playerGui:FindFirstChild("ScreenGui", true)
-	
+
 	-- Create the turn card container if it doesn't exist
 	if not screenGui:FindFirstChild("UI_TurnsFrame", true) then
 		local turnsFrame = Components.Combat.Turns.createTurnsFrame()

@@ -1,4 +1,7 @@
 local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
+local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local GetAvatarImageForCharacter =
+	require(StarterPlayerScripts.Client.Controllers.HUDController.Helper.GetAvatarImageForCharacter)
 
 -- Helper function to create a turn card
 return function(char: _TYPES.Character, turnId: number, order: number, side: _TYPES.Sides, actionValue: number)
@@ -46,9 +49,9 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 	leftBorder.Position = UDim2.fromScale(0, 0.5)
 	leftBorder.Size = UDim2.new(0, 2, 1, 0)
 
-	local uiGradient = Instance.new("UIGradient")
-	uiGradient.Name = "UIGradient"
-	uiGradient.Color = if side == "Allies"
+	local leftBorderUIGradient = Instance.new("UIGradient")
+	leftBorderUIGradient.Name = "UIGradient"
+	leftBorderUIGradient.Color = if side == "Allies"
 		then ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 213)),
 			ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 213)),
@@ -57,14 +60,14 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(213, 0, 0)),
 			ColorSequenceKeypoint.new(1, Color3.fromRGB(213, 0, 0)),
 		}) -- Red for enemies
-	uiGradient.Rotation = 90
-	uiGradient.Transparency = NumberSequence.new({
+	leftBorderUIGradient.Rotation = 90
+	leftBorderUIGradient.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
 		NumberSequenceKeypoint.new(0.35, 0.2),
 		NumberSequenceKeypoint.new(0.65, 0.2),
 		NumberSequenceKeypoint.new(1, 1),
 	})
-	uiGradient.Parent = leftBorder
+	leftBorderUIGradient.Parent = leftBorder
 
 	leftBorder.Parent = turnCard
 
@@ -86,6 +89,26 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 		NumberSequenceKeypoint.new(1, 1),
 	})
 	bgUIGradient.Parent = bg
+
+	local avatarContainer = Instance.new("Frame")
+	avatarContainer.Name = "Avatar_Container"
+	avatarContainer.BackgroundTransparency = 1
+	avatarContainer.Position = UDim2.fromScale(0.25, 0)
+	avatarContainer.Size = UDim2.fromScale(0.95, 1)
+
+	local avatarAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+	avatarAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+	avatarAspectRatioConstraint.Parent = avatarContainer
+
+	local avatarImageLabel = Instance.new("ImageLabel")
+	avatarImageLabel.Name = "Avatar"
+	avatarImageLabel.BackgroundTransparency = 1
+	avatarImageLabel.Image = GetAvatarImageForCharacter(char.Name)
+	avatarImageLabel.Size = UDim2.fromScale(1, 1)
+	avatarImageLabel.ZIndex = 2
+	avatarImageLabel.Parent = avatarContainer
+
+	avatarContainer.Parent = turnCard
 
 	local actionValueContainer = Instance.new("Frame")
 	actionValueContainer.Name = "ActionValue_Container"

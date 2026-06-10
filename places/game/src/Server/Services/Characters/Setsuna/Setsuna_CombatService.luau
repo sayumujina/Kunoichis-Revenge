@@ -16,7 +16,6 @@ function Setsuna_CombatService.OnStart()
     Zap.InputSent.On(function(_, inputData)
         -- Check if the origin of the input is from Setsuna
         if inputData.origin.Name ~= "Setsuna" then
-            warn("Input received for " .. inputData.origin.Name .. ", but Setsuna_CombatService only handles inputs for Setsuna.")
             return
         end
 
