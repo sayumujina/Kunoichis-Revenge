@@ -46,11 +46,6 @@ function TurnService.OnStart()
 		Utility.NormaliseTurnQueue(turnQueue)
 		TurnService.StartTurn()
 	end)
-
-	-- Listens to advance turn event from clients
-	Zap.AdvanceToNextTurn.On(function()
-		TurnService.MoveToNextTurn()
-	end)
 end
 
 --- Add a character to the turn system
@@ -176,6 +171,14 @@ function TurnService.MoveToNextTurn()
 
 	-- Start the next turn
 	TurnService.StartTurn()
+
+	-- If the next character is an npc, execute its' attack after a short delay
+	if turnQueue[1].side == "Enemies" then
+		task.wait(1) --This is a placeholder, we will implement NPC attack delay and behaviour later
+		EventService.Events.ExecuteNPCAttack:Fire({
+			char = turnQueue[1].char,
+		})
+	end
 end
 
 --- Modifies a character's action value (in case of action delay/ advance)

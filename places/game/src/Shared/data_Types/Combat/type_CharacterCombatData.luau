@@ -34,4 +34,9 @@ export type CharacterCombatData = {
 	},
 }
 
+export type NPCCombatData = CharacterCombatData & {
+	-- NPC specific combat data can be added here in the future
+	currentPatternIndex: number, -- The index of the current action the NPC is performing in its' action list. Resets after reaching the end of the list.
+}
+
 return nil

@@ -19,7 +19,7 @@ local EventService = {}
 --- @within EventService
 --- Describes the event when a character's stats are updated.
 --- Contains the origin of the update and the updated stats data.
-export type SpawnSuccessfulEvent = {
+export type SpawnSuccessfulForCharEvent = {
 	player: _TYPES.RobloxPlayerType,
 	data: {
 		char: _TYPES.Character,
@@ -46,6 +46,10 @@ export type TurnCompletedEvent = {
 	},
 }
 
+--- @type TurnAddedEvent { turnId: number, side: _TYPES.Sides, char: _TYPES.Character, actionValue: number }
+--- @within EventService
+--- Describes the event when a turn is added to the turn order.
+--- Contains the data of the turn that was added, such as the character and action value.
 export type TurnAddedEvent = {
 	turnId: number,
 	side: _TYPES.Sides,
@@ -53,14 +57,19 @@ export type TurnAddedEvent = {
 	actionValue: number,
 }
 
+export type ExecuteNPCAttackEvent = {
+	char: _TYPES.Character,
+}
+
 --- @type Events { [string]: Signal.Signal<any> }
 --- @within EventService
 --- A collection of events that can be fired and listened to. Refer to the specific event types for more information.
 EventService.Events = {
-	SpawnSuccessful = Signal.new() :: Signal.Signal<SpawnSuccessfulEvent>,
+	SpawnSuccessfulForChar = Signal.new() :: Signal.Signal<SpawnSuccessfulForCharEvent>,
 	SpawnFinished = Signal.new() :: Signal.Signal<SpawnFinishedEvent>,
 	TurnCompleted = Signal.new() :: Signal.Signal<TurnCompletedEvent>,
 	TurnAdded = Signal.new() :: Signal.Signal<TurnAddedEvent>,
+	ExecuteNPCAttack = Signal.new() :: Signal.Signal<ExecuteNPCAttackEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService
@@ -68,13 +77,14 @@ EventService.Events = {
 EventService.ClientBlacklist = {
 	"RequestSpawn",
 	"TurnCompleted",
+	"ExecuteNPCAttack",
 }
 
 --- @type PlayerScoped { string }
 --- @within EventService
 --- A list of events that should only be sent to specific players instead of all clients.
 EventService.PlayerScoped = {
-	"SpawnSuccessful",
+	"SpawnSuccessfulForChar",
 	"SpawnFinished",
 	"MovedToNextTurn",
 }

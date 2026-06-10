@@ -24,7 +24,7 @@ local InputToActions = {
 	[Enum.KeyCode.U] = "Spawn",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
 
-local CombatActions = {"BasicAttack", "Skill", "Ultimate"}
+local CombatActions = { "BasicAttack", "Skill", "Ultimate" }
 --- Listening to user's input
 UserInputService.InputBegan:Connect(function(input, _)
 	if input.UserInputState == Enum.UserInputState.Begin then
@@ -46,9 +46,8 @@ UserInputService.InputBegan:Connect(function(input, _)
 			-- if primaryIndex then
 			-- 	CombatController.SwitchPrimarySelectedEnemy("set", primaryIndex)
 			-- end
-			Zap.AdvanceToNextTurn.Fire()
 		elseif table.find(CombatActions, actionName) then
-			Zap.InputSent.Fire({origin = player.ActiveCharacter.Value, action = actionName})
+			Zap.InputSent.Fire({ origin = player.ActiveCharacter.Value, action = actionName })
 		elseif actionName == "Spawn" then
 			Zap.RequestSpawn.Fire()
 		end

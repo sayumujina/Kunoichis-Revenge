@@ -1,4 +1,4 @@
-event SpawnSuccessful = {
+event SpawnSuccessfulForChar = {
 	from: Server,
 	type: Reliable,
 	call: ManyAsync,

@@ -76,7 +76,7 @@ function SpawnService.SpawnCharacter(
 	TurnService.AddActiveCharacter(char)
 
 	-- Send a signal that spawn is successful
-	EventService.Events.SpawnSuccessful:Fire({
+	EventService.Events.SpawnSuccessfulForChar:Fire({
 		player = player,
 		data = {
 			char = char,

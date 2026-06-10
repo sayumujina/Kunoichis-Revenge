@@ -19,6 +19,9 @@
           "UI": {
             "$path": "places/global/src/Shared/Asphalt/ui.luau"
           }
+        },
+        "Animations": {
+          "$path": "places/global/src/Shared/Assets/Animations.model.json"
         }
       }
     },

@@ -7,14 +7,18 @@ local SidesTypes = require(script.Combat.type_Sides)
 local TurnTypes = require(script.Combat.type_Turns)
 local CharacterDataTypes = require(script.type_CharacterData)
 local AttackDataTypes = require(script.Combat.type_AttackData)
+local MoveTypes = require(script.Combat.type_Moves)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
 
 -- Combat data types
 export type CharacterCombatData = CharacterCombatDataTypes.CharacterCombatData
+export type NPCCombatData = CharacterCombatDataTypes.NPCCombatData
 export type PlayerCombatData = PlayerCombatDataTypes.PlayerCombatData
 export type Sides = SidesTypes.Sides
+export type MoveType = MoveTypes.MoveType
+export type MoveData = MoveTypes.MoveData
 
 -- Character data types
 export type CharacterStats = CharacterDataTypes.CharacterStats

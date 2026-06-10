@@ -1,0 +1,18 @@
+{
+  "ClassName": "Folder",
+  "Children": [
+    {
+      "ClassName": "Folder",
+      "Name": "Global",
+      "Children": [
+        {
+          "ClassName": "Animation",
+          "Name": "Hurt",
+          "Properties": {
+            "AnimationId": "rbxassetid://14547982236"
+          }
+        }
+      ]
+    }
+  ]
+}

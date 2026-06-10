@@ -1,4 +1,4 @@
-local CharacterDataTypes = require(game.ReplicatedStorage.Shared.data_Types.type_CharacterData)
+local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
 
 local info = {
 	name = "MockEnemy",
@@ -13,9 +13,10 @@ local info = {
 		critRate = 0,
 		critDmg = 0,
 		--
+		startingEnergy = 0,
 		maxEnergy = 100,
 		ultimateGainEfficiency = 100,
 	},
-} :: CharacterDataTypes.CharacterData
+} :: _TYPES.CharacterData
 
 return info

@@ -25,9 +25,9 @@ function PlayerService.OnStart()
 	end)
 
 	-- Listens to character spawning and adds them to the player's data
-	EventService.Events.SpawnSuccessful:Connect(function(spawnSuccessfulEvent)
-		local player = spawnSuccessfulEvent.player
-		local char = spawnSuccessfulEvent.data.char
+	EventService.Events.SpawnSuccessfulForChar:Connect(function(spawnSuccessfulForCharEvent)
+		local player = spawnSuccessfulForCharEvent.player
+		local char = spawnSuccessfulForCharEvent.data.char
 		--
 		table.insert(PlayersData[player].Characters, char)
 	end)

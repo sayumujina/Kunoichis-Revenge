@@ -1,7 +1,11 @@
-event AdvanceToNextTurn = {
-	from: Client,
+event TurnStarted = {
+	from: Server,
 	type: Reliable,
 	call: ManyAsync,
+	data: struct {
+		turnId: u16,
+		char: Instance.Model,
+	},
 }
 
 event TurnCompleted = {

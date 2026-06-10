@@ -50,13 +50,13 @@ function HUDController.OnStart()
 	end)
 
 	-- Listens to spawn successful events to create character info cards for the spawned characters
-	Zap.SpawnSuccessful.On(function(spawnSuccessfulEvent)
+	Zap.SpawnSuccessfulForChar.On(function(spawnSuccessfulForCharEvent)
 		-- If the spawned character is not an ally, return early
-		if spawnSuccessfulEvent.data.side ~= "Allies" then
+		if spawnSuccessfulForCharEvent.data.side ~= "Allies" then
 			return
 		end
 
-		local char = spawnSuccessfulEvent.char
+		local char = spawnSuccessfulForCharEvent.char
 
 		-- Create a character info card for the spawned character
 		local characterInfoCard =
@@ -68,13 +68,13 @@ function HUDController.OnStart()
 
 		-- Change the energy current value and max value to match the spawned character's energy values
 		characterInfoCard:FindFirstChild("CharacterCurrentEnergyValue", true).Value =
-			spawnSuccessfulEvent.data.baseStats.startingEnergy
+			spawnSuccessfulForCharEvent.data.baseStats.startingEnergy
 		characterInfoCard:FindFirstChild("CharacterMaxEnergyValue", true).Value =
-			spawnSuccessfulEvent.data.baseStats.maxEnergy
+			spawnSuccessfulForCharEvent.data.baseStats.maxEnergy
 	end)
 
 	-- Listens to energy changed events to update the energy values on the character info cards
-	Zap.EnergyChanged.On(function(energyChangedData)
+	Zap.EnergyChanged.On(function(energyChangedEvent)
 		local characterInfoFrame = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
 		if not characterInfoFrame then
 			return
@@ -88,8 +88,8 @@ function HUDController.OnStart()
 				continue
 			end
 
-			if associatedCharValue.Value == energyChangedData.char then
-				card:FindFirstChild("CharacterCurrentEnergyValue", true).Value = energyChangedData.data.newEnergy
+			if associatedCharValue.Value == energyChangedEvent.char then
+				card:FindFirstChild("CharacterCurrentEnergyValue", true).Value = energyChangedEvent.data.newEnergy
 				break
 			end
 		end
