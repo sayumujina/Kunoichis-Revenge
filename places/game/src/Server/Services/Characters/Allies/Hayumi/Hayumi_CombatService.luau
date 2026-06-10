@@ -9,6 +9,7 @@ local Zap = require(Services.Parent.zap)
 -- Attack handlers
 local Handlers = {
 	BasicAttack = require(script.Parent.Handlers.Hayumi_BasicAttack),
+	Skill = require(script.Parent.Handlers.Hayumi_Skill),
 }
 
 local charName = "Hayumi"
@@ -29,6 +30,9 @@ function Hayumi_CombatService.OnStart()
 		if inputData.action == "BasicAttack" then
 			print(charName .. " performs a basic attack!")
 			Handlers.BasicAttack(inputData.origin :: _TYPES.Character)
+		elseif inputData.action == "Skill" then
+			print(charName .. " uses their skill!")
+			Handlers.Skill(inputData.origin :: _TYPES.Character)
 		end
 	end)
 end

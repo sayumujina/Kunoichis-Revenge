@@ -46,6 +46,18 @@ export type TurnCompletedEvent = {
 	},
 }
 
+--- @type TurnStartedEvent { player: _TYPES.RobloxPlayerType, data: { char: _TYPES.Character, turnId: number } }
+--- @within EventService
+--- Describes the event when a turn is started in the turn order.
+--- Contains the player associated with the turn start and the data of the turn that was started.
+export type TurnStartedEvent = {
+	player: _TYPES.RobloxPlayerType,
+	data: {
+		char: _TYPES.Character,
+		turnId: number, -- It's always gonna be the top of the turn queue, UNLESS stated otherwise
+	},
+}
+
 --- @type TurnAddedEvent { turnId: number, side: _TYPES.Sides, char: _TYPES.Character, actionValue: number }
 --- @within EventService
 --- Describes the event when a turn is added to the turn order.
@@ -68,6 +80,7 @@ EventService.Events = {
 	SpawnSuccessfulForChar = Signal.new() :: Signal.Signal<SpawnSuccessfulForCharEvent>,
 	SpawnFinished = Signal.new() :: Signal.Signal<SpawnFinishedEvent>,
 	TurnCompleted = Signal.new() :: Signal.Signal<TurnCompletedEvent>,
+	TurnStarted = Signal.new() :: Signal.Signal<TurnStartedEvent>,
 	TurnAdded = Signal.new() :: Signal.Signal<TurnAddedEvent>,
 	ExecuteNPCAttack = Signal.new() :: Signal.Signal<ExecuteNPCAttackEvent>,
 }
@@ -77,6 +90,7 @@ EventService.Events = {
 EventService.ClientBlacklist = {
 	"RequestSpawn",
 	"TurnCompleted",
+	"TurnStarted",
 	"ExecuteNPCAttack",
 }
 
@@ -86,7 +100,7 @@ EventService.ClientBlacklist = {
 EventService.PlayerScoped = {
 	"SpawnSuccessfulForChar",
 	"SpawnFinished",
-	"MovedToNextTurn",
+	"TurnStarted",
 }
 
 --- Initializes the EventService by connecting all events to the Zap event for local players.

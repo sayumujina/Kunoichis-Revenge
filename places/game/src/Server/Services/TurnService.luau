@@ -44,7 +44,10 @@ function TurnService.OnStart()
 	-- This event is used ONCE per battle, to ensure that the battle is ready for proceeding
 	EventService.Events.SpawnFinished:Connect(function()
 		Utility.NormaliseTurnQueue(turnQueue)
-		TurnService.StartTurn()
+		-- Do this at the end of the thread to make sure spawn finished reaches the client first
+		task.defer(function()
+			TurnService.StartTurn()
+		end)
 	end)
 end
 
@@ -105,7 +108,7 @@ function TurnService.RemoveActiveCharacter(char: _TYPES.Character)
 		table.remove(activeCharacters, index)
 
 		-- Notify the client about the turn removal
-		Zap.TurnRemovedForCharacter.FireAll({
+		Zap.TurnRemovedForCharacter.Fire(PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType, {
 			char = char,
 			side = CharService.GetCharacterCombatData(char).side,
 		})
@@ -132,7 +135,7 @@ function TurnService.MoveToNextTurn()
 	end
 
 	-- Notify the client about the turn completion
-	Zap.TurnCompleted.FireAll({
+	Zap.TurnCompleted.Fire(PlayerService.GetPlayerFromCharacter(turnQueue[1].char) :: _TYPES.RobloxPlayerType, {
 		turnId = turnQueue[1].turnId,
 	})
 
@@ -211,6 +214,12 @@ function TurnService.StartTurn()
 			player.ActiveCharacter.Value = turnQueue[1].char
 		end
 	end
+
+	-- Send the turn started event to the client
+	Zap.TurnStarted.Fire(PlayerService.GetPlayerFromCharacter(turnQueue[1].char) :: _TYPES.RobloxPlayerType, {
+		char = turnQueue[1].char,
+		turnId = turnQueue[1].turnId,
+	})
 end
 
 --- Check if there are any active characters

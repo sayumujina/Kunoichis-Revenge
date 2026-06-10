@@ -10,6 +10,7 @@ local AttackPattern = require(rep.Shared.Data.Characters.Enemies.MockEnemy.data_
 -- Attack handlers
 local Handlers = {
 	BasicAttack = require(script.Parent.Handlers.MockEnemy_BasicAttack),
+	Skill = require(script.Parent.Handlers.MockEnemy_Skill),
 }
 
 local charName = "MockEnemy"
@@ -45,8 +46,11 @@ function MockEnemy_CombatService.OnStart()
 			return
 		end
 		local attackToExecute = AttackPattern[currentPatternIndex]
-		if attackToExecute then
-			Handlers[attackToExecute](data.char :: _TYPES.Character)
+		if attackToExecute == "BasicAttack" then
+			Handlers.BasicAttack(data.char)
+		elseif attackToExecute == "Skill" then
+			-- No skill for the mock enemy yet, so we'll just do a basic attack for now
+			Handlers.Skill(data.char)
 		end
 
 		-- Loop back to the start of the attack pattern if we've reached the end

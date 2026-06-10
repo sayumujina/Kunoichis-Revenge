@@ -61,10 +61,25 @@ function SpawnService.SpawnCharacter(
 	--
 	side: _TYPES.Sides,
 	char: _TYPES.Character,
-	cframe: CFrame
+	cframe: CFrame,
+	index: number
 )
 	-- Set the hrp as the primary part
 	char.PrimaryPart = char.HumanoidRootPart
+
+	-- Create a highlight instance for the character
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "Highlight"
+	highlight.FillColor = Color3.new(0.984314, 1, 0)
+	highlight.Parent = char
+	highlight.Enabled = false
+
+	-- Create a index attribute to mark the character's index
+	-- Used to determine the selected character/enemy index
+	char:SetAttribute("Index", index)
+
+	-- Create a sid	e attribute and insert the character's side
+	char:SetAttribute("Side", side)
 
 	-- Spawn from above the baseplate
 	char:PivotTo(cframe)
@@ -133,7 +148,7 @@ function SpawnService.SpawnAllCharactersOfSide(
 			end
 		end
 
-		SpawnService.SpawnCharacter(player, side, char, spawnPosition)
+		SpawnService.SpawnCharacter(player, side, char, spawnPosition, count)
 	end
 end
 
