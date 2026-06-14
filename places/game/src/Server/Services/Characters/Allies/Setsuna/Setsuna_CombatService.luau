@@ -8,8 +8,8 @@ local TurnService = require(Services.TurnService)
 local Zap = require(Services.Parent.zap)
 -- Attack handlers
 local Handlers = {
-	BasicAttack = require(script.Parent.Handlers.Setsuna_BasicAttack),
-	Skill = require(script.Parent.Handlers.Setsuna_Skill),
+	WeavingBlade = require(script.Parent.Handlers.Setsuna_WeavingBlade),
+	TwinBlades = require(script.Parent.Handlers.Setsuna_TwinBlades),
 }
 
 local charName = "Setsuna"
@@ -18,21 +18,21 @@ local Chars = {} :: {}
 local Setsuna_CombatService = {}
 
 function Setsuna_CombatService.OnStart()
-	-- Listesn to input from clients
-	Zap.InputSent.On(function(_, inputData)
+	-- Listens to input from clients
+	Zap.RequestAttack.On(function(_, inputData)
 		local currentTurn = TurnService.GetCurrentTurn()
 		-- Check if the origin of the input is the current character whose turn it is
-		if not currentTurn or inputData.origin ~= currentTurn.char :: any then
+		if not currentTurn or inputData.char ~= currentTurn.char :: any then
 			return
 		end
 
 		-- Handle the input based on the action
-		if inputData.action == "BasicAttack" then
+		if inputData.data.move == "WeavingBlade" then
 			print(charName .. " performs a basic attack!")
-			Handlers.BasicAttack(inputData.origin :: _TYPES.Character)
-		elseif inputData.action == "Skill" then
+			Handlers.WeavingBlade(inputData.char :: _TYPES.Character)
+		elseif inputData.data.move == "TwinBlades" then
 			print(charName .. " uses their skill!")
-			Handlers.Skill(inputData.origin :: _TYPES.Character)
+			Handlers.TwinBlades(inputData.char :: _TYPES.Character)
 		end
 	end)
 end

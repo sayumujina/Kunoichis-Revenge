@@ -216,9 +216,12 @@ function TurnService.StartTurn()
 	end
 
 	-- Send the turn started event to the client
-	Zap.TurnStarted.Fire(PlayerService.GetPlayerFromCharacter(turnQueue[1].char) :: _TYPES.RobloxPlayerType, {
-		char = turnQueue[1].char,
-		turnId = turnQueue[1].turnId,
+	EventService.Events.TurnStarted:Fire({
+		player = PlayerService.GetPlayerFromCharacter(turnQueue[1].char) :: _TYPES.RobloxPlayerType,
+		data = {
+			char = turnQueue[1].char,
+			turnId = turnQueue[1].turnId,
+		},
 	})
 end
 

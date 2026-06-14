@@ -4,7 +4,9 @@ local _TYPES = require(rep.Shared.data_Types)
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local EffectsController = require(StarterPlayerScripts.Client.Controllers.EffectsController)
 local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
---
+-- Utility
+local Utility = require(rep.Shared.Modules.Utility)
+-- Player
 local localPlayer = game:GetService("Players").LocalPlayer
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
@@ -52,19 +54,42 @@ function CombatController.OnStart()
 	-- Listen to turn started event
 	Zap.TurnStarted.On(function(data)
 		-- Set the current character
-		combatData.currentCharacter = data.char :: any
+		combatData.currentCharacter = data.char :: _TYPES.Character
+		local char = combatData.currentCharacter
+
 		-- Use the previously selected primary enemy index, or reset to the middle enemy if the previous index is out of range
 		-- (e.g., due to an enemy being defeated)
 		if combatData.primarySelectedEnemyIndex > #combatData.enemies then
 			combatData.primarySelectedEnemyIndex = math.ceil(#combatData.enemies / 2)
 		end
-		CombatController.SwitchPrimarySelectedEnemy("BasicAttack", "set", combatData.primarySelectedEnemyIndex)
+
+		-- Use the first move of the character's combat controller as the default selected move for the turn
+		local moveList = Utility.GetCharacterMoveList(char :: _TYPES.Character)
+		for _, moveData in pairs(moveList) do
+			-- If the move is not default, skip it
+			if not moveData.isDefault then
+				continue
+			end
+
+			-- Set the primary selected enemy index based on the default move's enemy selection type
+			CombatController.SwitchPrimarySelectedEnemy(
+				moveData.enemySelectionType,
+				"set",
+				combatData.primarySelectedEnemyIndex
+			)
+			break
+		end
 	end)
 end
 
---- Handle switching primary selected enemy
+--- Handle switching primary selected enemy.
+--- If mode is "set", it will set the primary selected enemy index to the specified index.
+--- If mode is "increment", it will increment the primary selected enemy index by the specified index.
+--- @param enemySelectionType -- The type of enemy selection (e.g., "Single", "Blast", "AoE")
+--- @param mode -- Whether to set the primary selected enemy
+--- @param index -- The index to set or increment by (e.g., -1 for previous, 1 for next)
 function CombatController.SwitchPrimarySelectedEnemy(
-	moveType: _TYPES.MoveType,
+	enemySelectionType: string,
 	mode: "set" | "increment",
 	index: number
 )
@@ -83,12 +108,6 @@ function CombatController.SwitchPrimarySelectedEnemy(
 		-- Clamp the new index within valid range
 		primaryIndex = math.clamp(primaryIndex + index, 1, #combatData.enemies)
 	end
-
-	-- Check the selection type of the specified attack of the current character
-	local char = combatData.currentCharacter :: any
-	local dataFolder = rep.Shared.Data.Characters[char:GetAttribute("Side")]:FindFirstChild(char.Name)
-	local charMoveList = dataFolder and require(dataFolder:FindFirstChild("data_" .. char.Name .. "_Moves")) :: any
-	local enemySelectionType = charMoveList[moveType].enemySelectionType
 
 	-- Get the list of selected enemies based on the selection type
 	local selectedEnemies

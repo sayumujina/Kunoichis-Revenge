@@ -1,7 +1,9 @@
 local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 
 local moves: { [string]: _TYPES.MoveData } = {
-	["BasicAttack"] = {
+	["LightningArrow"] = {
+		isDefault = true,
+		--
 		moveType = "BasicAttack",
 		--
 		enemySelectionType = "Single",
@@ -17,7 +19,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 			description = "A simple attack that deals damage to a single target.",
 		},
 	},
-	["Skill"] = {
+	["LightningRain"] = {
 		moveType = "Skill",
 		--
 		enemySelectionType = "Blast",

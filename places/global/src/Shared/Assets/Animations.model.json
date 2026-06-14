@@ -5,12 +5,130 @@
       "ClassName": "Folder",
       "Name": "Global",
       "Children": [
-        {
-          "ClassName": "Animation",
+          {
+          "ClassName": "Folder",
           "Name": "Hurt",
-          "Properties": {
-            "AnimationId": "rbxassetid://14547982236"
-          }
+          "Children": [
+            {
+              "ClassName": "Animation",
+              "Name": "Hurt_Normal",
+              "Properties": {
+                "AnimationId": "rbxassetid://14547982236"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Characters",
+      "Children": [
+        {
+          "ClassName": "Folder",
+          "Name": "Setsuna",
+          "Children": [
+            {
+              "ClassName": "Folder",
+              "Name": "Attacks",
+              "Children": [
+                {
+                  "ClassName": "Animation",
+                  "Name": "WeavingBlade_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://116354453812275"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "WeavingBlade_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://88030109814578"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "TwinBlades_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://116354453812275"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "TwinBlades_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://88030109814578"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ClassName": "Folder",
+          "Name": "Hayumi",
+          "Children": [
+            {
+              "ClassName": "Folder",
+              "Name": "Attacks",
+              "Children": [
+                {
+                  "ClassName": "Animation",
+                  "Name": "LightningArrow_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://126740540448677"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "LightningArrow_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://80048522470874"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "LightningRain_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://126740540448677"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "LightningRain_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://80048522470874"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ClassName": "Folder",
+          "Name": "MockEnemy",
+          "Children": [
+            {
+              "ClassName": "Folder",
+              "Name": "Attacks",
+              "Children": [
+                {
+                  "ClassName": "Animation",
+                  "Name": "BasicAttack",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://88030109814578"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "Skill",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://88030109814578"
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     }

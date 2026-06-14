@@ -1,9 +1,12 @@
-event Attack = {
+event RequestAttack = {
 	from: Client,
 	type: Reliable,
 	call: ManyAsync,
 	data: struct {
-        action: string.binary,
+		char: Instance.Model,
+		data: struct {
+       		move: string.binary,
+		}
     },
 }
 

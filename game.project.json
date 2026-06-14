@@ -46,6 +46,9 @@
       },
       "Characters": {
         "$className": "Folder",
+        "Allies": {
+          "$className": "Folder"
+        },
         "Enemies": {
           "$className": "Folder"
         }

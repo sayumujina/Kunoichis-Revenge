@@ -4,8 +4,10 @@ local _TYPES = require(rep.Shared.data_Types)
 local Services = game:GetService("ServerScriptService").Server.Services
 -- Modules
 local ExecuteAttack = require(rep.Shared.Modules.Attack.ExecuteAttack)
+
+local moveName = "BasicAttack"
 -- Info
-local moveInfo = require(rep.Shared.Data.Characters.Enemies.MockEnemy.data_MockEnemy_Moves).BasicAttack
+local moveInfo = require(rep.Shared.Data.Characters.Enemies.MockEnemy.data_MockEnemy_Moves)[moveName]
 
 return function(char: _TYPES.Character)
 	local attackData = {
@@ -15,5 +17,5 @@ return function(char: _TYPES.Character)
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
-	ExecuteAttack(attackData, true)
+	ExecuteAttack(moveName, attackData, true)
 end

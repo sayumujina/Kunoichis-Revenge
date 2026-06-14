@@ -13,6 +13,8 @@ export type EnemySelectionType =
 --- @type MoveData = {
 --- 	moveType: MoveType, enemySelectionType: EnemySelectionType, data: { atk: number, energyGain: number, skillPointGain: number }, info: { name: string, description: string }
 export type MoveData = {
+	isDefault: boolean?, -- Whether this move is the default move for the character
+	--
 	moveType: MoveType,
 	--
 	enemySelectionType: EnemySelectionType,

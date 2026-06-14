@@ -2,10 +2,13 @@ local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
+local AnimationService = require(Services.AnimationService)
 -- Modules
 local ExecuteAttack = require(rep.Shared.Modules.Attack.ExecuteAttack)
+
 -- Info
-local moveInfo = require(rep.Shared.Data.Characters.Allies.Setsuna.data_Setsuna_Moves).BasicAttack
+local moveName = "WeavingBlade"
+local moveInfo = require(rep.Shared.Data.Characters.Allies.Setsuna.data_Setsuna_Moves)[moveName]
 
 return function(char: _TYPES.Character)
 	local attackData = {
@@ -15,5 +18,5 @@ return function(char: _TYPES.Character)
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
-	ExecuteAttack(attackData, true)
+	ExecuteAttack(moveName, attackData, true)
 end

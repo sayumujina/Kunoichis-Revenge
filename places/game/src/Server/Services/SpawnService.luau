@@ -74,6 +74,12 @@ function SpawnService.SpawnCharacter(
 	highlight.Parent = char
 	highlight.Enabled = false
 
+	-- Create an animator object
+	if not char.Humanoid:FindFirstChild("Animator") then
+		local animator = Instance.new("Animator")
+		animator.Parent = char.Humanoid
+	end
+
 	-- Create a index attribute to mark the character's index
 	-- Used to determine the selected character/enemy index
 	char:SetAttribute("Index", index)

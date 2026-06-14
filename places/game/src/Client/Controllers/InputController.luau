@@ -1,7 +1,8 @@
 local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
-local CombatController = require(script.Parent.CombatController)
 local UserInputService = game:GetService("UserInputService")
 local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+-- Utility
+local Utility = require(game:GetService("ReplicatedStorage").Shared.Modules.Utility)
 --
 local player = game.Players.LocalPlayer
 --
@@ -25,10 +26,6 @@ local InputToActions = {
 	[Enum.KeyCode.U] = "Spawn",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
 
-local Data = {
-	selectedMoveType = "BasicAttack" :: _TYPES.MoveType,
-}
-
 local CombatActions = { "BasicAttack", "Skill", "Ultimate" }
 
 --- Listen to user's input
@@ -38,9 +35,23 @@ UserInputService.InputBegan:Connect(function(input, _)
 
 		-- Handle enemy selection inputs
 		if actionName == "PreviousTarget" then
-			CombatController.SwitchPrimarySelectedEnemy(Data.selectedMoveType, "increment", -1)
+			-- Call the combat controller of the active character
+			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)
+			if combatController then
+				require(combatController :: any).HandleInput({
+					action = "PreviousTarget",
+				})
+			end
 		elseif actionName == "NextTarget" then
-			CombatController.SwitchPrimarySelectedEnemy(Data.selectedMoveType, "increment", 1)
+			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)
+			if combatController then
+				require(combatController :: any).HandleInput({
+					action = "NextTarget",
+				})
+			end
+			-- Handle combat action inputs
+			-- Note: for simplicity, we're requiring the player to press the button for the move twice before executing it
+			-- (e.g., pressing space to confirm the selected move type, then pressing it again to execute the move)
 		elseif actionName == "SelectTarget" then
 			-- -- Get current primary selected enemy index
 			-- if not mouse.Target or not mouse.Target.Parent:FindFirstChild("Humanoid") then
@@ -53,24 +64,16 @@ UserInputService.InputBegan:Connect(function(input, _)
 			-- 	CombatController.SwitchPrimarySelectedEnemy("set", primaryIndex)
 			-- end
 		elseif table.find(CombatActions, actionName) then
-			warn("Player selected action: " .. actionName)
-			-- If the player is switching to a different move, update the selected move type and wait for confirmation
-			-- A move will only be confirmed if the player selects it again
-			if Data.selectedMoveType ~= actionName then
-				Data.selectedMoveType = actionName :: _TYPES.MoveType
-
-				warn("Waiting for player to confirm move: " .. Data.selectedMoveType)
-				-- Switching moves will keep the primary selected enemy
-				-- But we're delegating the effects handling to combat controller, so just increment by 0 to not change the index
-				CombatController.SwitchPrimarySelectedEnemy(Data.selectedMoveType, "increment", 0)
+			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)
+			if not combatController then
 				return
 			end
 
-			-- Send the input to the server
-			Zap.InputSent.Fire({ origin = player.ActiveCharacter.Value, action = actionName })
-
-			-- Reset the selected move type to default
-			Data.selectedMoveType = "BasicAttack"
+			-- Switching moves will keep the primary selected enemy
+			-- But we're delegating the effects handling to combat controller, so just increment by 0 to not change the index
+			require(combatController :: any).HandleInput({
+				action = actionName,
+			})
 		elseif actionName == "Spawn" then
 			Zap.RequestSpawn.Fire()
 		end
