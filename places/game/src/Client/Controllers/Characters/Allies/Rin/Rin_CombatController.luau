@@ -6,13 +6,13 @@ local CombatController = require(StarterPlayerScripts.Client.Controllers.CombatC
 local Zap = require(StarterPlayerScripts.Client.zap)
 -- Handlers
 local Handlers = {
-	Info = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.Allies.Hayumi.data_Hayumi_Info),
-	Moves = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.Allies.Hayumi.data_Hayumi_Moves),
+	Info = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.Allies.Rin.data_Rin_Info),
+	Moves = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.Allies.Rin.data_Rin_Moves),
 }
 -- Attack handlers
 local AttackHandlers = {
-	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow_Handler),
-	LightningRain = require(script.Parent.Handlers.Hayumi_LightningRain_Handler),
+	HiddenAssistance = require(script.Parent.Handlers.Rin_HiddenAssistance_Handler),
+	CleansingAura = require(script.Parent.Handlers.Rin_CleansingAura_Handler),
 } :: { [string]: (AnimationTrack, _TYPES.Character, { _TYPES.Character }) -> () }
 
 -- Player
@@ -20,18 +20,18 @@ local player = game.Players.LocalPlayer
 
 -- Character data
 local CharData = {
-	selectedMove = "LightningArrow", -- Player needs to confirm the move twice before executing
+	selectedMove = "HiddenAssistance", -- Player needs to confirm the move twice before executing
 }
 
-local Hayumi_CombatController = {}
+local Rin_CombatController = {}
 
---- Gets the attack handlers for Hayumi
-function Hayumi_CombatController.GetAttackHandlers()
+--- Gets the attack handlers for Rin
+function Rin_CombatController.GetAttackHandlers()
 	return AttackHandlers
 end
 
 --- Handles attack input from the player and sends it to the server
-function Hayumi_CombatController.HandleInput(inputData)
+function Rin_CombatController.HandleInput(inputData)
 	if inputData.action == "PreviousTarget" then
 		CombatController.SwitchPrimarySelectedTarget(
 			Handlers.Moves[CharData.selectedMove].targetSelectionType,
@@ -45,8 +45,8 @@ function Hayumi_CombatController.HandleInput(inputData)
 			1
 		)
 	elseif inputData.action == "BasicAttack" then
-		if CharData.selectedMove ~= "LightningArrow" then
-			CharData.selectedMove = "LightningArrow"
+		if CharData.selectedMove ~= "HiddenAssistance" then
+			CharData.selectedMove = "HiddenAssistance"
 
 			-- Set the selected side based on the move's selected side
 			CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
@@ -61,11 +61,32 @@ function Hayumi_CombatController.HandleInput(inputData)
 		Zap.RequestAttack.Fire({
 			char = game.Players.LocalPlayer.ActiveCharacter.Value,
 			data = {
-				move = "LightningArrow",
+				move = "HiddenAssistance",
+				primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
+			},
+		})
+	elseif inputData.action == "Skill" then
+		if CharData.selectedMove ~= "CleansingAura" then
+			CharData.selectedMove = "CleansingAura"
+
+			-- Set the selected side based on the move's selected side
+			CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+			CombatController.SwitchPrimarySelectedTarget(
+				Handlers.Moves[CharData.selectedMove].targetSelectionType,
+				"increment",
+				0
+			)
+			return
+		end
+		warn("Skill input received", CharData.selectedMove, game.Players.LocalPlayer.ActiveCharacter.Value)
+		Zap.RequestAttack.Fire({
+			char = game.Players.LocalPlayer.ActiveCharacter.Value,
+			data = {
+				move = "CleansingAura",
 				primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
 			},
 		})
 	end
 end
 
-return Hayumi_CombatController
+return Rin_CombatController

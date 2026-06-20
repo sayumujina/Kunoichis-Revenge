@@ -29,6 +29,9 @@ local statsTemplate = {
 		--
 		dmgTakenMult = 100,
 		dmgDealtMult = 100,
+		--
+		healingProvidedMult = 100,
+		healingReceivedMult = 100,
 	},
 	-- Real stats
 	realStats = {
@@ -46,6 +49,9 @@ local statsTemplate = {
 		--
 		dmgTakenMult = 100,
 		dmgDealtMult = 100,
+		--
+		healingProvidedMult = 100,
+		healingReceivedMult = 100,
 	},
 	-- Current stats
 	currentStats = {

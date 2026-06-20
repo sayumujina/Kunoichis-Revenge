@@ -5,27 +5,35 @@ local moves: { [string]: _TYPES.MoveData } = {
 		isDefault = true,
 		--
 		moveType = "BasicAttack",
+		moveCategory = "Damage",
 		--
-		enemySelectionType = "Single",
+		targetSelectionType = "Single",
+		selectedSide = "Enemies",
 		--
 		data = {
-			mult = 70,
+			scalings = {
+				realStats = { atk = 70 / 100 },
+			},
 			energyGain = 5,
 			skillPointGain = 2,
 		},
 		--
 		info = {
-			name = "Lighting Arrow",
+			name = "Lightning Arrow",
 			description = "A simple attack that deals damage to a single target.",
 		},
 	},
 	["LightningRain"] = {
 		moveType = "Skill",
+		moveCategory = "Damage",
 		--
-		enemySelectionType = "Blast",
+		targetSelectionType = "Blast",
+		selectedSide = "Enemies",
 		--
 		data = {
-			mult = 160,
+			scalings = {
+				realStats = { atk = 160 / 100 },
+			},
 			energyGain = 5,
 			skillPointGain = 2,
 		},

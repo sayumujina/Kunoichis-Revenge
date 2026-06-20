@@ -89,7 +89,7 @@ export type CurrentStatsChangedEvent = {
 	data: { [string]: number },
 }
 
-export type SuccessfulAttackEvent = {
+export type SuccessfulMoveEvent = {
 	char: _TYPES.Character,
 	data: {
 		moveName: string,
@@ -108,7 +108,7 @@ EventService.Events = {
 	TurnAdded = Signal.new() :: Signal.Signal<TurnAddedEvent>,
 	RealStatsChanged = Signal.new() :: Signal.Signal<RealStatsChangedEvent>,
 	CurrentStatsChanged = Signal.new() :: Signal.Signal<CurrentStatsChangedEvent>,
-	SuccessfulAttack = Signal.new() :: Signal.Signal<SuccessfulAttackEvent>,
+	SuccessfulMove = Signal.new() :: Signal.Signal<SuccessfulMoveEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService

@@ -16,6 +16,9 @@ export type CharacterStats = {
 	--
 	dmgTakenMult: number,
 	dmgDealtMult: number,
+	--
+	healingProvidedMult: number,
+	healingReceivedMult: number,
 }
 
 export type CharacterData = {

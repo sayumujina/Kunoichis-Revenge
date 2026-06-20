@@ -19,6 +19,9 @@ local info = {
 		--
 		dmgTakenMult = 130,
 		dmgDealtMult = 100,
+		--
+		healingProvidedMult = 100,
+		healingReceivedMult = 100,
 	},
 	-- Starting stats
 	startingStats = {

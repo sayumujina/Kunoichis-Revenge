@@ -11,7 +11,7 @@ event RequestAttack = {
     },
 }
 
-event SuccessfulAttack = {
+event SuccessfulMove = {
 	from: Server,
 	type: Reliable,
 	call: ManyAsync,

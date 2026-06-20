@@ -106,6 +106,46 @@
         },
         {
           "ClassName": "Folder",
+          "Name": "Rin",
+          "Children": [
+            {
+              "ClassName": "Folder",
+              "Name": "Attacks",
+              "Children": [
+                {
+                  "ClassName": "Animation",
+                  "Name": "HiddenAssistance_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://126740540448677"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "HiddenAssistance_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://80048522470874"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "CleansingAura_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://126740540448677"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "CleansingAura_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://80048522470874"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ClassName": "Folder",
           "Name": "MockEnemy",
           "Children": [
             {

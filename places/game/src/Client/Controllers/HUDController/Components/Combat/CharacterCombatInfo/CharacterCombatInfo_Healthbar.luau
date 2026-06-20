@@ -79,7 +79,7 @@ return function()
 
 		local characterInfoHPLabel = characterInfoCard:FindFirstChild("CharacterInfo_HPLabel", true)
 		if characterInfoHPLabel then
-			characterInfoHPLabel.Text = tostring(characterCurrentHPValue.Value)
+			characterInfoHPLabel.Text = tostring(math.floor(characterCurrentHPValue.Value)) -- Do not display decimal places for health values
 		end
 	end)
 

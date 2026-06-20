@@ -20,12 +20,12 @@ local info = {
 		dmgTakenMult = 100,
 		dmgDealtMult = 100,
 		--
-		healingProvidedMult = 100,
+		healingProvidedMult = 140,
 		healingReceivedMult = 100,
 	},
 	-- Starting stats
 	startingStats = {
-		hp = 200,
+		hp = 600,
 		energy = 40,
 		shield = 0,
 	},

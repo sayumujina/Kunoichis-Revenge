@@ -58,7 +58,7 @@ UserInputService.InputBegan:Connect(function(input, _)
 			-- -- Retrieve the index attribute of the selected enemy
 			-- local primaryIndex = mouse.Target.Parent:GetAttribute("Index")
 			-- if primaryIndex then
-			-- 	CombatController.SwitchPrimarySelectedEnemy("set", primaryIndex)
+			-- 	CombatController.SwitchPrimarySelectedTarget("set", primaryIndex)
 			-- end
 		elseif table.find(CombatActions, actionName) then
 			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)

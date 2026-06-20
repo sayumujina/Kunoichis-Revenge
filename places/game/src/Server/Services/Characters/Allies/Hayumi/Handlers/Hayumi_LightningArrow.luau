@@ -3,7 +3,7 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 -- Modules
-local ExecuteAttack = require(rep.Shared.Modules.Attack.ExecuteAttack)
+local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 
 local moveName = "LightningArrow"
 -- Info
@@ -13,11 +13,12 @@ return function(char: _TYPES.Character, primaryTargetIndex: number)
 	local attackData = {
 		origin = char,
 		primaryTargetIndex = primaryTargetIndex,
+		moveCategory = moveInfo.moveCategory,
 		targets = {},
 		data = moveInfo.data,
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
 	warn("Executing attack:", moveName, "with data:", attackData)
-	ExecuteAttack(moveName, attackData, true)
+	ExecuteMove(moveName, attackData, true)
 end

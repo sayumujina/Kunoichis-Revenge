@@ -33,14 +33,25 @@ end
 
 --- Enable selection mark effects on the selected targets
 --- @param targets { _TYPES.Character }
-function EffectsController.EnableTargetsSelectionMark(targets: { _TYPES.Character }, primaryIndex: number?)
-	-- Toggle selection mark for selected enemies
-	for _, enemy in pairs(allEnemies) do
-		-- If the enemy is in the selected enemies list, highlight
-		if table.find(targets, enemy) then
-			toggleHighlights(enemy, true)
+function EffectsController.EnableTargetsSelectionMark(
+	side: "Allies" | "Enemies",
+	targets: { _TYPES.Character },
+	primaryIndex: number?
+)
+	-- Toggle selection mark for selected targets
+
+	-- 1. Turn off all the selection marks for the opposite side
+	local oppositeSide = side == "Allies" and "Enemies" or "Allies"
+	for _, target in pairs(workspace.Characters[oppositeSide]:GetChildren()) do
+		toggleHighlights(target, false)
+	end
+
+	-- 2. Turn on the selection marks for the selected targets
+	for _, target in pairs(workspace.Characters[side]:GetChildren()) do
+		if table.find(targets, target) then
+			toggleHighlights(target, true)
 		else
-			toggleHighlights(enemy, false)
+			toggleHighlights(target, false)
 		end
 	end
 end

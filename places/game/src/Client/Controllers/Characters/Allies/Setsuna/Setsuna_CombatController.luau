@@ -38,22 +38,25 @@ end
 --- @param inputData - The input data containing the action and any relevant information
 function Setsuna_CombatController.HandleInput(inputData)
 	if inputData.action == "PreviousTarget" then
-		CombatController.SwitchPrimarySelectedEnemy(
-			Handlers.Moves[CharData.selectedMove].enemySelectionType,
+		CombatController.SwitchPrimarySelectedTarget(
+			Handlers.Moves[CharData.selectedMove].targetSelectionType,
 			"increment",
 			-1
 		)
 	elseif inputData.action == "NextTarget" then
-		CombatController.SwitchPrimarySelectedEnemy(
-			Handlers.Moves[CharData.selectedMove].enemySelectionType,
+		CombatController.SwitchPrimarySelectedTarget(
+			Handlers.Moves[CharData.selectedMove].targetSelectionType,
 			"increment",
 			1
 		)
 	elseif inputData.action == "BasicAttack" then
 		if CharData.selectedMove ~= "WeavingBlade" then
 			CharData.selectedMove = "WeavingBlade"
-			CombatController.SwitchPrimarySelectedEnemy(
-				Handlers.Moves[CharData.selectedMove].enemySelectionType,
+
+			-- Set the selected side based on the move's selected side
+			CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+			CombatController.SwitchPrimarySelectedTarget(
+				Handlers.Moves[CharData.selectedMove].targetSelectionType,
 				"increment",
 				0
 			)
@@ -63,7 +66,7 @@ function Setsuna_CombatController.HandleInput(inputData)
 			char = player.ActiveCharacter.Value,
 			data = {
 				move = "WeavingBlade",
-				primaryTargetIndex = CombatController.GetPrimarySelectedEnemyIndex(),
+				primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
 			},
 		})
 	end

@@ -1,7 +1,7 @@
 local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 
 local moves: { [string]: _TYPES.MoveData } = {
-	["WeavingBlade"] = {
+	["HiddenAssistance"] = {
 		isDefault = true,
 		--
 		moveType = "BasicAttack",
@@ -12,35 +12,35 @@ local moves: { [string]: _TYPES.MoveData } = {
 		--
 		data = {
 			scalings = {
-				realStats = { atk = 100 / 100 },
+				realStats = { hp = 50 / 100 },
 			},
 			energyGain = 5,
 			skillPointGain = 2,
 		},
 		--
 		info = {
-			name = "Weaving Blade",
+			name = "Hidden Assistance",
 			description = "A simple attack that deals damage to a single target.",
 		},
 	},
-	["TwinBlades"] = {
+	["CleansingAura"] = {
 		moveType = "Skill",
-		moveCategory = "Damage",
+		moveCategory = "Heal",
 		--
 		targetSelectionType = "Blast",
-		selectedSide = "Enemies",
+		selectedSide = "Allies",
 		--
 		data = {
 			scalings = {
-				realStats = { atk = 240 / 100 },
+				realStats = { hp = 20 / 100 },
 			},
 			energyGain = 5,
 			skillPointGain = 2,
 		},
 		--
 		info = {
-			name = "Twin Blades",
-			description = "A skill that deals blast damage to multiple enemies.",
+			name = "Cleansing Aura",
+			description = "Replenishes the health for all allies within the blast radius.",
 		},
 	},
 }

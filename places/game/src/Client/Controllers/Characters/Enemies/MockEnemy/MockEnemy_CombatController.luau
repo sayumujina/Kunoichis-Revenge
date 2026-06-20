@@ -39,22 +39,22 @@ end
 --- @param inputData - The input data containing the action and any relevant information
 function MockEnemy_CombatController.HandleInput(inputData)
 	if inputData.action == "PreviousTarget" then
-		CombatController.SwitchPrimarySelectedEnemy(
-			Handlers.Moves[CharData.selectedMove].enemySelectionType,
+		CombatController.SwitchPrimarySelectedTarget(
+			Handlers.Moves[CharData.selectedMove].targetSelectionType,
 			"increment",
 			-1
 		)
 	elseif inputData.action == "NextTarget" then
-		CombatController.SwitchPrimarySelectedEnemy(
-			Handlers.Moves[CharData.selectedMove].enemySelectionType,
+		CombatController.SwitchPrimarySelectedTarget(
+			Handlers.Moves[CharData.selectedMove].targetSelectionType,
 			"increment",
 			1
 		)
 	elseif inputData.action == "BasicAttack" then
 		if CharData.selectedMove ~= "BasicAttack" then
 			CharData.selectedMove = "BasicAttack"
-			CombatController.SwitchPrimarySelectedEnemy(
-				Handlers.Moves[CharData.selectedMove].enemySelectionType,
+			CombatController.SwitchPrimarySelectedTarget(
+				Handlers.Moves[CharData.selectedMove].targetSelectionType,
 				"increment",
 				0
 			)
