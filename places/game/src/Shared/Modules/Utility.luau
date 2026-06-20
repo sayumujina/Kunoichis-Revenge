@@ -1,4 +1,5 @@
-local rep = game.ReplicatedStorage
+local rep = game:GetService("ReplicatedStorage")
+local Animations = rep.Assets.Animations
 --
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 --
@@ -37,6 +38,7 @@ end
 
 --- Get the combat controller module for a character
 --- @param char -- The character to get the combat controller for
+--- @return The combat controller module for the character, or nil if not found
 function Utility.GetCharacterCombatController(char: _TYPES.Character): any
 	local combatControllerModuleName = char.Name .. "_CombatController"
 	if not combatControllerModuleName then
@@ -61,6 +63,11 @@ function Utility.GetCharacterMoveList(char: _TYPES.Character): any
 	local charMoveList = dataFolder and require(dataFolder:FindFirstChild("data_" .. char.Name .. "_Moves")) :: any
 
 	return charMoveList
+end
+
+function Utility.GetPlayingAttackAnimationId(char: _TYPES.Character, animationName: string)
+	local animationIdToRetrieve = Animations.Characters[char.Name].Attacks:FindFirstChild(animationName).AnimationId
+	return animationIdToRetrieve or nil
 end
 
 return Utility

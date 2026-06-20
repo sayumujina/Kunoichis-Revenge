@@ -10,7 +10,7 @@ local Zap = require(Services.Parent.zap)
 local Handlers = {
 	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow),
 	LightningRain = require(script.Parent.Handlers.Hayumi_LightningRain),
-}
+} :: { [string]: (_TYPES.Character, number) -> () }
 
 local charName = "Hayumi"
 local Chars = {} :: {}
@@ -35,10 +35,10 @@ function Hayumi_CombatService.OnStart()
 		-- Handle the input based on the action
 		if inputData.data.move == "LightningArrow" then
 			print(charName .. " performs a basic attack!")
-			Handlers.LightningArrow(inputData.char :: _TYPES.Character)
+			Handlers.LightningArrow(inputData.char :: _TYPES.Character, inputData.data.primaryTargetIndex)
 		elseif inputData.data.move == "LightningRain" then
 			print(charName .. " uses their skill!")
-			Handlers.LightningRain(inputData.char :: _TYPES.Character)
+			Handlers.LightningRain(inputData.char :: _TYPES.Character, inputData.data.primaryTargetIndex)
 		end
 	end)
 end

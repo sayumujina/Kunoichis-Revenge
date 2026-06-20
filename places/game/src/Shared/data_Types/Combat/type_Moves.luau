@@ -20,7 +20,7 @@ export type MoveData = {
 	enemySelectionType: EnemySelectionType,
 	--
 	data: {
-		atk: number,
+		mult: number,
 		energyGain: number,
 		skillPointGain: number,
 	},

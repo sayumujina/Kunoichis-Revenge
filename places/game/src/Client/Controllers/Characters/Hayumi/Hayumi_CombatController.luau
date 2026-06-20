@@ -9,6 +9,12 @@ local Handlers = {
 	Info = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.Allies.Hayumi.data_Hayumi_Info),
 	Moves = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.Allies.Hayumi.data_Hayumi_Moves),
 }
+-- Attack handlers
+local AttackHandlers = {
+	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow_Handler),
+	LightningRain = require(script.Parent.Handlers.Hayumi_LightningRain_Handler),
+} :: { [string]: (AnimationTrack, _TYPES.Character, { _TYPES.Character }) -> () }
+
 -- Player
 local player = game.Players.LocalPlayer
 
@@ -18,6 +24,11 @@ local CharData = {
 }
 
 local Hayumi_CombatController = {}
+
+--- Gets the attack handlers for Hayumi
+function Hayumi_CombatController.GetAttackHandlers()
+	return AttackHandlers
+end
 
 --- Handles attack input from the player and sends it to the server
 function Hayumi_CombatController.HandleInput(inputData)
@@ -48,6 +59,7 @@ function Hayumi_CombatController.HandleInput(inputData)
 			char = game.Players.LocalPlayer.ActiveCharacter.Value,
 			data = {
 				move = "LightningArrow",
+				primaryTargetIndex = CombatController.GetPrimarySelectedEnemyIndex(),
 			},
 		})
 	end

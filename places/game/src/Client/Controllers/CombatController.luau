@@ -30,6 +30,37 @@ local CombatController = {}
 function CombatController.OnStart()
 	local combatData = CombatData[localPlayer]
 
+	-- Listens to sucessful attack events
+	Zap.SuccessfulAttack.On(function(successfulAttackData)
+		local char = successfulAttackData.char :: _TYPES.Character
+		-- if char ~= CombatController.GetCurrentCharacter() :: any then
+		-- 	return
+		-- end
+
+		-- Disable selection marks after the attack is executed
+		EffectsController.DisableAllSelectionMark()
+
+		-- Call the specific attack handler for the move that was executed
+		local moveName = successfulAttackData.data.moveName
+		local animationIdToCompare = Utility.GetPlayingAttackAnimationId(char, moveName .. "_Execute")
+		for _, animationTrack in pairs(char.Humanoid.Animator:GetPlayingAnimationTracks()) do
+			-- Check if the animation track's AnimationId matches the expected animation ID for the move
+			if animationTrack.Animation.AnimationId ~= animationIdToCompare then
+				continue
+			end
+
+			-- If it matches, call the corresponding attack handler
+			local controller = Utility.GetCharacterCombatController(char)
+			local attackHandlers = controller and require(controller).GetAttackHandlers()
+			attackHandlers[moveName](
+				animationTrack,
+				successfulAttackData.char :: _TYPES.Character,
+				successfulAttackData.data.targets :: { _TYPES.Character }
+			)
+			break
+		end
+	end)
+
 	-- Listen to spawn finished event
 	Zap.SpawnFinished.On(function()
 		warn("Spawn finished, combat controller received the signal!")
@@ -127,7 +158,7 @@ function CombatController.SwitchPrimarySelectedEnemy(
 	end
 
 	-- Notify EffectsController to update selection marks
-	EffectsController.HandleTargetsSelectionMark(selectedEnemies, combatData.primarySelectedEnemyIndex)
+	EffectsController.EnableTargetsSelectionMark(selectedEnemies, combatData.primarySelectedEnemyIndex)
 
 	-- Update primary selected enemy index
 	combatData.primarySelectedEnemyIndex = primaryIndex
@@ -136,6 +167,11 @@ end
 --- Retrieve the current primary selected enemy index
 function CombatController.GetPrimarySelectedEnemyIndex(): number
 	return CombatData[localPlayer].primarySelectedEnemyIndex
+end
+
+-- Retrieve the current character for the local player
+function CombatController.GetCurrentCharacter(): _TYPES.Character?
+	return CombatData[localPlayer].currentCharacter
 end
 
 return CombatController

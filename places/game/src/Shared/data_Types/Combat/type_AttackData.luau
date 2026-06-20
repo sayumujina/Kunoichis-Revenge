@@ -5,11 +5,13 @@ local CharacterTypes = require(game.ReplicatedStorage.Shared.data_Types.type_Cha
 export type AttackData = {
 	-- Originator of the attack
 	origin: CharacterTypes.Character,
+	-- Primary target of the attack
+	primaryTargetIndex: number,
 	-- Targets to hit
 	targets: { CharacterTypes.Character },
 	-- Attack data
 	data: {
-		atk: number,
+		mult: number?,
 		energyGain: number,
 		skillPointGain: number,
 	},

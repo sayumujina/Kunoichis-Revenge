@@ -33,4 +33,5 @@ function CombatService.OnStart()
 		end
 	end)
 end
+
 return CombatService

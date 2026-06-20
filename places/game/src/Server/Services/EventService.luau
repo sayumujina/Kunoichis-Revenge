@@ -69,6 +69,21 @@ export type TurnAddedEvent = {
 	actionValue: number,
 }
 
+export type SuccessfulAttackEvent = {
+	player: _TYPES.RobloxPlayerType,
+	data: {
+		char: _TYPES.Character,
+		data: {
+			moveName: string,
+			targets: { _TYPES.Character },
+		},
+	},
+}
+
+--- @type ExecuteNPCAttackEvent { char: _TYPES.Character }
+--- @within EventService
+--- Describes the event when an NPC character executes an attack.
+--- Contains the character that executed the attack.
 export type ExecuteNPCAttackEvent = {
 	char: _TYPES.Character,
 }
@@ -82,6 +97,7 @@ EventService.Events = {
 	TurnCompleted = Signal.new() :: Signal.Signal<TurnCompletedEvent>,
 	TurnStarted = Signal.new() :: Signal.Signal<TurnStartedEvent>,
 	TurnAdded = Signal.new() :: Signal.Signal<TurnAddedEvent>,
+	SuccessfulAttack = Signal.new() :: Signal.Signal<SuccessfulAttackEvent>,
 	ExecuteNPCAttack = Signal.new() :: Signal.Signal<ExecuteNPCAttackEvent>,
 }
 --- @type ClientBlacklist { string }
@@ -90,7 +106,6 @@ EventService.Events = {
 EventService.ClientBlacklist = {
 	"RequestSpawn",
 	"TurnCompleted",
-	"TurnStarted",
 	"ExecuteNPCAttack",
 }
 
@@ -100,6 +115,7 @@ EventService.ClientBlacklist = {
 EventService.PlayerScoped = {
 	"SpawnSuccessfulForChar",
 	"SpawnFinished",
+	"SuccessfulAttack",
 	"TurnStarted",
 }
 

@@ -6,8 +6,22 @@ event RequestAttack = {
 		char: Instance.Model,
 		data: struct {
        		move: string.binary,
+			primaryTargetIndex: u8,
 		}
     },
+}
+
+event SuccessfulAttack = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		char: Instance.Model, 
+		data: struct {
+			moveName: string.binary,
+			targets: Instance.Model[],
+		},
+	},
 }
 
 event EnergyChanged = {

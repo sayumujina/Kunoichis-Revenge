@@ -7,7 +7,7 @@ local HUDController = require(Controllers.HUDController)
 
 HUDController.Init()
 
--- Load all controllerse
+-- Load all controllers
 Loader.SpawnAll(
 	Loader.LoadDescendants(Controllers, function(module)
 		-- return (module.Name:match("Service$") ~= nil or module.Name:match("Status$") ~= nil)

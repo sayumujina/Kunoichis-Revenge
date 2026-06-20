@@ -10,7 +10,7 @@ local Zap = require(Services.Parent.zap)
 local Handlers = {
 	WeavingBlade = require(script.Parent.Handlers.Setsuna_WeavingBlade),
 	TwinBlades = require(script.Parent.Handlers.Setsuna_TwinBlades),
-}
+} :: { [string]: (_TYPES.Character, number) -> () }
 
 local charName = "Setsuna"
 local Chars = {} :: {}
@@ -29,10 +29,10 @@ function Setsuna_CombatService.OnStart()
 		-- Handle the input based on the action
 		if inputData.data.move == "WeavingBlade" then
 			print(charName .. " performs a basic attack!")
-			Handlers.WeavingBlade(inputData.char :: _TYPES.Character)
+			Handlers.WeavingBlade(inputData.char :: _TYPES.Character, inputData.data.primaryTargetIndex)
 		elseif inputData.data.move == "TwinBlades" then
 			print(charName .. " uses their skill!")
-			Handlers.TwinBlades(inputData.char :: _TYPES.Character)
+			Handlers.TwinBlades(inputData.char :: _TYPES.Character, inputData.data.primaryTargetIndex)
 		end
 	end)
 end

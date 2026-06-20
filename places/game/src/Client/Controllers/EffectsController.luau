@@ -31,9 +31,9 @@ local function toggleHighlights(target: _TYPES.Character, enable: boolean)
 	end
 end
 
---- Handle effects on the selected enemy(s)
+--- Enable selection mark effects on the selected targets
 --- @param targets { _TYPES.Character }
-function EffectsController.HandleTargetsSelectionMark(targets: { _TYPES.Character }, primaryIndex: number?)
+function EffectsController.EnableTargetsSelectionMark(targets: { _TYPES.Character }, primaryIndex: number?)
 	-- Toggle selection mark for selected enemies
 	for _, enemy in pairs(allEnemies) do
 		-- If the enemy is in the selected enemies list, highlight
@@ -42,6 +42,14 @@ function EffectsController.HandleTargetsSelectionMark(targets: { _TYPES.Characte
 		else
 			toggleHighlights(enemy, false)
 		end
+	end
+end
+
+--- Disable selection mark effects on all targets
+function EffectsController.DisableAllSelectionMark()
+	-- Toggle selection mark for all enemies
+	for _, enemy in pairs(allEnemies) do
+		toggleHighlights(enemy, false)
 	end
 end
 

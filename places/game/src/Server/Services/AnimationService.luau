@@ -50,7 +50,6 @@ function AnimationService.Init(char: _TYPES.Character)
 		-- Check if the character has custom animations for the category
 		if charAnims:FindFirstChild(category) then
 			for __, anim in charAnims[category]:GetChildren() do
-				warn("Loading custom animation for " .. char.Name .. ": " .. anim.Name .. "id: " .. anim.AnimationId)
 				tracks[anim.Name] = animator:LoadAnimation(anim)
 
 				-- If the category is Attacks, set the priority to Action4

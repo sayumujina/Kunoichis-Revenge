@@ -22,7 +22,7 @@ function CameraController.OnStart()
 	Camera.CFrame = CFrame.new(-12.526, 15.672, -15.471) * CFrame.Angles(math.rad(20), math.rad(-180), 0)
 end
 
---- Look at a given CFrame (legacy function)
+--- Look at a given CFrame
 --- @param targetCFrame - The CFrame to look at
 function CameraController.LookAtTarget(target: _TYPES.Character, origin: _TYPES.Character)
 	-- CameraController.SetCombatCamera(origin, targets)

@@ -38,20 +38,17 @@ UserInputService.InputBegan:Connect(function(input, _)
 			-- Call the combat controller of the active character
 			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)
 			if combatController then
-				require(combatController :: any).HandleInput({
+				require(combatController).HandleInput({
 					action = "PreviousTarget",
 				})
 			end
 		elseif actionName == "NextTarget" then
 			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)
 			if combatController then
-				require(combatController :: any).HandleInput({
+				require(combatController).HandleInput({
 					action = "NextTarget",
 				})
 			end
-			-- Handle combat action inputs
-			-- Note: for simplicity, we're requiring the player to press the button for the move twice before executing it
-			-- (e.g., pressing space to confirm the selected move type, then pressing it again to execute the move)
 		elseif actionName == "SelectTarget" then
 			-- -- Get current primary selected enemy index
 			-- if not mouse.Target or not mouse.Target.Parent:FindFirstChild("Humanoid") then
@@ -71,7 +68,7 @@ UserInputService.InputBegan:Connect(function(input, _)
 
 			-- Switching moves will keep the primary selected enemy
 			-- But we're delegating the effects handling to combat controller, so just increment by 0 to not change the index
-			require(combatController :: any).HandleInput({
+			require(combatController).HandleInput({
 				action = actionName,
 			})
 		elseif actionName == "Spawn" then

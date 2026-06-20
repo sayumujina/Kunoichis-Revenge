@@ -7,7 +7,7 @@ local info = {
 	baseStats = {
 		atk = 200,
 		def = 140,
-		hp = 520,
+		hp = 1800,
 		spd = 120,
 		--
 		critRate = 0,

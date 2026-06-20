@@ -10,9 +10,10 @@ local ExecuteAttack = require(rep.Shared.Modules.Attack.ExecuteAttack)
 local moveName = "WeavingBlade"
 local moveInfo = require(rep.Shared.Data.Characters.Allies.Setsuna.data_Setsuna_Moves)[moveName]
 
-return function(char: _TYPES.Character)
+return function(char: _TYPES.Character, primaryTargetIndex: number)
 	local attackData = {
 		origin = char,
+		primaryTargetIndex = primaryTargetIndex,
 		targets = {},
 		data = moveInfo.data,
 		info = moveInfo.info,

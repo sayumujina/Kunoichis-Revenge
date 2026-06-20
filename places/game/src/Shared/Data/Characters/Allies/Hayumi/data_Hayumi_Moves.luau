@@ -9,7 +9,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		enemySelectionType = "Single",
 		--
 		data = {
-			atk = 10,
+			mult = 70,
 			energyGain = 5,
 			skillPointGain = 2,
 		},
@@ -25,7 +25,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		enemySelectionType = "Blast",
 		--
 		data = {
-			atk = 10,
+			mult = 160,
 			energyGain = 5,
 			skillPointGain = 2,
 		},
