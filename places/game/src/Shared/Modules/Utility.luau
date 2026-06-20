@@ -47,7 +47,9 @@ function Utility.GetCharacterCombatController(char: _TYPES.Character): any
 	end
 
 	local combatControllerModule =
-		StarterPlayerScripts.Client.Controllers.Characters[char.Name]:FindFirstChild(combatControllerModuleName)
+		StarterPlayerScripts.Client.Controllers.Characters[char:GetAttribute("Side")][char.Name]:FindFirstChild(
+			combatControllerModuleName
+		)
 	if not combatControllerModule then
 		warn("CombatController module", combatControllerModuleName, "not found for character", char.Name)
 		return nil

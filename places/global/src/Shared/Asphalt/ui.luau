@@ -3,8 +3,9 @@
 local ui = {
 	EnemySelection = "rbxassetid://118397931328858",
 	avatar = {
-		UI_Avatar_Hayumi = "rbxassetid://83613205736084",
-		UI_Avatar_Setsuna = "rbxassetid://136148158017060",
+		UI_Avatar_Hayumi = "rbxassetid://78955618330522",
+		UI_Avatar_MockEnemy = "rbxassetid://94755245176665",
+		UI_Avatar_Setsuna = "rbxassetid://101808487975409",
 	},
 	hud = {
 		Combat = {

@@ -24,15 +24,22 @@ event SuccessfulAttack = {
 	},
 }
 
-event EnergyChanged = {
+event RealStatsChanged = {
 	from: Server,
 	type: Reliable,
 	call: ManyAsync,
 	data: struct {
 		char: Instance.Model, 
-		data: struct {
-			oldEnergy: f32,
-			newEnergy: f32,
-		},
+		data: map {[string.binary]: f32}
+	},
+}
+
+event CurrentStatsChanged = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		char: Instance.Model, 
+		data: map {[string.binary]: f32}
 	},
 }

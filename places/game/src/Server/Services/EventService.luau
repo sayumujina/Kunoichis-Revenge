@@ -23,7 +23,9 @@ export type SpawnSuccessfulForCharEvent = {
 	player: _TYPES.RobloxPlayerType,
 	data: {
 		char: _TYPES.Character,
-		data: _TYPES.CharacterCombatData,
+		data: {
+			side: _TYPES.Sides,
+		},
 	},
 }
 
@@ -69,23 +71,30 @@ export type TurnAddedEvent = {
 	actionValue: number,
 }
 
-export type SuccessfulAttackEvent = {
-	player: _TYPES.RobloxPlayerType,
-	data: {
-		char: _TYPES.Character,
-		data: {
-			moveName: string,
-			targets: { _TYPES.Character },
-		},
-	},
+--- @type RealStatsChangedEvent { player: _TYPES.RobloxPlayerType, data: { char: _TYPES.Character, data: { [string]: number } } }
+--- @within EventService
+--- Describes the event when a character's real stats have changed.
+--- Contains the player associated with the stat change, the character whose real stats changed, and the updated real stats data.
+export type RealStatsChangedEvent = {
+	char: _TYPES.Character,
+	data: { [string]: number },
 }
 
---- @type ExecuteNPCAttackEvent { char: _TYPES.Character }
+--- @type CurrentStatsChangedEvent { player: _TYPES.RobloxPlayerType, data: { char: _TYPES.Character, data: { [string]: number } } }
 --- @within EventService
---- Describes the event when an NPC character executes an attack.
---- Contains the character that executed the attack.
-export type ExecuteNPCAttackEvent = {
+--- Describes the event when a character's current stats have changed.
+--- Contains the player associated with the stat change, the character whose current stats changed, and the updated current stats data.
+export type CurrentStatsChangedEvent = {
 	char: _TYPES.Character,
+	data: { [string]: number },
+}
+
+export type SuccessfulAttackEvent = {
+	char: _TYPES.Character,
+	data: {
+		moveName: string,
+		targets: { _TYPES.Character },
+	},
 }
 
 --- @type Events { [string]: Signal.Signal<any> }
@@ -97,8 +106,9 @@ EventService.Events = {
 	TurnCompleted = Signal.new() :: Signal.Signal<TurnCompletedEvent>,
 	TurnStarted = Signal.new() :: Signal.Signal<TurnStartedEvent>,
 	TurnAdded = Signal.new() :: Signal.Signal<TurnAddedEvent>,
+	RealStatsChanged = Signal.new() :: Signal.Signal<RealStatsChangedEvent>,
+	CurrentStatsChanged = Signal.new() :: Signal.Signal<CurrentStatsChangedEvent>,
 	SuccessfulAttack = Signal.new() :: Signal.Signal<SuccessfulAttackEvent>,
-	ExecuteNPCAttack = Signal.new() :: Signal.Signal<ExecuteNPCAttackEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService
@@ -106,7 +116,6 @@ EventService.Events = {
 EventService.ClientBlacklist = {
 	"RequestSpawn",
 	"TurnCompleted",
-	"ExecuteNPCAttack",
 }
 
 --- @type PlayerScoped { string }
@@ -115,7 +124,6 @@ EventService.ClientBlacklist = {
 EventService.PlayerScoped = {
 	"SpawnSuccessfulForChar",
 	"SpawnFinished",
-	"SuccessfulAttack",
 	"TurnStarted",
 }
 

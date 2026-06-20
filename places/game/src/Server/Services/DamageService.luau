@@ -11,12 +11,12 @@ function DamageService.OnStart() end
 
 --- Deals damage to a target character based on the origin character and the damage amount
 --- @within DamageService
---- @param origin _TYPES.Character The character dealing the damage
---- @param target _TYPES.Character The character receiving the damage
---- @param damage number The amount of damage to deal
+--- @param origin - The character dealing the damage
+--- @param target - The character receiving the damage
+--- @param damage - The amount of damage to deal
 function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character, damage: number)
 	-- Get the target's current HP
-	local targetCombatData = CharService.GetRealCharacterStat(target, "hp")
+	local targetCombatData = CharService.GetCurrentCharacterStat(target, "hp")
 
 	local newHP = targetCombatData - damage
 	-- If the target hp goes down to 0 or below, set it to 0 and handle the character's death
@@ -25,7 +25,27 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 		target:Destroy()
 	else
 		-- Otherwise, subtract the damage from the target's current HP
-		CharService.UpdateRealCharacterStat(target, "hp", newHP)
+		CharService.UpdateCurrentCharacterStat(target, "hp", newHP)
+	end
+end
+
+--- Heals a target character based on the origin character and the heal amount
+--- @within DamageService
+--- @param origin - The character initiating the heal
+--- @param target - The character receiving the heal
+--- @param healAmount - The amount of heal to apply
+function DamageService.Heal(origin: _TYPES.Character, target: _TYPES.Character, healAmount: number)
+	-- Get the target's current HP
+	local targetCombatData = CharService.GetCurrentCharacterStat(target, "hp")
+	local targetMaxHP = CharService.GetRealCharacterStat(target, "maxHp")
+
+	local newHP = targetCombatData + healAmount
+	-- If the target hp goes above max HP, set it to max HP
+	if newHP >= targetMaxHP then
+		CharService.UpdateCurrentCharacterStat(target, "hp", targetMaxHP)
+	else
+		-- Otherwise, add the heal amount to the target's current HP
+		CharService.UpdateCurrentCharacterStat(target, "hp", newHP)
 	end
 end
 

@@ -16,26 +16,23 @@ return function(energyReceiver: _TYPES.Character, amount: number, fixedGain: boo
 		return
 	end
 
-	local oldEnergy = originCombatData.realStats.currentEnergy
+	local oldEnergy = originCombatData.currentStats.energy
 	local finalisedEnergy
 
 	-- If the gain is fixed, we add the flat amount, otherwise we calculate it based on the character's stats
 	if fixedGain then
-		finalisedEnergy = math.clamp(oldEnergy + amount, 0, originCombatData.baseStats.maxEnergy)
+		finalisedEnergy = math.clamp(oldEnergy + amount, 0, originCombatData.baseStats.energy)
 	else
 		local energyGain = amount * (originCombatData.realStats.ultimateGainEfficiency / 100)
-		finalisedEnergy = math.clamp(oldEnergy + energyGain, 0, originCombatData.baseStats.maxEnergy)
+		finalisedEnergy = math.clamp(oldEnergy + energyGain, 0, originCombatData.baseStats.energy)
 	end
 
 	-- Update the character's energy
-	CharService.UpdateRealCharacterStat(energyReceiver, "currentEnergy", finalisedEnergy)
+	CharService.UpdateCurrentCharacterStat(energyReceiver, "energy", finalisedEnergy)
 
 	-- Fire the energy changed event
-	Zap.EnergyChanged.Fire(PlayerService.GetPlayerFromCharacter(energyReceiver) :: _TYPES.RobloxPlayerType, {
+	Zap.CurrentStatsChanged.FireAll({
 		char = energyReceiver,
-		data = {
-			oldEnergy = oldEnergy,
-			newEnergy = finalisedEnergy,
-		},
+		data = { ["energy"] = finalisedEnergy },
 	})
 end

@@ -11,7 +11,6 @@ return function(animationTrack: AnimationTrack, char: _TYPES.Character, targets:
 	local originalCFrame = char.HumanoidRootPart.CFrame
 	local target = targets[1]
 	local targetCFrame = target.HumanoidRootPart.CFrame * CFrame.new(0, 0, -6)
-	warn(target.HumanoidRootPart.Position, targetCFrame.Position)
 	char:PivotTo(CFrame.lookAt(targetCFrame.Position, target.HumanoidRootPart.Position))
 
 	-- Return to her original position when the animation is complete

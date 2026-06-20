@@ -12,20 +12,16 @@ local ProvideEnergy = require(CombatUtility.ProvideEnergy)
 local CalculateDamage = require(CombatUtility.CalculateDamage)
 -- Utility
 local Utility = require(game.ReplicatedStorage.Shared.Modules.Utility)
+-- Signal
+local Signal = require(game.ReplicatedStorage.Packages.Signal)
 
 -- Flag to prevent multiple attacks from being processed simultaneously
 local processingAttack = false
 
 -- Helper function to find a character in the workspace based on the provided index
-local function findCharacterWithIndex(indexToFind: number): _TYPES.Character?
-	local enemiesFolder = game.Workspace.Characters.Enemies
-	if not enemiesFolder then
-		warn("Enemies folder not found in Workspace.")
-		return nil
-	end
-
-	-- Loop through the children of the Enemies folder to find the character with the matching index
-	for _, child in pairs(enemiesFolder:GetChildren()) do
+local function findCharacterWithIndex(indexToFind: number, folder: Folder): _TYPES.Character?
+	-- Loop through the children of the folder to find the character with the matching index
+	for _, child in pairs(folder:GetChildren()) do
 		local charIndex = child:GetAttribute("Index")
 		warn(charIndex, indexToFind)
 		if charIndex and charIndex == indexToFind then
@@ -62,26 +58,46 @@ local function ExecuteAttack(moveName: string, attackData: _TYPES.AttackData, mo
 	-- Determine targets on the server
 	-- The client has its own version of this for visual purposes, but the server will verify it to be safe
 	local targets = {} :: { _TYPES.Character }
-	local targetsInWorkspace = game.Workspace.Characters.Enemies:GetChildren()
+	local side = attackData.origin:GetAttribute("Side")
+	local targetsInWorkspace
+	-- Depends on the side, retrieve the appropriate folder
+	if side == "Allies" then
+		targetsInWorkspace = game.Workspace.Characters.Enemies
+	else
+		targetsInWorkspace = game.Workspace.Characters.Allies
+	end
+
 	local moveData = Utility.GetCharacterMoveList(attackData.origin :: _TYPES.Character)[moveName]
 	local enemySelectionType = moveData.enemySelectionType
 
 	-- Determine the indexes first
-	if enemySelectionType == "Single" then -- Select a single enemy.
-		table.insert(targets, findCharacterWithIndex(attackData.primaryTargetIndex) :: _TYPES.Character)
-	elseif enemySelectionType == "Blast" then -- Select a main enemy and 2 enemies around them (if they exist).
+	if enemySelectionType == "Single" then -- Select a single target.
+		table.insert(
+			targets,
+			findCharacterWithIndex(attackData.primaryTargetIndex, targetsInWorkspace) :: _TYPES.Character
+		)
+	elseif enemySelectionType == "Blast" then -- Select a main target and 2 targets around them (if they exist).
 		-- Insert the primary target first
-		table.insert(targets, findCharacterWithIndex(attackData.primaryTargetIndex) :: _TYPES.Character)
+		table.insert(
+			targets,
+			findCharacterWithIndex(attackData.primaryTargetIndex, targetsInWorkspace) :: _TYPES.Character
+		)
 
-		-- Check if the primary target has adjacent enemies and add them to the targets list
+		-- Check if the primary target has adjacent targets and add them to the targets list
 		if attackData.primaryTargetIndex - 1 > 0 then
-			table.insert(targets, findCharacterWithIndex(attackData.primaryTargetIndex - 1) :: _TYPES.Character)
+			table.insert(
+				targets,
+				findCharacterWithIndex(attackData.primaryTargetIndex - 1, targetsInWorkspace) :: _TYPES.Character
+			)
 		end
-		if attackData.primaryTargetIndex + 1 <= #targetsInWorkspace then
-			table.insert(targets, findCharacterWithIndex(attackData.primaryTargetIndex + 1) :: _TYPES.Character)
+		if attackData.primaryTargetIndex + 1 <= #targetsInWorkspace:GetChildren() then
+			table.insert(
+				targets,
+				findCharacterWithIndex(attackData.primaryTargetIndex + 1, targetsInWorkspace) :: _TYPES.Character
+			)
 		end
-	elseif enemySelectionType == "AoE" then -- Select all enemies on the field.
-		targets = targetsInWorkspace
+	elseif enemySelectionType == "AoE" then -- Select all targets on the field.
+		targets = targetsInWorkspace:GetChildren()
 	end
 
 	warn(attackData.primaryTargetIndex, targets)
@@ -95,24 +111,30 @@ local function ExecuteAttack(moveName: string, attackData: _TYPES.AttackData, mo
 
 	-- Fire the successful attack event
 	EventService.Events.SuccessfulAttack:Fire({
-		player = PlayerService.GetPlayerFromCharacter(attackData.origin) :: _TYPES.RobloxPlayerType,
+		char = attackData.origin :: _TYPES.Character,
 		data = {
-			char = attackData.origin :: _TYPES.Character,
-			data = {
-				moveName = moveName,
-				targets = targets,
-			},
+			moveName = moveName,
+			targets = targets,
 		},
 	})
 
-	anim.Stopped:Connect(function()
+	-- Calculate damage, but do not apply it until the animation is complete.
+	local calculatedDamages = {}
+	for _, target in pairs(targets) do
+		calculatedDamages[target] = CalculateDamage(attackData, target, moveName)
+	end
+
+	local connection
+	connection = anim.Stopped:Connect(function()
+		connection:Disconnect() -- Disconnect the listener
+
+		-- Apply the calculated damage to each target
+		for target, damage in pairs(calculatedDamages) do
+			DamageService.Damage(attackData.origin, target, damage)
+		end
+
 		-- Provide energy gain
 		ProvideEnergy(attackData.origin, attackData.data.energyGain, false)
-
-		-- Calculate damage
-		for _, target in pairs(targets) do
-			DamageService.Damage(attackData.origin, target, CalculateDamage(attackData, moveName))
-		end
 
 		-- Play the hurt animation for each target
 		for _, target in pairs(targets) do

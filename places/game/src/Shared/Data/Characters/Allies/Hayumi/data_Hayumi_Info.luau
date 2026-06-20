@@ -9,13 +9,22 @@ local info = {
 		def = 140,
 		hp = 2200,
 		spd = 90,
+		shield = 0,
 		--
 		critRate = 0,
 		critDmg = 0,
 		--
-		startingEnergy = 40,
-		maxEnergy = 100,
+		energy = 120,
 		ultimateGainEfficiency = 120,
+		--
+		dmgTakenMult = 100,
+		dmgDealtMult = 100,
+	},
+	-- Starting stats
+	startingStats = {
+		hp = 2200,
+		energy = 40,
+		shield = 0,
 	},
 } :: _TYPES.CharacterData
 

@@ -9,9 +9,10 @@ local moveName = "BasicAttack"
 -- Info
 local moveInfo = require(rep.Shared.Data.Characters.Enemies.MockEnemy.data_MockEnemy_Moves)[moveName]
 
-return function(char: _TYPES.Character)
+return function(char: _TYPES.Character, primaryTargetIndex: number)
 	local attackData = {
 		origin = char,
+		primaryTargetIndex = primaryTargetIndex,
 		targets = {},
 		data = moveInfo.data,
 		info = moveInfo.info,

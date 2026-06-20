@@ -114,14 +114,14 @@
               "Children": [
                 {
                   "ClassName": "Animation",
-                  "Name": "BasicAttack",
+                  "Name": "BasicAttack_Execute",
                   "Properties": {
                     "AnimationId": "rbxassetid://88030109814578"
                   }
                 },
                 {
                   "ClassName": "Animation",
-                  "Name": "Skill",
+                  "Name": "Skill_Execute",
                   "Properties": {
                     "AnimationId": "rbxassetid://88030109814578"
                   }

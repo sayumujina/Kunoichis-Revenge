@@ -128,6 +128,24 @@ function TurnService.GetCurrentTurn(): _TYPES.TurnEntry?
 	return currentEntry
 end
 
+-- Helper function to get a character's combat service module
+local function getCharacterCombatService(char: _TYPES.Character): any
+	local combatServiceModuleName = char.Name .. "_CombatService"
+	if not combatServiceModuleName then
+		warn("Character", char.Name, "does not have a CombatService module")
+		return nil
+	end
+
+	local combatServiceModule =
+		Services.Characters[char:GetAttribute("Side")][char.Name]:FindFirstChild(combatServiceModuleName)
+	if not combatServiceModule then
+		warn("CombatService module", combatServiceModuleName, "not found for character", char.Name)
+		return nil
+	end
+
+	return combatServiceModule
+end
+
 --- Advance to the next turn
 function TurnService.MoveToNextTurn()
 	if #turnQueue == 0 then
@@ -177,10 +195,14 @@ function TurnService.MoveToNextTurn()
 
 	-- If the next character is an npc, execute its' attack after a short delay
 	if turnQueue[1].side == "Enemies" then
-		task.wait(1) --This is a placeholder, we will implement NPC attack delay and behaviour later
-		EventService.Events.ExecuteNPCAttack:Fire({
-			char = turnQueue[1].char,
-		})
+		task.wait(1) -- This is a placeholder, we will implement NPC attack delay and behaviour later
+		-- Call the NPC's combat service to execute its' attack
+		local npcCombatService = getCharacterCombatService(turnQueue[1].char)
+		if npcCombatService then
+			require(npcCombatService).HandleAttackBehaviour(turnQueue[1].char)
+		else
+			warn("No combat service found for NPC character:", turnQueue[1].char.Name)
+		end
 	end
 end
 

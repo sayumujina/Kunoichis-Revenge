@@ -28,18 +28,18 @@ return function(char: _TYPES.Character)
 	local characterInfoShieldbar = createCharacterCombatInfoShieldbar()
 	characterInfoShieldbar.Parent = characterInfoCard
 
-	local characterInfoHealthCountLabel = Instance.new("TextLabel")
-	characterInfoHealthCountLabel.Name = "CharacterInfo_HealthCountLabel"
-	characterInfoHealthCountLabel.AnchorPoint = Vector2.new(1, 0)
-	characterInfoHealthCountLabel.BackgroundTransparency = 1
-	characterInfoHealthCountLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
-	characterInfoHealthCountLabel.Position = UDim2.fromScale(0.97, 0.82)
-	characterInfoHealthCountLabel.Size = UDim2.fromScale(0.3, 0.1)
-	characterInfoHealthCountLabel.Text = "4233"
-	characterInfoHealthCountLabel.TextColor3 = Color3.new(1, 1, 1)
-	characterInfoHealthCountLabel.TextScaled = true
-	characterInfoHealthCountLabel.TextXAlignment = Enum.TextXAlignment.Right
-	characterInfoHealthCountLabel.Parent = characterInfoCard
+	local characterInfoHPLabel = Instance.new("TextLabel")
+	characterInfoHPLabel.Name = "CharacterInfo_HPLabel"
+	characterInfoHPLabel.AnchorPoint = Vector2.new(1, 0)
+	characterInfoHPLabel.BackgroundTransparency = 1
+	characterInfoHPLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	characterInfoHPLabel.Position = UDim2.fromScale(0.97, 0.82)
+	characterInfoHPLabel.Size = UDim2.fromScale(0.3, 0.1)
+	characterInfoHPLabel.Text = "4233"
+	characterInfoHPLabel.TextColor3 = Color3.new(1, 1, 1)
+	characterInfoHPLabel.TextScaled = true
+	characterInfoHPLabel.TextXAlignment = Enum.TextXAlignment.Right
+	characterInfoHPLabel.Parent = characterInfoCard
 
 	local characterInfoCardAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 	characterInfoCardAspectRatioConstraint.Name = "UIAspectRatioConstraint"

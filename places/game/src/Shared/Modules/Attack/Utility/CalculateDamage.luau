@@ -5,7 +5,7 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local LogService = game:GetService("LogService")
 
-return function(attackData: _TYPES.AttackData, moveName: string)
+return function(attackData: _TYPES.AttackData, target: _TYPES.Character, moveName: string)
 	-- Outgoing DMG =
 	-- Base DMG -- Character's ATK stat * (skill multiplier / 100)
 	-- × DMG% Multiplier -- Damage bonus from buffs, debuffs, and other sources
@@ -14,20 +14,22 @@ return function(attackData: _TYPES.AttackData, moveName: string)
 	-- × DMG Taken Multiplier -- Damage taken bonus from buffs, debuffs, and other sources
 
 	local origin = attackData.origin
+	local originStats = CharService.GetCharacterCombatData(origin) :: _TYPES.CharacterCombatData
+	local targetStats = CharService.GetCharacterCombatData(target) :: _TYPES.CharacterCombatData
 
 	-- 1. Calculate base dmg
-	local charAtk = CharService.GetRealCharacterStat(origin, "atk")
+	local charAtk = originStats.realStats.atk
 	local moveMult = attackData.data.mult or 100
 	local baseDmg = charAtk * (moveMult / 100)
 
 	-- 2. Calculate DMG% Multiplier
-	local dmgPercentMult = 1 -- Placeholder for future implementation
+	local dmgPercentMult = originStats.realStats.dmgDealtMult / 100
 
 	-- 3. Calculate DEF Multiplier
 	local defMult = 1 -- Placeholder for future implementation
 
 	-- 4. Calculate DMG Taken Multiplier
-	local dmgTakenMult = 1 -- Placeholder for future implementation
+	local dmgTakenMult = targetStats.realStats.dmgTakenMult / 100
 
 	-- Calculate final damage for each target
 	local finalDmg = baseDmg * dmgPercentMult * defMult * dmgTakenMult

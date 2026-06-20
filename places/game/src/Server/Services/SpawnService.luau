@@ -90,20 +90,22 @@ function SpawnService.SpawnCharacter(
 	-- Spawn from above the baseplate
 	char:PivotTo(cframe)
 
-	-- Load the character's base stats into the CharService
-	CharService.LoadCharacterBaseStats(char, side)
-
-	-- Add the character to the turn system
-	TurnService.AddActiveCharacter(char)
-
 	-- Send a signal that spawn is successful
 	EventService.Events.SpawnSuccessfulForChar:Fire({
 		player = player,
 		data = {
 			char = char,
-			data = CharService.GetCharacterCombatData(char),
+			data = {
+				side = side,
+			},
 		},
 	})
+
+	-- Load the character's base stats into the CharService
+	CharService.LoadCharacterStats(char, side)
+
+	-- Add the character to the turn system
+	TurnService.AddActiveCharacter(char)
 end
 
 --- Spawn all characters of a side

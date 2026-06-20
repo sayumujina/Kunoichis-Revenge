@@ -22,6 +22,18 @@ local Components = {
 	},
 }
 
+local matchingCurrentStatsName = {
+	["energy"] = "CurrentEnergy",
+	["hp"] = "CurrentHP",
+	-- ["shield"] = "CurrentShield",
+}
+
+local matchingRealStatsName = {
+	["energy"] = "MaxEnergy",
+	["hp"] = "MaxHP",
+	-- ["shield"] = "MaxShield",
+}
+
 --
 local turnQueue = {} :: { _TYPES.TurnEntry }
 
@@ -50,13 +62,13 @@ function HUDController.OnStart()
 	end)
 
 	-- Listens to spawn successful events to create character info cards for the spawned characters
-	Zap.SpawnSuccessfulForChar.On(function(spawnSuccessfulForCharEvent)
+	Zap.SpawnSuccessfulForChar.On(function(spawnSuccessfulEvent)
 		-- If the spawned character is not an ally, return early
-		if spawnSuccessfulForCharEvent.data.side ~= "Allies" then
+		if spawnSuccessfulEvent.data.side ~= "Allies" then
 			return
 		end
 
-		local char = spawnSuccessfulForCharEvent.char
+		local char = spawnSuccessfulEvent.char
 
 		-- Create a character info card for the spawned character
 		local characterInfoCard =
@@ -65,16 +77,10 @@ function HUDController.OnStart()
 		if characterInfoFrame then
 			characterInfoCard.Parent = characterInfoFrame
 		end
-
-		-- Change the energy current value and max value to match the spawned character's energy values
-		characterInfoCard:FindFirstChild("CharacterCurrentEnergyValue", true).Value =
-			spawnSuccessfulForCharEvent.data.baseStats.startingEnergy
-		characterInfoCard:FindFirstChild("CharacterMaxEnergyValue", true).Value =
-			spawnSuccessfulForCharEvent.data.baseStats.maxEnergy
 	end)
 
-	-- Listens to energy changed events to update the energy values on the character info cards
-	Zap.EnergyChanged.On(function(energyChangedEvent)
+	-- Listens to current stats changed events to update the stat values on the character info cards
+	Zap.CurrentStatsChanged.On(function(statsChangedEvent)
 		local characterInfoFrame = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
 		if not characterInfoFrame then
 			return
@@ -88,12 +94,67 @@ function HUDController.OnStart()
 				continue
 			end
 
-			if associatedCharValue.Value == energyChangedEvent.char then
-				card:FindFirstChild("CharacterCurrentEnergyValue", true).Value = energyChangedEvent.data.newEnergy
-				break
+			-- If the associated character value does not match the character whose stats changed, skip this card
+			if associatedCharValue.Value ~= statsChangedEvent.char then
+				continue
 			end
+
+			-- Update the stat values on the character info card based on the changed stats
+			for statName, statValue in pairs(statsChangedEvent.data) do
+				-- Check if the stat name is one of the stats we are tracking
+				if not matchingCurrentStatsName[statName] then
+					continue
+				end
+
+				-- Replace the stat value on the character info card with the updated stat value
+				local statValueObject =
+					card:FindFirstChild("Character" .. matchingCurrentStatsName[statName] .. "Value", true)
+				if statValueObject then
+					statValueObject.Value = statValue
+				end
+			end
+			break
 		end
 	end)
+
+	-- Listens to real stats changed events to update the stat values on the character info cards
+	Zap.RealStatsChanged.On(function(statsChangedEvent)
+		local characterInfoFrame = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
+		if not characterInfoFrame then
+			return
+		end
+
+		-- Find the corresponding character info card using the character reference and update the energy values
+		for _, card in pairs(characterInfoFrame:GetChildren()) do
+			-- Check if the card is a Frame and has the AssociatedCharValue object value, then compare the character reference
+			local associatedCharValue = card:FindFirstChild("AssociatedCharValue", true)
+			if not card:IsA("Frame") or not associatedCharValue then
+				continue
+			end
+
+			-- If the associated character value does not match the character whose stats changed, skip this card
+			if associatedCharValue.Value ~= statsChangedEvent.char then
+				continue
+			end
+
+			-- Update the stat values on the character info card based on the changed stats
+			for statName, statValue in pairs(statsChangedEvent.data) do
+				-- Check if the stat name is one of the stats we are tracking
+				if not matchingRealStatsName[statName] then
+					continue
+				end
+
+				-- Replace the stat value on the character info card with the updated stat value
+				local statValueObject =
+					card:FindFirstChild("Character" .. matchingRealStatsName[statName] .. "Value", true)
+				if statValueObject then
+					statValueObject.Value = statValue
+				end
+			end
+			break
+		end
+	end)
+
 	-- Listen to completed turns to update the turn queue
 	Zap.TurnCompleted.On(function(completedTurnData)
 		-- Find the corresponding turn card using index and remove it
