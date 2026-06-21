@@ -17,7 +17,6 @@ local allEnemies: { _TYPES.Character }
 function EffectsController.OnStart()
 	-- Listen to spawn finished event
 	Zap.SpawnFinished.On(function()
-		warn("Spawn finished, effects controller received the signal!")
 		-- Get all enemies
 		allEnemies = workspace.Characters.Enemies:GetChildren() :: { _TYPES.Character }
 	end)

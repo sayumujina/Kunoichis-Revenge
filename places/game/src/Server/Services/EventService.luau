@@ -42,10 +42,7 @@ export type SpawnFinishedEvent = {
 --- Describes the event when a turn is advanced in the turn order.
 --- Contains the player associated with the turn advancement and the data of the turn that was advanced to.
 export type TurnCompletedEvent = {
-	player: _TYPES.RobloxPlayerType,
-	data: {
-		turnId: number, -- It's always gonna be the top of the turn queue, UNLESS stated otherwise
-	},
+	turnId: number, -- It's always gonna be the top of the turn queue, UNLESS stated otherwise
 }
 
 --- @type TurnStartedEvent { player: _TYPES.RobloxPlayerType, data: { char: _TYPES.Character, turnId: number } }
@@ -115,7 +112,6 @@ EventService.Events = {
 --- A list of events that do not need to be replicated to clients.
 EventService.ClientBlacklist = {
 	"RequestSpawn",
-	"TurnCompleted",
 }
 
 --- @type PlayerScoped { string }

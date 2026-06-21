@@ -7,9 +7,11 @@ local info = {
 	baseStats = {
 		atk = 200,
 		def = 140,
-		hp = 1200,
+		hp = 12000,
 		spd = 40,
 		shield = 0,
+		--
+		exposure = 100,
 		--
 		critRate = 0,
 		critDmg = 0,
@@ -25,9 +27,11 @@ local info = {
 	},
 	-- Starting stats
 	startingStats = {
-		hp = 1200,
+		hp = 12000,
 		energy = 0,
 		shield = 0,
+		--
+		exposure = 40,
 	},
 } :: _TYPES.CharacterData
 

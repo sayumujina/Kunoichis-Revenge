@@ -19,6 +19,5 @@ return function(char: _TYPES.Character, primaryTargetIndex: number)
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
-	warn("Executing attack:", moveName, "with data:", attackData)
 	ExecuteMove(moveName, attackData, true)
 end

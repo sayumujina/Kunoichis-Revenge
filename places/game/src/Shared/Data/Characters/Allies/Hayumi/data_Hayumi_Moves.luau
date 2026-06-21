@@ -16,6 +16,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 			},
 			energyGain = 5,
 			skillPointGain = 2,
+			exposureDealt = 10,
 		},
 		--
 		info = {

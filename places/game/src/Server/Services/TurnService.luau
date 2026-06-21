@@ -5,6 +5,7 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local PlayerService = require(Services.PlayerService)
 local CharService = require(script.Parent.CharService)
 local EventService = require(script.Parent.EventService)
+local StatusService = require(script.Parent.StatusService)
 --
 local Zap = require(Services.Parent.zap)
 --
@@ -152,17 +153,21 @@ function TurnService.MoveToNextTurn()
 		return
 	end
 
-	-- Notify the client about the turn completion
-	Zap.TurnCompleted.Fire(PlayerService.GetPlayerFromCharacter(turnQueue[1].char) :: _TYPES.RobloxPlayerType, {
-		turnId = turnQueue[1].turnId,
-	})
-
 	-- Remove the current turn from the queue
 	local completedTurn = table.remove(turnQueue, 1)
 
 	if not completedTurn then
 		return -- bro there's no way this check ever fails cuz there's alraedy an empty table check earlier, I just don't want the Language server to yell
 	end
+
+	-- Reduce the duration of all statuses for the character whose turn just completed
+	StatusService.ReduceStatusesDuration(completedTurn.char)
+
+	warn("Turn id: ", completedTurn.turnId, " completed")
+	-- Notify the client about the turn completion
+	EventService.Events.TurnCompleted:Fire({
+		turnId = completedTurn.turnId,
+	})
 
 	-- Check if this character is still active
 	if table.find(activeCharacters, completedTurn.char) then

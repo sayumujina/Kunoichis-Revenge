@@ -8,6 +8,8 @@ export type CharacterStats = {
 	spd: number,
 	shield: number,
 	--
+	exposure: number?, -- Only for NPCs
+	--
 	critRate: number,
 	critDmg: number,
 	--

@@ -3,6 +3,7 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
+local StatusService = require(Services.StatusService)
 
 local DamageService = {}
 
@@ -29,6 +30,62 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 	end
 end
 
+--- Deals exposure damage to a target character based on the origin character and the exposure amount
+--- Exposures only exist for NPC characters
+--- @within DamageService
+--- @param origin - The character dealing the exposure damage
+--- @param target - The character receiving the exposure damage
+--- @param exposure - The amount of exposure damage to deal
+function DamageService.DealExposure(origin: _TYPES.Character, target: _TYPES.Character, exposure: number)
+	-- Ignore if the target character is not an NPC
+	if target:GetAttribute("Side") ~= "Enemies" then
+		return
+	end
+
+	-- Ignore if the target is already collapsed
+	if StatusService.GetStatusById(target, "Collapsed") then
+		return
+	end
+
+	-- Get the target's current and max exposure
+	local targetMaxExposure = CharService.GetRealCharacterStat(target, "exposure")
+	local targetCurrentExposure = CharService.GetCurrentCharacterStat(target, "exposure")
+
+	local newExposure = targetCurrentExposure + exposure
+	-- If the target's exposure goes up to the max exposure or above, set it to 0 and handle the character's collapsed state
+	if newExposure >= targetMaxExposure then
+		-- Apply the collapsed status to the target character here
+		local collapsedStatus = {
+			statusType = { "Collapsed" } :: { _TYPES.StatusTypes },
+			--
+			info = {
+				name = "Collapsed",
+				description = "The character has collapsed. They cannot act and takes increased damage",
+				duration = 1, -- Collapsed for 1 turn
+				expellable = false,
+			},
+			--
+			statChanges = {
+				{
+					statType = "realStats",
+					statChangeType = "Flat",
+					statName = "dmgTakenMult",
+					value = 10, -- Take 10% more damage while collapsed
+				},
+			} :: { _TYPES.StatChangeTypes },
+		} :: _TYPES.Status
+
+		-- Add the collapsed status to the target character
+		StatusService.AddStatus(target, "Collapsed", collapsedStatus)
+
+		-- Reset the target's current exposure to 0
+		CharService.UpdateCurrentCharacterStat(target, "exposure", 0)
+	else
+		-- Otherwise, add the exposure to the target's current exposure
+		CharService.UpdateCurrentCharacterStat(target, "exposure", newExposure)
+	end
+end
+
 --- Heals a target character based on the origin character and the heal amount
 --- @within DamageService
 --- @param origin - The character initiating the heal
@@ -40,7 +97,6 @@ function DamageService.Heal(origin: _TYPES.Character, target: _TYPES.Character, 
 	local targetMaxHP = CharService.GetRealCharacterStat(target, "hp")
 
 	local newHP = targetCombatData + healAmount
-	warn(target, newHP, targetMaxHP)
 	-- If the target hp goes above max HP, set it to max HP
 	if newHP >= targetMaxHP then
 		CharService.UpdateCurrentCharacterStat(target, "hp", targetMaxHP)

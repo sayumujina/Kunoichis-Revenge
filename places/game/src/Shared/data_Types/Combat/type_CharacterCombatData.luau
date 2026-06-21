@@ -1,5 +1,7 @@
 local SideTypes = require(script.Parent.type_Sides)
 local CharacterDataTypes = require(script.Parent.Parent.type_CharacterData)
+local StatusTypes = require(script.Parent.type_Status)
+
 --- @within data_TYPES
 --- @type CharacterCombatData = {atk: number, def: number, hp: number, spd: number, maxEnergy: number, currentEnergy: number}
 export type CharacterCombatData = {
@@ -14,7 +16,11 @@ export type CharacterCombatData = {
 		hp: number,
 		energy: number,
 		shield: number,
+		--
+		exposure: number?, -- Only for NPCs
 	},
+	-- Statuses
+	statuses: { [string]: StatusTypes.Status }?,
 }
 
 export type NPCCombatData = CharacterCombatData & {

@@ -31,14 +31,14 @@ local Components = {
 local matchingCurrentStatsName = {
 	["energy"] = "CurrentEnergy",
 	["hp"] = "CurrentHP",
-	["composure"] = "CurrentComposure",
+	["exposure"] = "CurrentExposure",
 	-- ["shield"] = "CurrentShield",
 }
 
 local matchingRealStatsName = {
 	["energy"] = "MaxEnergy",
 	["hp"] = "MaxHP",
-	["composure"] = "MaxComposure",
+	["exposure"] = "MaxExposure",
 	-- ["shield"] = "MaxShield",
 }
 
@@ -128,7 +128,7 @@ function HUDController.OnStart()
 		local components = Components.Combat.CharacterCombatInfo
 		local char = spawnSuccessfulEvent.char
 
-		-- If the spawned character is an aly, create a character info card for them
+		-- If the spawned character is an ally, create a character info card for them
 		if spawnSuccessfulEvent.data.side == "Allies" then
 			-- Create a character info card for the spawned character
 			local characterInfoCard = components.createCharacterCombatInfoCard(char :: _TYPES.Character)
@@ -145,7 +145,6 @@ function HUDController.OnStart()
 
 	-- Listens to current stats changed events to update the stat values on the character info cards
 	Zap.CurrentStatsChanged.On(function(statsChangedEvent)
-		warn("CurrentStatsChanged event received for character: " .. statsChangedEvent.char.Name)
 		updateCharacterStatValue(statsChangedEvent.char :: _TYPES.Character, "currentStats", statsChangedEvent.data)
 	end)
 
@@ -156,6 +155,7 @@ function HUDController.OnStart()
 
 	-- Listen to completed turns to update the turn queue
 	Zap.TurnCompleted.On(function(completedTurnData)
+		warn("Received turn completed event for turn id: ", completedTurnData.turnId)
 		-- Find the corresponding turn card using index and remove it
 		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
 		if turnCardContainer then

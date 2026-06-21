@@ -6,6 +6,7 @@ return function()
 	uiTurnsFrame.BackgroundTransparency = 1
 	uiTurnsFrame.Position = UDim2.fromScale(0.02, 0.02)
 	uiTurnsFrame.Size = UDim2.fromScale(0.075, 0.6)
+	uiTurnsFrame.ClipsDescendants = true
 
 	local leftBorder = Instance.new("Frame")
 	leftBorder.Name = "Left_Border"

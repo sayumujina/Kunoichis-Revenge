@@ -8,6 +8,7 @@ local TurnTypes = require(script.Combat.type_Turns)
 local CharacterDataTypes = require(script.type_CharacterData)
 local AttackDataTypes = require(script.Combat.type_AttackData)
 local MoveTypes = require(script.Combat.type_Moves)
+local StatusTypes = require(script.Combat.type_Status)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
@@ -29,5 +30,10 @@ export type TurnEntry = TurnTypes.TurnEntry
 
 -- Combat data
 export type AttackData = AttackDataTypes.AttackData
+
+-- Status
+export type StatusTypes = StatusTypes.StatusTypes
+export type StatChangeTypes = StatusTypes.StatChangeTypes
+export type Status = StatusTypes.Status
 
 return nil

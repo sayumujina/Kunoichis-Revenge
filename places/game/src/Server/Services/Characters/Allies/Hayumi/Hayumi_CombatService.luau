@@ -25,12 +25,6 @@ function Hayumi_CombatService.OnStart()
 		if not currentTurn or inputData.char ~= currentTurn.char :: any then
 			return
 		end
-		warn(
-			"Received attack request from client:",
-			inputData,
-			"Current turn:",
-			currentTurn and currentTurn.char.Name or "None"
-		)
 
 		-- Handle the input based on the action
 		if inputData.data.move == "LightningArrow" then

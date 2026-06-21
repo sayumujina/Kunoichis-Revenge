@@ -32,8 +32,10 @@ export type MoveData = {
 			realStats: { [string]: number }?,
 			currentStats: { [string]: number }?,
 		},
+		--
 		energyGain: number,
 		skillPointGain: number,
+		exposureDealt: number?,
 	},
 	--
 	info: {

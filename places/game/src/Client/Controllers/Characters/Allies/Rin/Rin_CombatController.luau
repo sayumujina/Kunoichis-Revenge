@@ -57,7 +57,6 @@ function Rin_CombatController.HandleInput(inputData)
 			)
 			return
 		end
-		warn("Basic attack input received", CharData.selectedMove, game.Players.LocalPlayer.ActiveCharacter.Value)
 		Zap.RequestAttack.Fire({
 			char = game.Players.LocalPlayer.ActiveCharacter.Value,
 			data = {
@@ -78,7 +77,6 @@ function Rin_CombatController.HandleInput(inputData)
 			)
 			return
 		end
-		warn("Skill input received", CharData.selectedMove, game.Players.LocalPlayer.ActiveCharacter.Value)
 		Zap.RequestAttack.Fire({
 			char = game.Players.LocalPlayer.ActiveCharacter.Value,
 			data = {

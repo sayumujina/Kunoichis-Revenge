@@ -21,6 +21,7 @@ export type AttackData = {
 		},
 		energyGain: number,
 		skillPointGain: number,
+		exposureDealt: number?,
 	},
 	-- Info
 	info: {

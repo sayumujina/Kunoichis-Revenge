@@ -72,6 +72,11 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 				local damage = CalculateDamage(attackData, target, moveName)
 				DamageService.Damage(attackData.origin, target, damage)
 
+				-- Also deal exposure damage if specified
+				if attackData.data.exposureDealt and attackData.data.exposureDealt > 0 then
+					DamageService.DealExposure(attackData.origin, target, attackData.data.exposureDealt)
+				end
+
 				-- Play the hurt animation for each target
 				AnimationService.Play(target, "Hurt_Normal")
 			elseif attackData.moveCategory == "Heal" then

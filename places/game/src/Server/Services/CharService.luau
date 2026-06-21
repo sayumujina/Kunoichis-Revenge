@@ -21,6 +21,8 @@ local statsTemplate = {
 		spd = 1,
 		shield = 1,
 		--
+		exposure = 1, -- Only for NPCs
+		--
 		critRate = 0,
 		critDmg = 0,
 		--
@@ -41,6 +43,8 @@ local statsTemplate = {
 		spd = 1,
 		shield = 1,
 		--
+		exposure = 1, -- Only for NPCs
+		--
 		critRate = 0,
 		critDmg = 0,
 		--
@@ -58,7 +62,11 @@ local statsTemplate = {
 		hp = 1,
 		energy = 0,
 		shield = 0,
+		--
+		exposure = 1, -- Only for NPCs
 	},
+	-- Statuses
+	statuses = {},
 } :: _TYPES.CharacterCombatData
 
 -- Helper function to import character data from a data source
@@ -199,4 +207,91 @@ function CharService.UpdateCurrentCharacterStat(char: _TYPES.Character, statName
 	})
 end
 
+--- Get the character's stat
+--- @param char -- The character to get the stat for
+--- @param statType -- The type of stat to get (baseStats, realStats, currentStats)
+--- @param statName -- The name of the stat to get
+function CharService.GetCharacterStat(char: _TYPES.Character, statType: string, statName: string): number
+	if statType == "baseStats" then
+		return CharService.GetBaseCharacterStat(char, statName)
+	elseif statType == "realStats" then
+		return CharService.GetRealCharacterStat(char, statName)
+	elseif statType == "currentStats" then
+		return CharService.GetCurrentCharacterStat(char, statName)
+	end
+
+	return 0
+end
+
+--- Update the stat of a status to a character
+--- @param char -- The character to apply the status effects to
+--- @param statType -- The type of stat to update (baseStats, realStats, currentStats)
+--- @param statName -- The name of the stat to update
+function CharService.UpdateCharacterStat(char: _TYPES.Character, statType: string, statName: string, newValue: number)
+	if statType == "baseStats" then
+		CharService.UpdateBaseCharacterStat(char, statName, newValue)
+	elseif statType == "realStats" then
+		CharService.UpdateRealCharacterStat(char, statName, newValue)
+	elseif statType == "currentStats" then
+		CharService.UpdateCurrentCharacterStat(char, statName, newValue)
+	end
+end
+
+--- Applies all active statuses to the character, modifying its stats accordingly.
+--- Updates the character's stats based on the statuses applied.
+--- @within CharService
+--- @param char -- The character instance.
+function CharService.ApplyStatuses(char: _TYPES.Character)
+	local chardata = Chars[char]
+
+	-- Copy real stats before applying statuses
+	local prevRealStats = TableUtil.Copy(chardata.realStats)
+	local default: any = TableUtil.Copy(chardata.baseStats)
+
+	-- Check if the character has any statuses to apply
+	if not chardata.statuses then
+		return
+	end
+
+	local overriddenStats = {}
+
+	-- Loop through all statuses and apply their buffs, if applicable
+	for __, status in pairs(chardata.statuses) do
+		if not status.statChanges then
+			continue
+		end
+
+		-- Loop through all stat changes of the status and apply them to the character's stats
+		local statusChanges = status.statChanges
+		for __, statChangeData in statusChanges do
+			local amount = statChangeData.value
+
+			-- Apply the stat change based on the change type (flat, mult, or override)
+			if statChangeData.statChangeType == "Flat" then
+				default[statChangeData.statName] += amount
+			-- In case of a multiplier, we add the mults, not multiplying them
+			-- Example: 2 mults: 30% and 60%
+			-- The final mult would be 100% + 30% + 60% = 190% total, not 1.3 * 1.6 = 208% total
+			elseif statChangeData.statChangeType == "Mult" then
+				default[statChangeData.statName] += amount * chardata.baseStats[statChangeData.statName]
+			-- For override specifically, once a specific stat is set,
+			-- we ignore any subsequent override changes to that same stat from other statuses to avoid conflicts
+			elseif statChangeData.statChangeType == "Override" then
+				if overriddenStats[statChangeData.statName] then
+					continue
+				end
+
+				default[statChangeData.statName] = amount
+				overriddenStats[statChangeData.statName] = true
+			end
+		end
+	end
+
+	-- Update real stats if there are any changes
+	for statName, stat in default do
+		if stat ~= prevRealStats[statName] then
+			CharService.UpdateRealCharacterStat(char, statName, stat)
+		end
+	end
+end
 return CharService

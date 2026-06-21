@@ -72,7 +72,5 @@ return function(attackData: _TYPES.AttackData, moveName: string)
 		targets = targetsInWorkspace:GetChildren()
 	end
 
-	warn(attackData.primaryTargetIndex, targets)
-
 	return targets
 end
