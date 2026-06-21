@@ -5,12 +5,22 @@ local function getHPScale(current: number, max: number): number
 	return current / max
 end
 
-return function()
+local FILL_POSITION_OFFSET = 0.008 -- The scale of the healthbar fill relative to the healthbar frame size
+local FILL_SIZE_X_OFFSET = FILL_POSITION_OFFSET * 2 -- The scale of the healthbar fill relative to the healthbar frame size
+local FILL_SIZE_Y_SCALE = 0.9
+
+--- @param size - The size of the healthbar frame
+--- @param position - The position of the healthbar frame
+return function(size: UDim2, position: UDim2)
 	local characterInfoHealthbarFrame = Instance.new("Frame")
 	characterInfoHealthbarFrame.Name = "CharacterInfo_Healthbar"
 	characterInfoHealthbarFrame.BackgroundTransparency = 1
-	characterInfoHealthbarFrame.Position = UDim2.fromScale(0.005, 0.669)
-	characterInfoHealthbarFrame.Size = UDim2.fromScale(0.964, 0.1344)
+	characterInfoHealthbarFrame.Position = position
+	characterInfoHealthbarFrame.Size = size
+
+	local characterInfoHealthbarAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+	characterInfoHealthbarAspectRatioConstraint.Name = "CharacterInfo_HealthbarAspectRatioConstraint"
+	characterInfoHealthbarAspectRatioConstraint.AspectRatio = 9.9484
 
 	local characterMaxHPValue = Instance.new("NumberValue")
 	characterMaxHPValue.Name = "CharacterMaxHPValue"
@@ -48,9 +58,11 @@ return function()
 	characterInfoHealthbarFill.AnchorPoint = Vector2.new(0, 0.5)
 	characterInfoHealthbarFill.BackgroundTransparency = 1
 	characterInfoHealthbarFill.ClipsDescendants = true
-	characterInfoHealthbarFill.Position = UDim2.fromScale(-2.84956e-08, 0.5)
-	characterInfoHealthbarFill.Size =
-		UDim2.fromScale(getHPScale(characterCurrentHPValue.Value, characterMaxHPValue.Value), 1)
+	characterInfoHealthbarFill.Position = UDim2.fromScale(FILL_POSITION_OFFSET, 0.5)
+	characterInfoHealthbarFill.Size = UDim2.fromScale(
+		getHPScale(characterCurrentHPValue.Value, characterMaxHPValue.Value) - FILL_SIZE_X_OFFSET,
+		FILL_SIZE_Y_SCALE
+	)
 
 	local characterInfoHealthbarFillImageLabel = Instance.new("ImageLabel")
 	characterInfoHealthbarFillImageLabel.Name = "ImageLabel"
@@ -60,7 +72,8 @@ return function()
 
 	-- Update the healthbar background size when the absolute size of the healthbar frame changes (e.g. due to screen resizing)
 	characterInfoHealthbarFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		characterInfoHealthbarFillImageLabel.Size = UDim2.new(1, 0, 0, characterInfoHealthbarFrame.AbsoluteSize.Y)
+		characterInfoHealthbarFillImageLabel.Size =
+			UDim2.new(1, 0, 0, characterInfoHealthbarFrame.AbsoluteSize.Y * FILL_SIZE_Y_SCALE)
 	end)
 
 	-- Listens to hp changed events to update the healthbar fill
@@ -69,7 +82,7 @@ return function()
 		local hpScale = getHPScale(characterCurrentHPValue.Value, characterMaxHPValue.Value)
 
 		-- Update the healthbar fill size based on the new health value
-		characterInfoHealthbarFill.Size = UDim2.fromScale(hpScale, 1)
+		characterInfoHealthbarFill.Size = UDim2.fromScale(hpScale - FILL_SIZE_X_OFFSET, FILL_SIZE_Y_SCALE)
 
 		-- Update the label that shows the current health value
 		local characterInfoCard = characterInfoHealthbarFrame.Parent
@@ -86,8 +99,8 @@ return function()
 	local characterInfoHealthbarFillUIGradient = Instance.new("UIGradient")
 	characterInfoHealthbarFillUIGradient.Name = "UIGradient"
 	characterInfoHealthbarFillUIGradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.new(0.066667, 0.901961, 0.760784)),
-		ColorSequenceKeypoint.new(1, Color3.new(0.066667, 0.901961, 0.760784)),
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(2, 175, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(158, 247, 255)),
 	})
 	characterInfoHealthbarFillUIGradient.Parent = characterInfoHealthbarFillImageLabel
 

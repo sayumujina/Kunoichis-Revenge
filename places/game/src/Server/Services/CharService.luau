@@ -121,6 +121,7 @@ function CharService.LoadCharacterStats(char: _TYPES.Character, side: _TYPES.Sid
 		Chars[char] = TableUtil.Copy(statsTemplate, true)
 	end
 
+	warn("Loading character stats for " .. char.Name .. " on side: " .. side)
 	importCharacterStatsFromSource(char, side)
 
 	-- Fire the event to notify clients about the character stat load

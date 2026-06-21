@@ -22,7 +22,8 @@ return function(char: _TYPES.Character)
 	local characterInfoEnergy = createCharacterCombatInfoEnergy()
 	characterInfoEnergy.Parent = characterInfoCard
 
-	local characterInfoHealthbar = createCharacterCombatInfoHealthbar()
+	local characterInfoHealthbar =
+		createCharacterCombatInfoHealthbar(UDim2.fromScale(0.964, 0.1344), UDim2.fromScale(0.005, 0.669))
 	characterInfoHealthbar.Parent = characterInfoCard
 
 	local characterInfoShieldbar = createCharacterCombatInfoShieldbar()
