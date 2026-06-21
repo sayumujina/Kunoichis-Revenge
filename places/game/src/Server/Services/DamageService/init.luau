@@ -4,6 +4,9 @@ local _TYPES = require(rep.Shared.data_Types)
 local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local StatusService = require(Services.StatusService)
+-- Helpers
+local Helpers = Services.DamageService.Helper
+local HandleCollapse = require(Helpers.HandleCollapse)
 
 local DamageService = {}
 
@@ -54,29 +57,8 @@ function DamageService.DealExposure(origin: _TYPES.Character, target: _TYPES.Cha
 	local newExposure = targetCurrentExposure + exposure
 	-- If the target's exposure goes up to the max exposure or above, set it to 0 and handle the character's collapsed state
 	if newExposure >= targetMaxExposure then
-		-- Apply the collapsed status to the target character here
-		local collapsedStatus = {
-			statusType = { "Collapsed" } :: { _TYPES.StatusTypes },
-			--
-			info = {
-				name = "Collapsed",
-				description = "The character has collapsed. They cannot act and takes increased damage",
-				duration = 1, -- Collapsed for 1 turn
-				expellable = false,
-			},
-			--
-			statChanges = {
-				{
-					statType = "realStats",
-					statChangeType = "Flat",
-					statName = "dmgTakenMult",
-					value = 10, -- Take 10% more damage while collapsed
-				},
-			} :: { _TYPES.StatChangeTypes },
-		} :: _TYPES.Status
-
-		-- Add the collapsed status to the target character
-		StatusService.AddStatus(target, "Collapsed", collapsedStatus)
+		-- Collapse the target character
+		HandleCollapse(target)
 
 		-- Reset the target's current exposure to 0
 		CharService.UpdateCurrentCharacterStat(target, "exposure", 0)
