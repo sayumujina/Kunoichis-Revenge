@@ -12,6 +12,7 @@ local ProvideEnergy = require(CombatUtility.ProvideEnergy)
 local CalculateDamage = require(CombatUtility.CalculateDamage)
 local CalculateHealing = require(CombatUtility.CalculateHealing)
 local DetermineTargets = require(CombatUtility.DetermineTargets)
+local HandleMana = require(CombatUtility.HandleMana)
 -- Utility
 local Utility = require(game.ReplicatedStorage.Shared.Modules.Utility)
 -- Signal
@@ -35,10 +36,17 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 	-- Set processing flag to true
 	processingAttack = true
 
-	-- Play the attack animation
-	local anim = AnimationService.Play(attackData.origin, moveName .. "_Execute")
-	if not anim then
-		warn("Failed to play animation for attack: " .. moveName)
+	local player = PlayerService.GetPlayerFromCharacter(attackData.origin)
+	if not player then
+		warn("Player not found for the origin character.")
+		processingAttack = false
+		return false
+	end
+
+	-- Check if the player has enough mana to perform the move
+	-- If after the move, the player's mana would be less than 0, then the move cannot be performed
+	if not HandleMana.HasEnoughMana(player, attackData.data.manaChange) then
+		warn("Not enough mana to perform the move: " .. moveName)
 		processingAttack = false
 		return false
 	end
@@ -53,6 +61,14 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 		return false
 	end
 
+	-- Play the attack animation
+	local anim = AnimationService.Play(attackData.origin, moveName .. "_Execute")
+	if not anim then
+		warn("Failed to play animation for attack: " .. moveName)
+		processingAttack = false
+		return false
+	end
+
 	-- Fire the successful move event
 	EventService.Events.SuccessfulMove:Fire({
 		char = attackData.origin :: _TYPES.Character,
@@ -61,6 +77,9 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 			targets = targets,
 		},
 	})
+
+	-- Update the player's mana after performing the move
+	HandleMana.UpdatePlayerMana(player, attackData.data.manaChange)
 
 	local connection
 	connection = anim.Stopped:Connect(function()

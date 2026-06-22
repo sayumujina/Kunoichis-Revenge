@@ -15,7 +15,7 @@ export type MoveCategory = "Damage" | "Heal" | "Shield" | "Buff" | "Debuff"
 
 --- @within data_TYPES
 --- @type MoveData = {
---- 	moveType: MoveType, moveCategory: MoveCategory, targetSelectionType: TargetSelectionType, selectedSide: "Allies" | "Enemies", data: { atk: number, energyGain: number, skillPointGain: number }, info: { name: string, description: string }
+--- 	moveType: MoveType, moveCategory: MoveCategory, targetSelectionType: TargetSelectionType, selectedSide: "Allies" | "Enemies", data: { atk: number, energyGain: number, manaChange: number }, info: { name: string, description: string }
 export type MoveData = {
 	isDefault: boolean?, -- Whether this move is the default move for the character
 	--
@@ -32,10 +32,12 @@ export type MoveData = {
 			realStats: { [string]: number }?,
 			currentStats: { [string]: number }?,
 		},
-		--
-		energyGain: number,
-		skillPointGain: number,
-		exposureDealt: number?,
+		-- Energy gain
+		energyGain: number?, -- Only for allies
+		-- Mana change
+		manaChange: number?, -- Only for allies
+		-- Exposure dealt
+		exposureDealt: number?, -- Only for allies
 	},
 	--
 	info: {

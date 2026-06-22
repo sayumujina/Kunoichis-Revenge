@@ -9,6 +9,7 @@ local CharacterDataTypes = require(script.type_CharacterData)
 local AttackDataTypes = require(script.Combat.type_AttackData)
 local MoveTypes = require(script.Combat.type_Moves)
 local StatusTypes = require(script.Combat.type_Status)
+local ConsumablesTypes = require(script.Combat.type_Consumables)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
@@ -35,5 +36,11 @@ export type AttackData = AttackDataTypes.AttackData
 export type StatusTypes = StatusTypes.StatusTypes
 export type StatChangeTypes = StatusTypes.StatChangeTypes
 export type Status = StatusTypes.Status
+
+-- Consumables
+export type ConsumableType = ConsumablesTypes.ConsumableType
+export type Consumables = ConsumablesTypes.Consumables
+export type RegenerationConsumables = ConsumablesTypes.RegenerationConsumables
+export type BuffingConsumables = ConsumablesTypes.BuffingConsumables
 
 return nil

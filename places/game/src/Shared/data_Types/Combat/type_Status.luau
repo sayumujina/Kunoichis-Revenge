@@ -5,8 +5,6 @@ export type StatusTypes = "Collapsed"
 --- @within data_TYPES
 --- @type StatChangeTypes = {statChangeType: "Flat" | "Mult" | "Set", statToChange: string, value: number}
 export type StatChangeTypes = {
-	-- The type of stat (e.g., "realStats", "currentStats") the stat change applies to
-	statType: "realStats" | "currentStats",
 	-- Stat change type
 	statChangeType: "Flat" | "Mult" | "Override",
 	-- Stat to change
@@ -26,6 +24,9 @@ export type Status = {
 		name: string,
 		-- Status description
 		description: string,
+	},
+	-- Data
+	data: {
 		-- The duration of the status in turns
 		-- If nil, the status is considered permanent
 		duration: number?,

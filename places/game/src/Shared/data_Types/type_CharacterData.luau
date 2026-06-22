@@ -1,5 +1,6 @@
 --- @within data_TYPES
---- @type CharacterData = {atk: number, def: number, startingHp: number, hp: number, spd: number, critRate: number, critDmg: number, maxEnergy: number, ultimateGainEfficiency: number}
+--- @type CharacterData = {atk: number, def: number, startingHp: number, hp: number, spd: number, critRate: number, critDmg: number, maxEnergy: number,
+--- ultimateGainEfficiency: number, manaGainEfficiency: number, dmgTakenMult: number, dmgDealtMult: number, healingProvidedMult: number, healingReceivedMult: number}
 export type CharacterStats = {
 	--
 	atk: number,
@@ -15,6 +16,8 @@ export type CharacterStats = {
 	--
 	energy: number,
 	ultimateGainEfficiency: number,
+	--
+	manaGainEfficiency: number,
 	--
 	dmgTakenMult: number,
 	dmgDealtMult: number,

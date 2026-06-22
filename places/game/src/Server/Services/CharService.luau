@@ -29,6 +29,8 @@ local statsTemplate = {
 		energy = 0,
 		ultimateGainEfficiency = 100,
 		--
+		manaGainEfficiency = 100,
+		--
 		dmgTakenMult = 100,
 		dmgDealtMult = 100,
 		--
@@ -50,6 +52,8 @@ local statsTemplate = {
 		--
 		energy = 0,
 		ultimateGainEfficiency = 100,
+		--
+		manaGainEfficiency = 100,
 		--
 		dmgTakenMult = 100,
 		dmgDealtMult = 100,
@@ -129,18 +133,17 @@ function CharService.LoadCharacterStats(char: _TYPES.Character, side: _TYPES.Sid
 		Chars[char] = TableUtil.Copy(statsTemplate, true)
 	end
 
-	warn("Loading character stats for " .. char.Name .. " on side: " .. side)
 	importCharacterStatsFromSource(char, side)
 
 	-- Fire the event to notify clients about the character stat load
 	EventService.Events.RealStatsChanged:Fire({
 		char = char,
-		data = Chars[char].realStats,
+		data = Chars[char].realStats :: { [string]: number },
 	})
 
 	EventService.Events.CurrentStatsChanged:Fire({
 		char = char,
-		data = Chars[char].currentStats,
+		data = Chars[char].currentStats :: { [string]: number },
 	})
 end
 

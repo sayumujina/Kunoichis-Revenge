@@ -10,13 +10,15 @@ local collapsedStatus = {
 	info = {
 		name = "Collapsed",
 		description = "The character has collapsed. They cannot act and takes increased damage",
+	},
+	--
+	data = {
 		duration = 1, -- Collapsed for 1 turn
 		expellable = false,
 	},
 	--
 	statChanges = {
 		{
-			statType = "realStats",
 			statChangeType = "Mult",
 			statName = "dmgTakenMult",
 			value = 10 / 100, -- Take 10% more damage while collapsed

@@ -65,16 +65,16 @@ function StatusService.ReduceStatusDuration(char: _TYPES.Character, id: string, 
 	end
 
 	-- Skip if the status does not have a duration (permanent statuses)
-	if not status.info.duration then
+	if not status.data.duration then
 		return
 	end
 
 	-- If the duration reaches 0 or below, remove the status from the character
-	if status.info.duration - 1 <= 0 then
+	if status.data.duration - 1 <= 0 then
 		StatusService.RemoveStatus(char, id)
 	else
 		-- Otherwise, reduce the duration by 1
-		status.info.duration -= 1
+		status.data.duration -= 1
 	end
 end
 

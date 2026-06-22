@@ -12,8 +12,6 @@ local moves: { [string]: _TYPES.MoveData } = {
 			scalings = {
 				realStats = { atk = 100 / 100 },
 			},
-			energyGain = 5,
-			skillPointGain = 2,
 		},
 		--
 		info = {
@@ -32,8 +30,6 @@ local moves: { [string]: _TYPES.MoveData } = {
 			scalings = {
 				realStats = { atk = 200 / 100 },
 			},
-			energyGain = 5,
-			skillPointGain = 2,
 		},
 		--
 		info = {

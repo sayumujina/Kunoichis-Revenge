@@ -64,23 +64,38 @@ function Rin_CombatController.HandleInput(inputData)
 				primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
 			},
 		})
-	elseif inputData.action == "Skill" then
-		if CharData.selectedMove ~= "CleansingAura" then
-			CharData.selectedMove = "CleansingAura"
+	else
+		if inputData.action == "Skill" then
+			if CharData.selectedMove ~= "CleansingAura" then
+				CharData.selectedMove = "CleansingAura"
 
-			-- Set the selected side based on the move's selected side
-			CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
-			CombatController.SwitchPrimarySelectedTarget(
-				Handlers.Moves[CharData.selectedMove].targetSelectionType,
-				"increment",
-				0
-			)
-			return
+				-- Set the selected side based on the move's selected side
+				CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+				CombatController.SwitchPrimarySelectedTarget(
+					Handlers.Moves[CharData.selectedMove].targetSelectionType,
+					"increment",
+					0
+				)
+				return
+			end
+		elseif inputData.action == "BasicAttack" then
+			if CharData.selectedMove ~= "HiddenAssistance" then
+				CharData.selectedMove = "HiddenAssistance"
+
+				-- Set the selected side based on the move's selected side
+				CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+				CombatController.SwitchPrimarySelectedTarget(
+					Handlers.Moves[CharData.selectedMove].targetSelectionType,
+					"increment",
+					0
+				)
+				return
+			end
 		end
 		Zap.RequestAttack.Fire({
 			char = game.Players.LocalPlayer.ActiveCharacter.Value,
 			data = {
-				move = "CleansingAura",
+				move = CharData.selectedMove,
 				primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
 			},
 		})

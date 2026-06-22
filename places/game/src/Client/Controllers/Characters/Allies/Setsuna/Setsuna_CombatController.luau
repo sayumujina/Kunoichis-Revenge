@@ -49,23 +49,38 @@ function Setsuna_CombatController.HandleInput(inputData)
 			"increment",
 			1
 		)
-	elseif inputData.action == "BasicAttack" then
-		if CharData.selectedMove ~= "WeavingBlade" then
-			CharData.selectedMove = "WeavingBlade"
+	else
+		if inputData.action == "BasicAttack" then
+			if CharData.selectedMove ~= "WeavingBlade" then
+				CharData.selectedMove = "WeavingBlade"
 
-			-- Set the selected side based on the move's selected side
-			CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
-			CombatController.SwitchPrimarySelectedTarget(
-				Handlers.Moves[CharData.selectedMove].targetSelectionType,
-				"increment",
-				0
-			)
-			return
+				-- Set the selected side based on the move's selected side
+				CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+				CombatController.SwitchPrimarySelectedTarget(
+					Handlers.Moves[CharData.selectedMove].targetSelectionType,
+					"increment",
+					0
+				)
+				return
+			end
+		elseif inputData.action == "Skill" then
+			if CharData.selectedMove ~= "TwinBlades" then
+				CharData.selectedMove = "TwinBlades"
+
+				-- Set the selected side based on the move's selected side
+				CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+				CombatController.SwitchPrimarySelectedTarget(
+					Handlers.Moves[CharData.selectedMove].targetSelectionType,
+					"increment",
+					0
+				)
+				return
+			end
 		end
 		Zap.RequestAttack.Fire({
 			char = player.ActiveCharacter.Value,
 			data = {
-				move = "WeavingBlade",
+				move = CharData.selectedMove,
 				primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
 			},
 		})

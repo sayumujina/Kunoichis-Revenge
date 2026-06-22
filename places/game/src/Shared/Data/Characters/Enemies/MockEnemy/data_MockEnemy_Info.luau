@@ -19,6 +19,8 @@ local info = {
 		energy = 100,
 		ultimateGainEfficiency = 100,
 		--
+		manaGainEfficiency = 100,
+		--
 		dmgTakenMult = 130,
 		dmgDealtMult = 100,
 		--

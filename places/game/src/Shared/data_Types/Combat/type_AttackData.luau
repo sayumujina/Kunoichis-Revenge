@@ -20,7 +20,7 @@ export type AttackData = {
 			currentStats: { [string]: number }?,
 		},
 		energyGain: number,
-		skillPointGain: number,
+		manaChange: number,
 		exposureDealt: number?,
 	},
 	-- Info

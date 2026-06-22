@@ -15,7 +15,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 				realStats = { atk = 70 / 100 },
 			},
 			energyGain = 5,
-			skillPointGain = 2,
+			manaChange = 20,
 			exposureDealt = 10,
 		},
 		--
@@ -36,7 +36,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 				realStats = { atk = 160 / 100 },
 			},
 			energyGain = 5,
-			skillPointGain = 2,
+			manaChange = -15,
 		},
 		--
 		info = {

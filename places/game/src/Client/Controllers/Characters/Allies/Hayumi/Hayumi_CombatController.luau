@@ -44,24 +44,38 @@ function Hayumi_CombatController.HandleInput(inputData)
 			"increment",
 			1
 		)
-	elseif inputData.action == "BasicAttack" then
-		if CharData.selectedMove ~= "LightningArrow" then
-			CharData.selectedMove = "LightningArrow"
+	else
+		if inputData.action == "BasicAttack" then
+			if CharData.selectedMove ~= "LightningArrow" then
+				CharData.selectedMove = "LightningArrow"
 
-			-- Set the selected side based on the move's selected side
-			CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
-			CombatController.SwitchPrimarySelectedTarget(
-				Handlers.Moves[CharData.selectedMove].targetSelectionType,
-				"increment",
-				0
-			)
-			return
+				-- Set the selected side based on the move's selected side
+				CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+				CombatController.SwitchPrimarySelectedTarget(
+					Handlers.Moves[CharData.selectedMove].targetSelectionType,
+					"increment",
+					0
+				)
+				return
+			end
+		elseif inputData.action == "Skill" then
+			if CharData.selectedMove ~= "LightningRain" then
+				CharData.selectedMove = "LightningRain"
+
+				-- Set the selected side based on the move's selected side
+				CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+				CombatController.SwitchPrimarySelectedTarget(
+					Handlers.Moves[CharData.selectedMove].targetSelectionType,
+					"increment",
+					0
+				)
+				return
+			end
 		end
-		warn("Basic attack input received", CharData.selectedMove, game.Players.LocalPlayer.ActiveCharacter.Value)
 		Zap.RequestAttack.Fire({
 			char = game.Players.LocalPlayer.ActiveCharacter.Value,
 			data = {
-				move = "LightningArrow",
+				move = CharData.selectedMove,
 				primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
 			},
 		})
