@@ -23,6 +23,12 @@ local CharData = {
 	selectedMove = "LightningArrow", -- Player needs to confirm the move twice before executing
 }
 
+-- Action to move mapping at the top of the file (around line 23, after CharData)
+local ActionToMoveMap = {
+	BasicAttack = "LightningArrow",
+	Skill = "LightningRain",
+}
+
 local Hayumi_CombatController = {}
 
 --- Gets the attack handlers for Hayumi
@@ -32,54 +38,37 @@ end
 
 --- Handles attack input from the player and sends it to the server
 function Hayumi_CombatController.HandleInput(inputData)
-	if inputData.action == "PreviousTarget" then
-		CombatController.SwitchPrimarySelectedTarget(
-			Handlers.Moves[CharData.selectedMove].targetSelectionType,
-			"increment",
-			-1
-		)
-	elseif inputData.action == "NextTarget" then
-		CombatController.SwitchPrimarySelectedTarget(
-			Handlers.Moves[CharData.selectedMove].targetSelectionType,
-			"increment",
-			1
-		)
-	else
-		if inputData.action == "BasicAttack" then
-			if CharData.selectedMove ~= "LightningArrow" then
-				CharData.selectedMove = "LightningArrow"
+	local action = inputData.action
+	local targetSelectionType = Handlers.Moves[CharData.selectedMove].targetSelectionType
 
-				-- Set the selected side based on the move's selected side
-				CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
-				CombatController.SwitchPrimarySelectedTarget(
-					Handlers.Moves[CharData.selectedMove].targetSelectionType,
-					"increment",
-					0
-				)
-				return
-			end
-		elseif inputData.action == "Skill" then
-			if CharData.selectedMove ~= "LightningRain" then
-				CharData.selectedMove = "LightningRain"
-
-				-- Set the selected side based on the move's selected side
-				CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
-				CombatController.SwitchPrimarySelectedTarget(
-					Handlers.Moves[CharData.selectedMove].targetSelectionType,
-					"increment",
-					0
-				)
-				return
-			end
-		end
-		Zap.RequestAttack.Fire({
-			char = game.Players.LocalPlayer.ActiveCharacter.Value,
-			data = {
-				move = CharData.selectedMove,
-				primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
-			},
-		})
+	-- Handle target selection actions
+	if action == "PreviousTarget" then
+		CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", -1)
+		return
+	elseif action == "NextTarget" then
+		CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", 1)
+		return
 	end
+
+	-- Handle move selection actions
+	local mappedMove = ActionToMoveMap[action]
+	if mappedMove and CharData.selectedMove ~= mappedMove then
+		CharData.selectedMove = mappedMove
+
+		-- Set the selected side based on the move's selected side
+		CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
+		CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", 0)
+		return
+	end
+
+	-- Execute the attack
+	Zap.RequestAttack.Fire({
+		char = player.ActiveCharacter.Value,
+		data = {
+			move = CharData.selectedMove,
+			primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
+		},
+	})
 end
 
 return Hayumi_CombatController
