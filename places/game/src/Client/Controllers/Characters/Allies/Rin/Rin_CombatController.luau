@@ -23,7 +23,7 @@ local CharData = {
 	selectedMove = "HiddenAssistance", -- Player needs to confirm the move twice before executing
 }
 
--- Action to move mapping at the top of the file (around line 23, after CharData)
+-- Action to move mapping at the top of the file
 local ActionToMoveMap = {
 	BasicAttack = "HiddenAssistance",
 	Skill = "CleansingAura",
