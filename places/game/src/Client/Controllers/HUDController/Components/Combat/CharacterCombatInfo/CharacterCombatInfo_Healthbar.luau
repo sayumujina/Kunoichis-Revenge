@@ -68,7 +68,8 @@ return function(size: UDim2, position: UDim2)
 	characterInfoHealthbarFillImageLabel.Name = "ImageLabel"
 	characterInfoHealthbarFillImageLabel.BackgroundTransparency = 1
 	characterInfoHealthbarFillImageLabel.Image = "rbxassetid://93013412082634"
-	characterInfoHealthbarFillImageLabel.Size = UDim2.fromScale(1, 1)
+	characterInfoHealthbarFillImageLabel.Size =
+		UDim2.new(1, 0, 0, characterInfoHealthbarFrame.AbsoluteSize.Y * FILL_SIZE_Y_SCALE)
 
 	-- Update the healthbar background size when the absolute size of the healthbar frame changes (e.g. due to screen resizing)
 	characterInfoHealthbarFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()

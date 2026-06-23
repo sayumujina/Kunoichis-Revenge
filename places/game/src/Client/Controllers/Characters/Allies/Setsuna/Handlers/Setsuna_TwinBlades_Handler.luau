@@ -10,5 +10,13 @@ return function(animationTrack: AnimationTrack, char: _TYPES.Character, targets:
 	-- )
 	-- tween:Play()
 
+	local originalPosition = char.HumanoidRootPart.CFrame
 	char.HumanoidRootPart.CFrame = targets[1].HumanoidRootPart.CFrame * CFrame.new(0, 0, -3)
+
+	local connection
+	connection = animationTrack.Stopped:Connect(function()
+		-- After the animation is done, reset Setsuna's position to her original position
+		char.HumanoidRootPart.CFrame = originalPosition
+		connection:Disconnect()
+	end)
 end

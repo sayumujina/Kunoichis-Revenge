@@ -43,3 +43,21 @@ event CurrentStatsChanged = {
 		data: map {[string.binary]: f32}
 	},
 }
+
+event PlayerBaseStatsChanged = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		data: map {[string.binary]: f32}
+	},
+}
+
+event PlayerCurrentStatsChanged = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		data: map {[string.binary]: f32}
+	},
+}

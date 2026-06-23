@@ -3,6 +3,7 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local EffectsController = require(StarterPlayerScripts.Client.Controllers.EffectsController)
+local HUDController = require(StarterPlayerScripts.Client.Controllers.HUDController)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Player
@@ -114,6 +115,9 @@ function CombatController.OnStart()
 				"set",
 				combatData.primarySelectedTargetIndex
 			)
+
+			-- Update the mana preview
+			CombatController.UpdateMovePreview(moveData.targetSelectionType, moveData.data.manaChange :: number)
 			break
 		end
 	end)
@@ -174,6 +178,35 @@ function CombatController.SwitchPrimarySelectedTarget(
 
 	-- Update primary selected enemy index
 	combatData.primarySelectedTargetIndex = primaryIndex
+end
+
+--- Switch to the next primary selected target
+--- @param targetSelectionType -- The type of target selection (e.g., "Single", "Blast", "AoE")
+function CombatController.SwitchToPreviousTarget(targetSelectionType: string)
+	CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", -1)
+end
+
+--- Switch to the next primary selected target
+--- @param targetSelectionType -- The type of target selection (e.g., "Single", "Blast", "AoE")
+function CombatController.SwitchToNextTarget(targetSelectionType: string)
+	CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", 1)
+end
+
+--- Update the move preview
+--- @param targetSelectionType -- The type of target selection (e.g., "Single", "Blast", "AoE")
+--- @param manaChangePreviewValue -- The value to preview the mana change (e.g., +15, -10)
+function CombatController.UpdateMovePreview(targetSelectionType: string, manaChangePreviewValue: number)
+	warn(
+		"Updating move preview with target selection type: "
+			.. targetSelectionType
+			.. " and mana change value: "
+			.. manaChangePreviewValue
+	)
+	-- Do not switch primary selected target, therefore index is 0
+	CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", 0)
+
+	-- Update the move preview in the HUD
+	HUDController.UpdateManaPreview(manaChangePreviewValue)
 end
 
 --- Retrieve the current primary selected enemy index

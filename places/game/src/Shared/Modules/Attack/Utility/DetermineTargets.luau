@@ -11,7 +11,6 @@ local function findCharacterWithIndex(indexToFind: number, folder: Folder): _TYP
 	-- Loop through the children of the folder to find the character with the matching index
 	for _, child in pairs(folder:GetChildren()) do
 		local charIndex = child:GetAttribute("Index")
-		warn(charIndex, indexToFind)
 		if charIndex and charIndex == indexToFind then
 			return child :: _TYPES.Character
 		end

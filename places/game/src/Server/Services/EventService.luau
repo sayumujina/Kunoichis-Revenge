@@ -68,7 +68,7 @@ export type TurnAddedEvent = {
 	actionValue: number,
 }
 
---- @type RealStatsChangedEvent { player: _TYPES.RobloxPlayerType, data: { char: _TYPES.Character, data: { [string]: number } } }
+--- @type RealStatsChangedEvent { char: _TYPES.Character, data: { [string]: number } }
 --- @within EventService
 --- Describes the event when a character's real stats have changed.
 --- Contains the player associated with the stat change, the character whose real stats changed, and the updated real stats data.
@@ -77,13 +77,35 @@ export type RealStatsChangedEvent = {
 	data: { [string]: number },
 }
 
---- @type CurrentStatsChangedEvent { player: _TYPES.RobloxPlayerType, data: { char: _TYPES.Character, data: { [string]: number } } }
+--- @type CurrentStatsChangedEvent { char: _TYPES.Character, data: { [string]: number } }
 --- @within EventService
 --- Describes the event when a character's current stats have changed.
 --- Contains the player associated with the stat change, the character whose current stats changed, and the updated current stats data.
 export type CurrentStatsChangedEvent = {
 	char: _TYPES.Character,
 	data: { [string]: number },
+}
+
+--- @type PlayerBaseStatsChangedEvent { player: _TYPES.RobloxPlayerType, data: { data: { [string]: number } } }
+--- @within EventService
+--- Describes the event when a character's base stats have changed.
+--- Contains the player associated with the stat change, the character whose base stats changed, and the updated base stats data.
+export type PlayerBaseStatsChangedEvent = {
+	player: _TYPES.RobloxPlayerType,
+	data: {
+		data: { [string]: number },
+	},
+}
+
+--- @type PlayerCurrentStatsChangedEvent { player: _TYPES.RobloxPlayerType, data: { data: { [string]: number } } }
+--- @within EventService
+--- Describes the event when a character's current stats have changed.
+--- Contains the player associated with the stat change, the character whose current stats changed, and the updated current stats data.
+export type PlayerCurrentStatsChangedEvent = {
+	player: _TYPES.RobloxPlayerType,
+	data: {
+		data: { [string]: number },
+	},
 }
 
 export type SuccessfulMoveEvent = {
@@ -105,6 +127,8 @@ EventService.Events = {
 	TurnAdded = Signal.new() :: Signal.Signal<TurnAddedEvent>,
 	RealStatsChanged = Signal.new() :: Signal.Signal<RealStatsChangedEvent>,
 	CurrentStatsChanged = Signal.new() :: Signal.Signal<CurrentStatsChangedEvent>,
+	PlayerBaseStatsChanged = Signal.new() :: Signal.Signal<PlayerBaseStatsChangedEvent>,
+	PlayerCurrentStatsChanged = Signal.new() :: Signal.Signal<PlayerCurrentStatsChangedEvent>,
 	SuccessfulMove = Signal.new() :: Signal.Signal<SuccessfulMoveEvent>,
 }
 --- @type ClientBlacklist { string }
@@ -121,6 +145,8 @@ EventService.PlayerScoped = {
 	"SpawnSuccessfulForChar",
 	"SpawnFinished",
 	"TurnStarted",
+	"PlayerBaseStatsChanged",
+	"PlayerCurrentStatsChanged",
 }
 
 --- Initializes the EventService by connecting all events to the Zap event for local players.

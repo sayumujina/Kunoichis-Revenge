@@ -4,8 +4,15 @@ local rep = game.ReplicatedStorage
 local _TYPES = require(rep.Shared.data_Types)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
-local QueueUIUtility = require(script.Helper.QueueUIUtility)
---
+
+-- Helpers
+local Helpers = {
+	QueueUIUtility = require(script.Helper.QueueUIUtility),
+	UpdateCharacterStatValue = require(script.Helper.UpdateCharacterStatValue),
+	UpdateCurrentManaValue = require(script.Helper.UpdateCurrentManaValue),
+}
+
+-- Components
 local ComponentsPath = game.StarterPlayer.StarterPlayerScripts.Client.Controllers.HUDController.Components
 local Components = {
 	Combat = {
@@ -21,25 +28,14 @@ local Components = {
 				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfo_BillboardGui
 			),
 		},
+		Mana = {
+			createManaFrame = require(ComponentsPath.Combat.Mana.Mana_Frame),
+		},
 		Turns = {
 			createTurnsFrame = require(ComponentsPath.Combat.Turns.Turns_Frame),
 			createTurnCard = require(ComponentsPath.Combat.Turns.Turn_Card),
 		},
 	},
-}
-
-local matchingCurrentStatsName = {
-	["energy"] = "CurrentEnergy",
-	["hp"] = "CurrentHP",
-	["exposure"] = "CurrentExposure",
-	-- ["shield"] = "CurrentShield",
-}
-
-local matchingRealStatsName = {
-	["energy"] = "MaxEnergy",
-	["hp"] = "MaxHP",
-	["exposure"] = "MaxExposure",
-	-- ["shield"] = "MaxShield",
 }
 
 --
@@ -58,60 +54,6 @@ local function findTurnIndex(turnId: number): number?
 	return nil
 end
 
--- Helper function to update the stats value of a character
-local function updateCharacterStatValue(
-	char: _TYPES.Character,
-	statType: "realStats" | "currentStats",
-	newStats: { [string]: number }
-)
-	local characterInfoContainer
-	-- Depending on the side of the character
-	-- For allies, look in the character info frame
-	-- For enemies, look in the billboard gui
-	if char:GetAttribute("Side") == "Allies" then
-		characterInfoContainer = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
-	else
-		characterInfoContainer = playerGui:FindFirstChild("UI_BillboardGui_Folder", true)
-	end
-
-	if not characterInfoContainer then
-		return
-	end
-
-	local statTypeKey = statType == "realStats" and matchingRealStatsName or matchingCurrentStatsName
-
-	-- Find the corresponding character info card using the character reference and update the stat value
-	for _, container in pairs(characterInfoContainer:GetChildren()) do
-		-- Check if the card is a Frame and has the AssociatedCharValue object value, then compare the character reference
-		local associatedCharValue = container:FindFirstChild("AssociatedCharValue", true)
-		if not associatedCharValue then
-			continue
-		end
-
-		-- If the associated character value does not match the character whose stats changed, skip this card
-		if associatedCharValue.Value ~= char then
-			continue
-		end
-
-		-- Update the stat values on the character info card based on the changed stats
-		for statName, statValue in pairs(newStats) do
-			-- Check if the stat name is one of the stats we are tracking
-			if not statTypeKey[statName] then
-				continue
-			end
-
-			-- Replace the stat value on the character info card with the updated stat value
-			local statValueObject = container:FindFirstChild("Character" .. statTypeKey[statName] .. "Value", true)
-			if statValueObject then
-				statValueObject.Value = statValue
-			end
-		end
-
-		-- Since we found the matching char and updated its stats, we can break out of the loop
-		break
-	end
-end
-
 --- Called when the controller starts
 function HUDController.OnStart()
 	-- Normalise the turn queue once all characters are spawned and the battle is ready to proceed
@@ -120,7 +62,7 @@ function HUDController.OnStart()
 		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
 
 		-- Update the turn queue UI after normalisation
-		QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 	end)
 
 	-- Listens to spawn successful events to create character info cards for the spawned characters
@@ -145,12 +87,32 @@ function HUDController.OnStart()
 
 	-- Listens to current stats changed events to update the stat values on the character info cards
 	Zap.CurrentStatsChanged.On(function(statsChangedEvent)
-		updateCharacterStatValue(statsChangedEvent.char :: _TYPES.Character, "currentStats", statsChangedEvent.data)
+		Helpers.UpdateCharacterStatValue(
+			playerGui,
+			statsChangedEvent.char :: _TYPES.Character,
+			"currentStats",
+			statsChangedEvent.data
+		)
 	end)
 
 	-- Listens to real stats changed events to update the stat values on the character info cards
 	Zap.RealStatsChanged.On(function(statsChangedEvent)
-		updateCharacterStatValue(statsChangedEvent.char :: _TYPES.Character, "realStats", statsChangedEvent.data)
+		Helpers.UpdateCharacterStatValue(
+			playerGui,
+			statsChangedEvent.char :: _TYPES.Character,
+			"realStats",
+			statsChangedEvent.data
+		)
+	end)
+
+	-- Listens to player current stats changed events to update the player's stats
+	Zap.PlayerCurrentStatsChanged.On(function(playerCurrentStatsChangedEvent)
+		-- Check if the changed stat is "mana" and update the mana value accordingly
+		for statName, newValue in pairs(playerCurrentStatsChangedEvent.data) do
+			if statName == "mana" then
+				Helpers.UpdateCurrentManaValue(playerGui, newValue)
+			end
+		end
 	end)
 
 	-- Listen to completed turns to update the turn queue
@@ -202,7 +164,7 @@ function HUDController.OnStart()
 		)
 
 		-- Update the turn queue UI after adding the new turn
-		QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 
 		-- Parent the turn card to the container
 		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
@@ -231,7 +193,7 @@ function HUDController.OnStart()
 		end
 
 		-- Update the turn queue UI after removing the turn
-		QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 	end)
 
 	-- Listens to character-wide turn removals (for character deaths, etc.)
@@ -271,6 +233,21 @@ function HUDController.Init()
 
 	local screenGui = playerGui:FindFirstChild("ScreenGui", true)
 
+	-- Create a folder for character and player UI
+	local characterUIFolder = screenGui:FindFirstChild("CharacterUI", true)
+	if not characterUIFolder then
+		characterUIFolder = Instance.new("Folder")
+		characterUIFolder.Name = "CharacterUI"
+		characterUIFolder.Parent = screenGui
+	end
+
+	local playerUIFolder = screenGui:FindFirstChild("PlayerUI", true)
+	if not playerUIFolder then
+		playerUIFolder = Instance.new("Folder")
+		playerUIFolder.Name = "PlayerUI"
+		playerUIFolder.Parent = screenGui
+	end
+
 	-- Create a folder to contain the billboard GUIs
 	if not screenGui:FindFirstChild("UI_BillboardGui_Folder", true) then
 		local billboardGuiContainer = Instance.new("Folder")
@@ -281,13 +258,37 @@ function HUDController.Init()
 	-- Create the turn card container if it doesn't exist
 	if not screenGui:FindFirstChild("UI_TurnsFrame", true) then
 		local turnsFrame = Components.Combat.Turns.createTurnsFrame()
-		turnsFrame.Parent = screenGui
+		turnsFrame.Parent = playerUIFolder
 	end
 
 	-- Create the character info card container if it doesn't exist
 	if not screenGui:FindFirstChild("UI_CharacterInfoFrame", true) then
 		local characterInfoFrame = Components.Combat.CharacterCombatInfo.createCharacterCombatInfoFrame()
-		characterInfoFrame.Parent = screenGui
+		characterInfoFrame.Parent = characterUIFolder
+	end
+
+	-- Create the mana frame if it doesn't exist
+	if not screenGui:FindFirstChild("UI_ManaFrame", true) then
+		local manaFrame = Components.Combat.Mana.createManaFrame()
+		manaFrame.Parent = playerUIFolder
+	end
+end
+
+--- Updates the mana preview in the HUD
+--- @param previewValue The new mana value to display in the preview
+function HUDController.UpdateManaPreview(previewValue: number)
+	-- Get the mana frame from the player's GUI
+	local manaFrame = playerGui:FindFirstChild("UI_ManaFrame", true)
+	if not manaFrame then
+		warn("UI_ManaFrame not found in PlayerGui")
+		return
+	end
+
+	-- Update the current mana preview label
+	local currentManaLabel = manaFrame:FindFirstChild("Mana_PreviewLabel", true)
+	if currentManaLabel and currentManaLabel:IsA("TextLabel") then
+		local sign = previewValue >= 0 and "+" or "-"
+		currentManaLabel.Text = sign .. tostring(math.floor(math.abs(previewValue)))
 	end
 end
 

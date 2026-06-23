@@ -43,10 +43,10 @@ function Hayumi_CombatController.HandleInput(inputData)
 
 	-- Handle target selection actions
 	if action == "PreviousTarget" then
-		CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", -1)
+		CombatController.SwitchToPreviousTarget(targetSelectionType)
 		return
 	elseif action == "NextTarget" then
-		CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", 1)
+		CombatController.SwitchToNextTarget(targetSelectionType)
 		return
 	end
 
@@ -55,9 +55,17 @@ function Hayumi_CombatController.HandleInput(inputData)
 	if mappedMove and CharData.selectedMove ~= mappedMove then
 		CharData.selectedMove = mappedMove
 
+		-- Update the selection type reference for the new move
+		targetSelectionType = Handlers.Moves[CharData.selectedMove].targetSelectionType
+
 		-- Set the selected side based on the move's selected side
 		CombatController.SetSelectedSide(Handlers.Moves[CharData.selectedMove].selectedSide)
-		CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", 0)
+
+		-- Update the move preview with the target selection type and mana change value
+		CombatController.UpdateMovePreview(
+			targetSelectionType,
+			Handlers.Moves[CharData.selectedMove].data.manaChange :: number
+		)
 		return
 	end
 

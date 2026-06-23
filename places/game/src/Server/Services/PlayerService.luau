@@ -34,6 +34,15 @@ function PlayerService.OnStart()
 				consumablesCount = { ["HealingOnigiri"] = 2 },
 			},
 		}
+
+		-- Fire the event to notify stats changes for the player
+		EventService.Events.PlayerCurrentStatsChanged:Fire({
+			player = player,
+			data = {
+				char = player.Character :: _TYPES.Character,
+				data = PlayersData[player].data.currentStats,
+			},
+		})
 	end)
 
 	-- Listens to character spawning and adds them to the player's data
@@ -42,6 +51,15 @@ function PlayerService.OnStart()
 		local char = spawnSuccessfulForCharEvent.data.char
 		--
 		table.insert(PlayersData[player].characters, char)
+
+		-- Fire the event to notify stats changes for the player
+		EventService.Events.PlayerCurrentStatsChanged:Fire({
+			player = player,
+			data = {
+				char = player.Character :: _TYPES.Character,
+				data = PlayersData[player].data.currentStats,
+			},
+		})
 	end)
 end
 
@@ -93,6 +111,15 @@ function PlayerService.UpdatePlayerCurrentStats(player: _TYPES.RobloxPlayerType,
 	end
 
 	PlayersData[player].data.currentStats[statName] = newValue
+
+	-- Fire the event to notify that the player's current stats have changed
+	EventService.Events.PlayerCurrentStatsChanged:Fire({
+		player = player,
+		data = {
+			char = player.Character :: _TYPES.Character,
+			data = PlayersData[player].data.currentStats,
+		},
+	})
 end
 
 return PlayerService
