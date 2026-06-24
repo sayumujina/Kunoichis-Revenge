@@ -10,9 +10,11 @@ local localPlayer = game:GetService("Players").LocalPlayer
 local CameraController = {}
 
 -- Camera positioning constants
+local CAMERA_FOV = 34
 local CAMERA_HEIGHT = 4.5 -- Height above the character
 local CAMERA_SIDE_OFFSET = -9.2 -- Negative X offset to position camera to the side
 local CAMERA_Z_OFFSET = -16 -- Negative Z offset to position camera behind the character
+local CAMERA_X_ROTATION = -10
 local CAMERA_Y_ROTATION_DIFFERENCE_PER_ENEMY = 1
 local CAMERA_Y_OFFSET = 190
 
@@ -59,15 +61,6 @@ function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTarget
 		cameraYRotation = cameraYRotation - CAMERA_Y_ROTATION_DIFFERENCE_PER_ENEMY * (selectedTargetIndex - middleIndex)
 	end
 
-	warn(
-		"Camera Y Rotation:",
-		cameraYRotation,
-		"middleIndex:",
-		middleIndex,
-		"selectedTargetIndex:",
-		selectedTargetIndex
-	)
-
 	-- 6. Set the camera's Y position to be CAMERA_HEIGHT above the origin
 	local cameraYPos = originCFrame.Position.Y + CAMERA_HEIGHT
 
@@ -76,8 +69,11 @@ function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTarget
 
 	-- 8. Create a new CFrame for the camera
 	local newCameraCFrame = CFrame.new(Vector3.new(cameraXPos, cameraYPos, cameraZPos))
-	newCameraCFrame = newCameraCFrame * CFrame.fromEulerAnglesYXZ(math.rad(-10), math.rad(cameraYRotation), math.rad(0))
-	-- Set the camera's X position to be cameraXPos, but keep the Y and Z positions the same
+	newCameraCFrame = newCameraCFrame
+		* CFrame.fromEulerAnglesYXZ(math.rad(CAMERA_X_ROTATION), math.rad(cameraYRotation), math.rad(0))
+
+	-- 9. Set the camera's X position to be cameraXPos, but keep the Y and Z positions the same
+	-- I really CANNOT think of a better way to do this since camera position cannot be directly changed
 	local _, _, _, r00, r01, r02, r10, r11, r12, r20, r21, r22 = newCameraCFrame:GetComponents()
 	newCameraCFrame = CFrame.new(
 		cameraXPos,
@@ -94,10 +90,9 @@ function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTarget
 		r22
 	)
 
-	-- 9. Tween the camera's CFrame to look at the target
+	-- 10. Tween the camera's CFrame to look at the target
 	TweenService:Create(Camera, TweenInfo.new(0.5), { CFrame = newCameraCFrame }):Play()
-	-- Camera.CFrame = newCameraCFrame
-	Camera.FieldOfView = 34
+	Camera.FieldOfView = CAMERA_FOV
 end
 
 return CameraController
