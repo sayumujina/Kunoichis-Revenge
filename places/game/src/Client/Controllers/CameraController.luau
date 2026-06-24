@@ -10,9 +10,9 @@ local localPlayer = game:GetService("Players").LocalPlayer
 local CameraController = {}
 
 -- Camera positioning constants
-local CAMERA_DISTANCE = 0
 local CAMERA_HEIGHT = 4.5 -- Height above the character
 local CAMERA_SIDE_OFFSET = -9.2 -- Negative X offset to position camera to the side
+local CAMERA_Z_OFFSET = -16 -- Negative Z offset to position camera behind the character
 local CAMERA_Y_ROTATION_DIFFERENCE_PER_ENEMY = 1
 local CAMERA_Y_OFFSET = 190
 
@@ -72,7 +72,7 @@ function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTarget
 	local cameraYPos = originCFrame.Position.Y + CAMERA_HEIGHT
 
 	-- 7. Set the camera's Z position to be CAMERA_DISTANCE away from the origin
-	local cameraZPos = originCFrame.Position.Z - 16
+	local cameraZPos = originCFrame.Position.Z + CAMERA_Z_OFFSET
 
 	-- 8. Create a new CFrame for the camera
 	local newCameraCFrame = CFrame.new(Vector3.new(cameraXPos, cameraYPos, cameraZPos))
