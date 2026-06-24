@@ -4,6 +4,7 @@ local _TYPES = require(rep.Shared.data_Types)
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local EffectsController = require(StarterPlayerScripts.Client.Controllers.EffectsController)
 local HUDController = require(StarterPlayerScripts.Client.Controllers.HUDController)
+local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Player
@@ -92,6 +93,11 @@ function CombatController.OnStart()
 		combatData.currentCharacter = data.char :: _TYPES.Character
 		local char = combatData.currentCharacter
 
+		if not char then
+			warn("No current character found!")
+			return
+		end
+
 		-- Use the previously selected primary enemy index, or reset to the middle enemy if the previous index is out of range
 		-- (e.g., due to an enemy being defeated)
 		if combatData.primarySelectedTargetIndex > #combatData.enemies then
@@ -119,6 +125,11 @@ function CombatController.OnStart()
 			-- Update the mana preview
 			CombatController.UpdateMovePreview(moveData.targetSelectionType, moveData.data.manaChange :: number)
 			break
+		end
+
+		-- Look at the current character from the perspective of the origin character
+		if char:GetAttribute("Side") == "Allies" then
+			CameraController.LookAtEnemies(combatData.currentCharacter :: any, combatData.primarySelectedTargetIndex)
 		end
 	end)
 end
@@ -196,17 +207,57 @@ end
 --- @param targetSelectionType -- The type of target selection (e.g., "Single", "Blast", "AoE")
 --- @param manaChangePreviewValue -- The value to preview the mana change (e.g., +15, -10)
 function CombatController.UpdateMovePreview(targetSelectionType: string, manaChangePreviewValue: number)
-	warn(
-		"Updating move preview with target selection type: "
-			.. targetSelectionType
-			.. " and mana change value: "
-			.. manaChangePreviewValue
-	)
 	-- Do not switch primary selected target, therefore index is 0
 	CombatController.SwitchPrimarySelectedTarget(targetSelectionType, "increment", 0)
 
 	-- Update the move preview in the HUD
 	HUDController.UpdateManaPreview(manaChangePreviewValue)
+end
+
+--- Toggle visibility of a list of characters
+function CombatController.DecideVisibleCharacters()
+	local combatData = CombatData[localPlayer]
+	local side = combatData.selectedSide
+	warn(
+		"Deciding visible characters for side:",
+		side,
+		"Current character:",
+		combatData.currentCharacter and combatData.currentCharacter.Name
+	)
+	-- Depend on the side
+	-- If the selection is on the enemies, hide all other allies
+	if side == "Enemies" then
+		-- Hide all allies except the current character
+		for _, ally in pairs(combatData.allies) do
+			if ally :: any == combatData.currentCharacter then
+				Utility.ToggleCharacterVisibility(ally, true)
+				continue
+			end
+
+			Utility.ToggleCharacterVisibility(ally, false)
+		end
+
+		-- Show all enemies
+		for _, enemy in pairs(combatData.enemies) do
+			Utility.ToggleCharacterVisibility(enemy, true)
+		end
+	-- If the selection is on the allies, hide all other enemies
+	else
+		-- Show all allies
+		for _, ally in pairs(combatData.allies) do
+			Utility.ToggleCharacterVisibility(ally, true)
+		end
+
+		-- Hide all enemies except the current character
+		for _, enemy in pairs(combatData.enemies) do
+			if enemy :: any == combatData.currentCharacter then
+				Utility.ToggleCharacterVisibility(enemy, true)
+				continue
+			end
+
+			Utility.ToggleCharacterVisibility(enemy, false)
+		end
+	end
 end
 
 --- Retrieve the current primary selected enemy index
@@ -227,6 +278,10 @@ end
 --- Change the selected side for the local player
 function CombatController.SetSelectedSide(side: "Allies" | "Enemies")
 	CombatData[localPlayer].selectedSide = side
+end
+
+function CombatController.GetCombatData()
+	return CombatData[localPlayer]
 end
 
 return CombatController

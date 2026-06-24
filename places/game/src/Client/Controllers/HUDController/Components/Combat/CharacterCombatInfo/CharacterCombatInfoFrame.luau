@@ -20,6 +20,7 @@ return function()
 	characterInfoFrameListLayout.Padding = UDim.new(0.01, 0)
 	characterInfoFrameListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	characterInfoFrameListLayout.Parent = characterInfoFrame
+	characterInfoFrameListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 
 	return characterInfoFrame
 end

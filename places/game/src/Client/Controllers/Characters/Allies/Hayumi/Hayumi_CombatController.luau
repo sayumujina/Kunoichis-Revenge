@@ -1,7 +1,9 @@
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 -- Controllers
-local CombatController = require(StarterPlayerScripts.Client.Controllers.CombatController)
+local Controllers = StarterPlayerScripts.Client.Controllers
+local CameraController = require(Controllers.CameraController)
+local CombatController = require(Controllers.CombatController)
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
 -- Handlers
@@ -39,14 +41,17 @@ end
 --- Handles attack input from the player and sends it to the server
 function Hayumi_CombatController.HandleInput(inputData)
 	local action = inputData.action
+	local combatData = CombatController.GetCombatData()
 	local targetSelectionType = Handlers.Moves[CharData.selectedMove].targetSelectionType
 
 	-- Handle target selection actions
 	if action == "PreviousTarget" then
 		CombatController.SwitchToPreviousTarget(targetSelectionType)
+		CameraController.LookAtEnemies(combatData.currentCharacter :: any, combatData.primarySelectedTargetIndex)
 		return
 	elseif action == "NextTarget" then
 		CombatController.SwitchToNextTarget(targetSelectionType)
+		CameraController.LookAtEnemies(combatData.currentCharacter :: any, combatData.primarySelectedTargetIndex)
 		return
 	end
 
@@ -74,7 +79,7 @@ function Hayumi_CombatController.HandleInput(inputData)
 		char = player.ActiveCharacter.Value,
 		data = {
 			move = CharData.selectedMove,
-			primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
+			primaryTargetIndex = combatData.primarySelectedTargetIndex,
 		},
 	})
 end

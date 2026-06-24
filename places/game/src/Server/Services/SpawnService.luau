@@ -11,8 +11,9 @@ local Zap = require(Services.Parent.zap)
 local _TYPES = require(rep.Shared.data_Types)
 
 -- Constants
-local SPAWN_DISTANCE_BETWEEN_CHARACTERS = 10
-local ENEMY_SPAWN_Z_OFFSET = 20
+local SPAWN_X_OFFSET_BETWEEN_CHARACTERS = 8
+local SPAWN_Z_ALTERNATE_OFFSET = 1
+local ENEMY_SPAWN_Z_OFFSET = 50
 local BASE_ENEMY_SPAWN_POSITION = Vector3.new(0, 0, 40)
 local ALLY_SPAWN_Z_OFFSET = 0
 local BASE_ALLY_SPAWN_POSITION = Vector3.new(0, 0, 0)
@@ -80,11 +81,18 @@ function SpawnService.SpawnCharacter(
 		animator.Parent = char.Humanoid
 	end
 
+	-- Set an "originallyTransparent" attribute for parts that are transparent
+	for _, part in pairs(char:GetDescendants()) do
+		if (part:IsA("BasePart") or part:IsA("Decal")) and part.Transparency == 1 then
+			part:SetAttribute("originallyTransparent", true)
+		end
+	end
+
 	-- Create a index attribute to mark the character's index
 	-- Used to determine the selected character/enemy index
 	char:SetAttribute("Index", index)
 
-	-- Create a sid	e attribute and insert the character's side
+	-- Create a side attribute and insert the character's side
 	char:SetAttribute("Side", side)
 
 	-- Spawn from above the baseplate
@@ -125,9 +133,9 @@ function SpawnService.SpawnAllCharactersOfSide(
 	local characterCount = #charactersToSpawn
 	local startX
 	if side == "Allies" then
-		startX = BASE_ALLY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_DISTANCE_BETWEEN_CHARACTERS) / 2
+		startX = BASE_ALLY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_X_OFFSET_BETWEEN_CHARACTERS) / 2
 	else
-		startX = BASE_ENEMY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_DISTANCE_BETWEEN_CHARACTERS) / 2
+		startX = BASE_ENEMY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_X_OFFSET_BETWEEN_CHARACTERS) / 2
 	end
 
 	local charModelPath = rep.Shared.Assets.Models[side]
@@ -136,16 +144,26 @@ function SpawnService.SpawnAllCharactersOfSide(
 		local char = charModelPath:FindFirstChild(charName):Clone() :: _TYPES.Character
 
 		-- Calculate spawn position
-		local spawnX = startX - (count * SPAWN_DISTANCE_BETWEEN_CHARACTERS)
+		local spawnX = startX - (count * SPAWN_X_OFFSET_BETWEEN_CHARACTERS)
+
+		-- Alternate the Z offset for each character to avoid overlap
+		-- If allies, reverse the Z offset
+		local spawnZ
+		if side == "Allies" then
+			spawnZ = startingZOffset - ((count % 2 == 0) and SPAWN_Z_ALTERNATE_OFFSET or -SPAWN_Z_ALTERNATE_OFFSET)
+		else
+			spawnZ = startingZOffset + ((count % 2 == 0) and SPAWN_Z_ALTERNATE_OFFSET or -SPAWN_Z_ALTERNATE_OFFSET)
+		end
+
 		local spawnPosition
 
 		-- Spawn the character
 		if side == "Allies" then
-			spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, startingZOffset)
+			spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, spawnZ)
 				* CFrame.Angles(0, math.rad(180), 0) -- Rotate allies to face enemies
 			char.Parent = workspace.Characters.Allies
 		else
-			spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, startingZOffset)
+			spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, spawnZ)
 			-- Clone the character model and set its name
 			char.Parent = workspace.Characters.Enemies
 

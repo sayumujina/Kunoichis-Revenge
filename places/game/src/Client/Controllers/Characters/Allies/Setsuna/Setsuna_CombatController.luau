@@ -2,10 +2,12 @@ local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScrip
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
 -- Controllers
-local CombatController = require(StarterPlayerScripts.Client.Controllers.CombatController)
+local Controllers = StarterPlayerScripts.Client.Controllers
+local CameraController = require(Controllers.CameraController)
+local CombatController = require(Controllers.CombatController)
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
--- Utiltiy
+-- Utiltiydddaaad
 local Utility = require(rep.Shared.Modules.Utility)
 
 -- Handlers
@@ -43,14 +45,17 @@ end
 --- Handles attack input from the player and sends it to the server
 function Setsuna_CombatController.HandleInput(inputData)
 	local action = inputData.action
+	local combatData = CombatController.GetCombatData()
 	local targetSelectionType = Handlers.Moves[CharData.selectedMove].targetSelectionType
 
 	-- Handle target selection actions
 	if action == "PreviousTarget" then
 		CombatController.SwitchToPreviousTarget(targetSelectionType)
+		CameraController.LookAtEnemies(combatData.currentCharacter :: any, combatData.primarySelectedTargetIndex)
 		return
 	elseif action == "NextTarget" then
 		CombatController.SwitchToNextTarget(targetSelectionType)
+		CameraController.LookAtEnemies(combatData.currentCharacter :: any, combatData.primarySelectedTargetIndex)
 		return
 	end
 
@@ -78,7 +83,7 @@ function Setsuna_CombatController.HandleInput(inputData)
 		char = player.ActiveCharacter.Value,
 		data = {
 			move = CharData.selectedMove,
-			primaryTargetIndex = CombatController.GetPrimarySelectedTargetIndex(),
+			primaryTargetIndex = combatData.primarySelectedTargetIndex,
 		},
 	})
 end

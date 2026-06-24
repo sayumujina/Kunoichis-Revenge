@@ -139,6 +139,26 @@ function HUDController.OnStart()
 		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
 	end)
 
+	-- Listens to turn started event
+	Zap.TurnStarted.On(function(startedTurnData)
+		-- Reduce the size of the other two character info cards to highlight the current character's turn
+		for _, card in pairs(playerGui:GetDescendants()) do
+			if not card:IsA("Frame") or not card.Name:match("CharacterInfo_Card_") then
+				warn("Skipping non-character info card:", card.Name)
+				continue
+			end
+
+			local associatedCharValue = card:FindFirstChild("AssociatedCharValue")
+			if associatedCharValue and associatedCharValue.Value ~= startedTurnData.char then
+				-- Reduce the size of the other character info cards
+				card.Size = UDim2.fromScale(0.85, 0.85)
+			else
+				-- Reset the size of the current character's info card
+				card.Size = UDim2.fromScale(1, 1)
+			end
+		end
+	end)
+
 	-- Listens to added turns
 	Zap.TurnAdded.On(function(turnData)
 		local turn = {

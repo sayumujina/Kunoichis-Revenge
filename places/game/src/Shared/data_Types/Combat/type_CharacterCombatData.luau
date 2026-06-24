@@ -1,3 +1,5 @@
+local Trove = require(game.ReplicatedStorage.Packages.Trove)
+
 local SideTypes = require(script.Parent.type_Sides)
 local CharacterDataTypes = require(script.Parent.Parent.type_CharacterData)
 local StatusTypes = require(script.Parent.type_Status)
@@ -25,6 +27,8 @@ export type CharacterCombatData = {
 	},
 	-- Statuses
 	statuses: { [string]: StatusTypes.Status }?,
+	-- Trove
+	trove: Trove.Trove & any,
 }
 
 --- @within data_TYPES

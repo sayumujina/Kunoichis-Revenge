@@ -6,6 +6,7 @@ local TurnService = require(Services.TurnService)
 local EventService = require(Services.EventService)
 local PlayerService = require(Services.PlayerService)
 local DamageService = require(Services.DamageService)
+local CharService = require(Services.CharService)
 -- Combat utility
 local CombatUtility = game.ReplicatedStorage.Shared.Modules.Attack.Utility
 local ProvideEnergy = require(CombatUtility.ProvideEnergy)
@@ -81,10 +82,10 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 	-- Update the player's mana after performing the move
 	HandleMana.UpdatePlayerMana(player, attackData.data.manaChange)
 
-	local connection
-	connection = anim.Stopped:Connect(function()
-		connection:Disconnect() -- Disconnect the listener
+	local trove = CharService.GetCharacterCombatData(attackData.origin).trove
 
+	-- Apply damage on the hit marker
+	trove:Add(anim:GetMarkerReachedSignal("hit"):Connect(function()
 		-- Apply the damage/ healing/ shield effects to each target based on the attack data
 		for _, target in pairs(targets) do
 			if attackData.moveCategory == "Damage" then
@@ -106,14 +107,20 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 
 		-- Provide energy gain
 		ProvideEnergy(attackData.origin, attackData.data.energyGain, false)
+	end))
 
+	-- Move to the next turn after the attack animation is complete
+	trove:Add(anim.Stopped:Connect(function()
 		-- Move to the next turn if specified
 		if moveToNextTurn then
 			print("Moving to next turn after attack animation")
 			processingAttack = false
 			TurnService.MoveToNextTurn()
 		end
-	end)
+
+		-- Clean up the trove after the animation is complete
+		trove:Clean()
+	end))
 
 	return true
 end

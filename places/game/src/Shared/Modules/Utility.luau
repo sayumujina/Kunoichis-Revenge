@@ -67,9 +67,28 @@ function Utility.GetCharacterMoveList(char: _TYPES.Character): any
 	return charMoveList
 end
 
+--- Get the animation ID for a character's attack animation
+--- @param char -- The character to get the animation ID for
+--- @param animationName -- The name of the animation to get the ID for
 function Utility.GetPlayingAttackAnimationId(char: _TYPES.Character, animationName: string)
 	local animationIdToRetrieve = Animations.Characters[char.Name].Attacks:FindFirstChild(animationName).AnimationId
 	return animationIdToRetrieve or nil
+end
+
+--- Set the transparency of a character's parts
+--- @param char -- The character to set the transparency for
+--- @param transparency -- The transparency value to set
+function Utility.ToggleCharacterVisibility(char: _TYPES.Character, shouldShow: boolean)
+	-- Set the transparency of all parts in the character
+	for _, part in pairs(char:GetDescendants()) do
+		if (part:IsA("BasePart") or part:IsA("Decal")) and not part:GetAttribute("originallyTransparent") then
+			if shouldShow then
+				(part :: any).Transparency = 0
+			else
+				(part :: any).Transparency = 1
+			end
+		end
+	end
 end
 
 return Utility

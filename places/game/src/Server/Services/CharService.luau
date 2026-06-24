@@ -1,9 +1,12 @@
 local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local rep = game:GetService("ReplicatedStorage")
-local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
+-- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
+-- Packages
+local Trove = require(game.ReplicatedStorage.Packages.Trove)
+local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
 
 local CharService = {}
 
@@ -71,6 +74,8 @@ local statsTemplate = {
 	},
 	-- Statuses
 	statuses = {},
+	-- Trove
+	trove = Trove.new(),
 } :: _TYPES.CharacterCombatData
 
 -- Helper function to import character data from a data source

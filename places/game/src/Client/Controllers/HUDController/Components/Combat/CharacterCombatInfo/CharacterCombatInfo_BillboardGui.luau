@@ -15,7 +15,7 @@ return function(char: _TYPES.Character, playerGui: PlayerGui)
 	billboardGui.Adornee = char:WaitForChild("HumanoidRootPart")
 
 	-- Set the size and offset of the billboard gui to be above the character's head
-	billboardGui.Size = UDim2.fromScale(7.82, 1.08)
+	billboardGui.Size = UDim2.fromScale(6, 0.841)
 	billboardGui.StudsOffset = Vector3.new(0, 3, 0)
 
 	-- Create the healthbar frame and parent it to the billboard gui
