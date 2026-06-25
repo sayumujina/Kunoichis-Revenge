@@ -5,7 +5,7 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local LogService = game:GetService("LogService")
 
-return function(attackData: _TYPES.AttackData, target: _TYPES.Character, moveName: string)
+return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, target: _TYPES.Character, moveName: string)
 	-- Outgoing DMG =
 	-- Base DMG -- Character's scaled stats * skill scalings
 	-- × DMG% Multiplier -- Damage bonus from buffs, debuffs, and other sources
@@ -13,13 +13,12 @@ return function(attackData: _TYPES.AttackData, target: _TYPES.Character, moveNam
 	-- 100% - [DEF / (DEF + 200 + 10 * Attacker Level)]
 	-- × DMG Taken Multiplier -- Damage taken bonus from buffs, debuffs, and other sources
 
-	local origin = attackData.origin
 	local originStats = CharService.GetCharacterCombatData(origin) :: _TYPES.CharacterCombatData
 	local targetStats = CharService.GetCharacterCombatData(target) :: _TYPES.CharacterCombatData
 
 	-- 1. Calculate base dmg
 	-- Loop through each scaling type and apply the scaling to the character's stats
-	local moveScalings = attackData.data.scalings
+	local moveScalings = scalings
 	local baseDmg = 0
 
 	-- Loop through each stat type (baseStats, realStats, currentStats)

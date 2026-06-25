@@ -2,7 +2,6 @@ local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
 local CharService = require(Services.CharService)
-local PlayerService = require(Services.PlayerService)
 local Zap = require(Services.Parent.zap)
 
 --- Provides energy to targets based on the attack data

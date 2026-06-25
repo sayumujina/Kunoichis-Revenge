@@ -1,5 +1,6 @@
 local CharacterTypes = require(game.ReplicatedStorage.Shared.data_Types.type_Character)
 local MoveTypes = require(game.ReplicatedStorage.Shared.data_Types.Combat.type_Moves)
+local AttackScalingsTypes = require(game.ReplicatedStorage.Shared.data_Types.Combat.type_AttackScalings)
 
 --- @within data_TYPES
 --- @type CharacterCombatData = {atk: number, def: number, hp: number, spd: number, maxEnergy: number, currentEnergy: number}
@@ -12,16 +13,15 @@ export type AttackData = {
 	moveCategory: MoveTypes.MoveCategory,
 	-- Targets to hit
 	targets: { CharacterTypes.Character },
-	-- Attack data
-	data: {
-		scalings: {
-			baseStats: { [string]: number }?,
-			realStats: { [string]: number }?,
-			currentStats: { [string]: number }?,
-		},
-		energyGain: number,
-		manaChange: number,
-		exposureDealt: number?,
+	-- Mana change
+	manaChange: number?,
+	-- Attacks data
+	attacks: {
+		{
+			scalings: AttackScalingsTypes.AttackScalings,
+			energyGain: number,
+			exposureDealt: number?,
+		}
 	},
 	-- Info
 	info: {

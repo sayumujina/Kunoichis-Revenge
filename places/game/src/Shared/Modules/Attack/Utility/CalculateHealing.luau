@@ -5,20 +5,19 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local LogService = game:GetService("LogService")
 
-return function(attackData: _TYPES.AttackData, target: _TYPES.Character, moveName: string)
+return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, target: _TYPES.Character, moveName: string)
 	-- Outgoing Healing =
 	-- Base healing -- Character's scaled stats * skill scalings
 	-- × Healing% multiplier -- Healing bonus from buffs, debuffs, and other sources
 	-- × Healing received multiplier -- Target's healing received bonus from buffs, debuffs, and other sources
 	-- × Healing Provided multiplier -- Origin's healing provided bonus from buffs, debuffs, and other sources
 
-	local origin = attackData.origin
 	local originStats = CharService.GetCharacterCombatData(origin) :: _TYPES.CharacterCombatData
 	local targetStats = CharService.GetCharacterCombatData(target) :: _TYPES.CharacterCombatData
 
 	-- 1. Calculate base healing
 	-- Loop through each scaling type and apply the scaling to the character's stats
-	local moveScalings = attackData.data.scalings
+	local moveScalings = scalings
 	local baseHealing = 0
 
 	-- Loop through each stat type (baseStats, realStats, currentStats)

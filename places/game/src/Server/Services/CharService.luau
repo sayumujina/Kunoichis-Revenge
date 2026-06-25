@@ -231,20 +231,6 @@ function CharService.GetCharacterStat(char: _TYPES.Character, statType: string, 
 	return 0
 end
 
---- Update the stat of a status to a character
---- @param char -- The character to apply the status effects to
---- @param statType -- The type of stat to update (baseStats, realStats, currentStats)
---- @param statName -- The name of the stat to update
-function CharService.UpdateCharacterStat(char: _TYPES.Character, statType: string, statName: string, newValue: number)
-	if statType == "baseStats" then
-		CharService.UpdateBaseCharacterStat(char, statName, newValue)
-	elseif statType == "realStats" then
-		CharService.UpdateRealCharacterStat(char, statName, newValue)
-	elseif statType == "currentStats" then
-		CharService.UpdateCurrentCharacterStat(char, statName, newValue)
-	end
-end
-
 --- Applies all active statuses to the character, modifying its stats accordingly.
 --- Updates the character's stats based on the statuses applied.
 --- @within CharService

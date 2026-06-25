@@ -15,8 +15,9 @@ return function(char: _TYPES.Character, primaryTargetIndex: number)
 		origin = char,
 		primaryTargetIndex = primaryTargetIndex,
 		moveCategory = moveInfo.moveCategory,
+		manaChange = moveInfo.manaChange,
 		targets = {},
-		data = moveInfo.data,
+		attacks = moveInfo.attacks,
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 

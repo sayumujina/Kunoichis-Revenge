@@ -44,9 +44,10 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 		return false
 	end
 
-	-- Check if the player has enough mana to perform the move
-	-- If after the move, the player's mana would be less than 0, then the move cannot be performed
-	if not HandleMana.HasEnoughMana(player, attackData.data.manaChange) then
+	-- Check if the  ALLY has enough mana to perform the move
+	-- If after the move, the ally's mana would be less than 0, then the move cannot be performed
+	-- Only allies have mana change in the move data,  hence the "if attackData.manaChange" condition
+	if attackData.manaChange and not HandleMana.HasEnoughMana(player, attackData.manaChange) then
 		warn("Not enough mana to perform the move: " .. moveName)
 		processingAttack = false
 		return false
@@ -80,33 +81,42 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 	})
 
 	-- Update the player's mana after performing the move
-	HandleMana.UpdatePlayerMana(player, attackData.data.manaChange)
+	if attackData.manaChange then
+		HandleMana.UpdatePlayerMana(player, attackData.manaChange)
+	end
 
 	local trove = CharService.GetCharacterCombatData(attackData.origin).trove
+	local currentAttack = 1
 
 	-- Apply damage on the hit marker
 	trove:Add(anim:GetMarkerReachedSignal("hit"):Connect(function()
-		-- Apply the damage/ healing/ shield effects to each target based on the attack data
+		-- Retrieve the attack data for the current attack
+		local data = attackData.attacks[currentAttack]
+
+		-- Loop through each target and apply the appropriate effect based on the move category
 		for _, target in pairs(targets) do
 			if attackData.moveCategory == "Damage" then
-				local damage = CalculateDamage(attackData, target, moveName)
+				local damage = CalculateDamage(data.scalings, attackData.origin, target, moveName)
 				DamageService.Damage(attackData.origin, target, damage)
 
 				-- Also deal exposure damage if specified
-				if attackData.data.exposureDealt and attackData.data.exposureDealt > 0 then
-					DamageService.DealExposure(attackData.origin, target, attackData.data.exposureDealt)
+				if data.exposureDealt and data.exposureDealt > 0 then
+					DamageService.DealExposure(attackData.origin, target, data.exposureDealt)
 				end
 
 				-- Play the hurt animation for each target
 				AnimationService.Play(target, "Hurt_Normal")
 			elseif attackData.moveCategory == "Heal" then
-				local healingAmount = CalculateHealing(attackData, target, moveName)
+				local healingAmount = CalculateHealing(data.scalings, attackData.origin, target, moveName)
 				DamageService.Heal(attackData.origin, target, healingAmount)
 			end
 		end
 
 		-- Provide energy gain
-		ProvideEnergy(attackData.origin, attackData.data.energyGain, false)
+		ProvideEnergy(attackData.origin, data.energyGain, false)
+
+		-- Increment the current attack index for the next hit marker
+		currentAttack += 1
 	end))
 
 	-- Move to the next turn after the attack animation is complete

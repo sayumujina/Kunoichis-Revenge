@@ -10,13 +10,16 @@ local moves: { [string]: _TYPES.MoveData } = {
 		targetSelectionType = "Single",
 		selectedSide = "Enemies",
 		--
-		data = {
-			scalings = {
-				realStats = { hp = 5 / 100 },
+		manaChange = 20,
+		--
+		attacks = {
+			{
+				scalings = {
+					realStats = { hp = 5 / 100 },
+				},
+				energyGain = 5,
+				exposureDealt = 10,
 			},
-			energyGain = 5,
-			manaChange = 20,
-			exposureDealt = 10,
 		},
 		--
 		info = {
@@ -31,13 +34,15 @@ local moves: { [string]: _TYPES.MoveData } = {
 		targetSelectionType = "Blast",
 		selectedSide = "Allies",
 		--
-		data = {
-			scalings = {
-				realStats = { hp = 20 / 100 },
+		manaChange = -20,
+		attacks = {
+			{
+				scalings = {
+					realStats = { hp = 20 / 100 },
+				},
+				energyGain = 5,
+				exposureDealt = 20,
 			},
-			energyGain = 5,
-			manaChange = -20,
-			exposureDealt = 20,
 		},
 		--
 		info = {

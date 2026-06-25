@@ -8,9 +8,11 @@ local moves: { [string]: _TYPES.MoveData } = {
 		targetSelectionType = "Single",
 		selectedSide = "Enemies",
 		--
-		data = {
-			scalings = {
-				realStats = { atk = 100 / 100 },
+		attacks = {
+			{
+				scalings = {
+					realStats = { atk = 100 / 100 },
+				},
 			},
 		},
 		--
@@ -26,9 +28,11 @@ local moves: { [string]: _TYPES.MoveData } = {
 		targetSelectionType = "Blast",
 		selectedSide = "Enemies",
 		--
-		data = {
-			scalings = {
-				realStats = { atk = 200 / 100 },
+		attacks = {
+			{
+				scalings = {
+					realStats = { atk = 200 / 100 },
+				},
 			},
 		},
 		--
