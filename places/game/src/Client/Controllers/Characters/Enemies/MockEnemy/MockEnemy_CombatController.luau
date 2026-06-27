@@ -1,14 +1,11 @@
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
-local StarterPlayer = game:GetService("StarterPlayer")
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
 -- Controllers
-local CombatController = require(StarterPlayerScripts.Client.Controllers.CombatController)
+local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
 -- Packages
-local Zap = require(StarterPlayerScripts.Client.zap)
 local Trove = require(rep.Packages.Trove)
 -- Utiltiy
-local Utility = require(rep.Shared.Modules.Utility)
 
 -- Handlers
 local Handlers = {
@@ -19,10 +16,7 @@ local Handlers = {
 local AttackHandlers = {
 	BasicAttack = require(script.Parent.Handlers.MockEnemy_BasicAttack_Handler),
 	Skill = require(script.Parent.Handlers.MockEnemy_Skill_Handler),
-} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, { _TYPES.Character }) -> number }
-
--- Player
-local player = game.Players.LocalPlayer
+} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
 
 -- Character data
 local CharData = {
@@ -34,34 +28,6 @@ local MockEnemy_CombatController = {}
 --- Gets the attack handlers for MockEnemy
 function MockEnemy_CombatController.GetAttackHandlers()
 	return AttackHandlers
-end
-
---- Handles attack input from the player and sends it to the server
---- @param inputData - The input data containing the action and any relevant information
-function MockEnemy_CombatController.HandleInput(inputData)
-	if inputData.action == "PreviousTarget" then
-		CombatController.SwitchPrimarySelectedTarget(
-			Handlers.Moves[CharData.selectedMove].targetSelectionType,
-			"increment",
-			-1
-		)
-	elseif inputData.action == "NextTarget" then
-		CombatController.SwitchPrimarySelectedTarget(
-			Handlers.Moves[CharData.selectedMove].targetSelectionType,
-			"increment",
-			1
-		)
-	elseif inputData.action == "BasicAttack" then
-		if CharData.selectedMove ~= "BasicAttack" then
-			CharData.selectedMove = "BasicAttack"
-			CombatController.SwitchPrimarySelectedTarget(
-				Handlers.Moves[CharData.selectedMove].targetSelectionType,
-				"increment",
-				0
-			)
-			return
-		end
-	end
 end
 
 return MockEnemy_CombatController

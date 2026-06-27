@@ -109,10 +109,10 @@ export type PlayerCurrentStatsChangedEvent = {
 }
 
 export type SuccessfulMoveEvent = {
-	char: _TYPES.Character,
+	origin: _TYPES.Character,
 	data: {
 		moveName: string,
-		targets: { _TYPES.Character },
+		attackData: _TYPES.AttackData,
 	},
 }
 

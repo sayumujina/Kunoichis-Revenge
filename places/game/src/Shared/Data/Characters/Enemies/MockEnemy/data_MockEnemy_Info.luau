@@ -8,7 +8,7 @@ local info = {
 		atk = 200,
 		def = 140,
 		hp = 12000,
-		spd = 40,
+		spd = 60,
 		shield = 0,
 		--
 		exposure = 100,

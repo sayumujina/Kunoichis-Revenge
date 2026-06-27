@@ -1,8 +1,6 @@
 local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 local UserInputService = game:GetService("UserInputService")
-local mouse = game:GetService("Players").LocalPlayer:GetMouse()
 -- Utility
-local Utility = require(game:GetService("ReplicatedStorage").Shared.Modules.Utility)
 --
 local player = game.Players.LocalPlayer
 --
@@ -19,14 +17,11 @@ local InputToActions = {
 	[Enum.KeyCode.D] = "NextTarget",
 	[Enum.UserInputType.MouseButton1] = "SelectTarget",
 	-- Combat actions
-	[Enum.KeyCode.Space] = "ConfirmAction",
 	[Enum.KeyCode.Q] = "BasicAttack",
 	[Enum.KeyCode.E] = "Skill",
 	-- Spawn
 	[Enum.KeyCode.U] = "Spawn",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
-
-local CombatActions = { "BasicAttack", "Skill", "Ultimate" }
 
 --- Called when the controller starts
 function InputController.OnStart()

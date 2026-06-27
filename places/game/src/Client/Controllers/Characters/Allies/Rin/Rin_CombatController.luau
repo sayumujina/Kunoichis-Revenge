@@ -17,21 +17,10 @@ local Handlers = {
 local AttackHandlers = {
 	HiddenAssistance = require(script.Parent.Handlers.Rin_HiddenAssistance_Handler),
 	CleansingAura = require(script.Parent.Handlers.Rin_CleansingAura_Handler),
-} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, { _TYPES.Character }) -> number }
+} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
 
 -- Player
 local player = game.Players.LocalPlayer
-
--- Character data
-local CharData = {
-	selectedMove = "HiddenAssistance", -- Player needs to confirm the move twice before executing
-}
-
--- Action to move mapping at the top of the file
-local ActionToMoveMap = {
-	BasicAttack = "HiddenAssistance",
-	Skill = "CleansingAura",
-}
 
 local Rin_CombatController = {}
 

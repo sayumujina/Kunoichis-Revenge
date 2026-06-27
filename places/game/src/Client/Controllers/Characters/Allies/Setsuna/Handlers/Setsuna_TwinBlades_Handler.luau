@@ -9,12 +9,12 @@ return function(
 	trove: Trove.Trove,
 	animationTrack: AnimationTrack,
 	char: _TYPES.Character,
-	targets: { _TYPES.Character }
+	attackData: _TYPES.AttackData
 )
 	local originalCFrame = char.HumanoidRootPart.CFrame
 
 	-- Offset the position be in front of the target
-	local cframeToLerpTo = targets[1].HumanoidRootPart.CFrame
+	local cframeToLerpTo = attackData.targets[1].HumanoidRootPart.CFrame
 		* CFrame.new(0, 0, -6)
 		* CFrame.Angles(0, math.rad(180), 0)
 	warn("CFrame to lerp to: ", cframeToLerpTo)

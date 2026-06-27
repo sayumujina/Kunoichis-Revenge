@@ -5,8 +5,6 @@ local AttackScalingsTypes = require(game.ReplicatedStorage.Shared.data_Types.Com
 --- @within data_TYPES
 --- @type CharacterCombatData = {atk: number, def: number, hp: number, spd: number, maxEnergy: number, currentEnergy: number}
 export type AttackData = {
-	-- Originator of the attack
-	origin: CharacterTypes.Character,
 	-- Primary target of the attack
 	primaryTargetIndex: number,
 	-- Move category
@@ -19,7 +17,7 @@ export type AttackData = {
 	attacks: {
 		{
 			scalings: AttackScalingsTypes.AttackScalings,
-			energyGain: number,
+			energyGain: number?,
 			exposureDealt: number?,
 		}
 	},

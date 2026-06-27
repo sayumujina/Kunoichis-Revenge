@@ -6,7 +6,7 @@ return function(
 	trove: Trove.Trove,
 	animationTrack: AnimationTrack,
 	char: _TYPES.Character,
-	targets: { _TYPES.Character }
+	attackData: _TYPES.AttackData
 )
 	return 2
 end

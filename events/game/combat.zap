@@ -3,11 +3,29 @@ event SuccessfulMove = {
 	type: Reliable,
 	call: ManyAsync,
 	data: struct {
-		char: Instance.Model, 
+		origin: Instance.Model,
 		data: struct {
 			moveName: string.binary,
-			targets: Instance.Model[],
-		},
+			attackData: struct {
+				primaryTargetIndex: u8,
+				moveCategory: string.binary,
+				targets: Instance.Model[],
+				manaChange: f32?,
+				attacks: struct {
+					scalings: struct {
+						baseStats: map {[string.binary]: f32}?,
+						realStats: map {[string.binary]: f32}?,
+						currentStats: map {[string.binary]: f32}?,
+					},
+					energyGain: f32?,
+					exposureDealt: f32?,
+				}[],
+				info: struct {
+					name: string.binary,
+					description: string.binary,
+				},
+			}
+		}
 	},
 }
 

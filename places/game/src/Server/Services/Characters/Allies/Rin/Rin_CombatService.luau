@@ -52,29 +52,30 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 		CombatService.SwitchToNextTarget(player)
 		CombatService.UpdateMovePreview(player, char, CharData.selectedMove)
 		return
-	end
-
 	-- Handle move selection actions
-	local mappedMove = ActionToMoveMap[action]
+	elseif ActionToMoveMap[action] then
+		-- Handle move selection actions
+		local mappedMove = ActionToMoveMap[action]
 
-	-- If the move isn't the same as the currently selected move, it means the player is selecting a new move
-	-- Only confirm the move if the player has selected the same move twice in a row
-	if mappedMove and CharData.selectedMove ~= mappedMove then
-		CharData.selectedMove = mappedMove
-		-- Update the selection type reference for the new move
-		CombatService.UpdateMovePreview(player, char, mappedMove)
+		-- If the move isn't the same as the currently selected move, it means the player is selecting a new move
+		-- Only confirm the move if the player has selected the same move twice in a row
+		if mappedMove and CharData.selectedMove ~= mappedMove then
+			CharData.selectedMove = mappedMove
+			-- Update the selection type reference for the new move
+			CombatService.UpdateMovePreview(player, char, mappedMove)
 
-		return
-	end
+			return
+		end
 
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
-	-- Handle the input based on the action
-	if CharData.selectedMove == "HiddenAssistance" then
-		print(charName .. " performs a basic attack!")
-		Handlers.HiddenAssistance(char, primaryTargetIndex)
-	elseif CharData.selectedMove == "CleansingAura" then
-		print(charName .. " uses their skill!")
-		Handlers.CleansingAura(char, primaryTargetIndex)
+		local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
+		-- Handle the input based on the action
+		if CharData.selectedMove == "HiddenAssistance" then
+			print(charName .. " performs a basic attack!")
+			Handlers.HiddenAssistance(char, primaryTargetIndex)
+		elseif CharData.selectedMove == "CleansingAura" then
+			print(charName .. " uses their skill!")
+			Handlers.CleansingAura(char, primaryTargetIndex)
+		end
 	end
 end
 

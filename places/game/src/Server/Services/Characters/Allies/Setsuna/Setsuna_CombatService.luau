@@ -53,30 +53,30 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		CombatService.SwitchToNextTarget(player)
 		CombatService.UpdateMovePreview(player, char, CharData.selectedMove)
 		return
-	end
-
 	-- Handle move selection actions
-	local mappedMove = ActionToMoveMap[action]
+	elseif ActionToMoveMap[action] then
+		local mappedMove = ActionToMoveMap[action]
 
-	-- If the move isn't the same as the currently selected move, it means the player is selecting a new move
-	-- Only confirm the move if the player has selected the same move twice in a row
-	if mappedMove and CharData.selectedMove ~= mappedMove then
-		CharData.selectedMove = mappedMove
-		warn("Setsuna selected move changed to", mappedMove)
-		-- Update the selection type reference for the new move
-		CombatService.UpdateMovePreview(player, char, mappedMove)
+		-- If the move isn't the same as the currently selected move, it means the player is selecting a new move
+		-- Only confirm the move if the player has selected the same move twice in a row
+		if mappedMove and CharData.selectedMove ~= mappedMove then
+			CharData.selectedMove = mappedMove
+			warn("Setsuna selected move changed to", mappedMove)
+			-- Update the selection type reference for the new move
+			CombatService.UpdateMovePreview(player, char, mappedMove)
 
-		return
-	end
+			return
+		end
 
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
-	-- Handle the input based on the action
-	if CharData.selectedMove == "WeavingBlade" then
-		print(charName .. " performs a basic attack!")
-		Handlers.WeavingBlade(char, primaryTargetIndex)
-	elseif CharData.selectedMove == "TwinBlades" then
-		print(charName .. " uses their skill!")
-		Handlers.TwinBlades(char, primaryTargetIndex)
+		local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
+		-- Handle the input based on the action
+		if CharData.selectedMove == "WeavingBlade" then
+			print(charName .. " performs a basic attack!")
+			Handlers.WeavingBlade(char, primaryTargetIndex)
+		elseif CharData.selectedMove == "TwinBlades" then
+			print(charName .. " uses their skill!")
+			Handlers.TwinBlades(char, primaryTargetIndex)
+		end
 	end
 end
 

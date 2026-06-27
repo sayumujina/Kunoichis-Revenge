@@ -17,21 +17,10 @@ local Handlers = {
 local AttackHandlers = {
 	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow_Handler),
 	LightningRain = require(script.Parent.Handlers.Hayumi_LightningRain_Handler),
-} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, { _TYPES.Character }) -> number }
+} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
 
 -- Player
 local player = game.Players.LocalPlayer
-
--- Character data
-local CharData = {
-	selectedMove = "LightningArrow", -- Player needs to confirm the move twice before executing
-}
-
--- Action to move mapping at the top of the file
-local ActionToMoveMap = {
-	BasicAttack = "LightningArrow",
-	Skill = "LightningRain",
-}
 
 local Hayumi_CombatController = {}
 

@@ -25,11 +25,16 @@ local Signal = require(game.ReplicatedStorage.Packages.Signal)
 --- @param attackData -- The data for the attack to create
 --- @param moveToNextTurn -- Whether to move to the next turn after executing the attack
 --- @return boolean -- Returns true if the attack was executed successfully, false otherwise
-local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, moveToNextTurn: boolean?)
+local function ExecuteMove(
+	char: _TYPES.Character,
+	moveName: string,
+	attackData: _TYPES.AttackData,
+	moveToNextTurn: boolean?
+)
 	-- Turn off input availability for actions during the attack animation
 	InputService.ToggleActionsAvailability(false)
 
-	local player = PlayerService.GetPlayerFromCharacter(attackData.origin)
+	local player = PlayerService.GetPlayerFromCharacter(char)
 	if not player then
 		warn("Player not found for the origin character.")
 		InputService.ToggleActionsAvailability(true)
@@ -47,16 +52,19 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 
 	-- Determine targets on the server
 	-- The client has its own version of this for visual purposes, but the server will verify it to be safe
-	local targets = DetermineTargets(attackData, moveName)
+	local targets = DetermineTargets(char, attackData, moveName)
 	-- Return false if no valid targets were found
 	if not targets or #targets == 0 then
 		warn("No valid targets found for attack: " .. moveName)
 		InputService.ToggleActionsAvailability(true)
 		return false
+	-- Else, append the targets to the attackData
+	else
+		attackData.targets = targets
 	end
 
 	-- Play the attack animation
-	local anim = AnimationService.Play(attackData.origin, moveName .. "_Execute")
+	local anim = AnimationService.Play(char, moveName .. "_Execute")
 	if not anim then
 		warn("Failed to play animation for attack: " .. moveName)
 		InputService.ToggleActionsAvailability(true)
@@ -65,10 +73,10 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 
 	-- Fire the successful move event
 	EventService.Events.SuccessfulMove:Fire({
-		char = attackData.origin :: _TYPES.Character,
+		origin = char,
 		data = {
 			moveName = moveName,
-			targets = targets,
+			attackData = attackData,
 		},
 	})
 
@@ -77,7 +85,7 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 		HandleMana.UpdatePlayerMana(player, attackData.manaChange)
 	end
 
-	local trove = CharService.GetCharacterCombatData(attackData.origin).trove
+	local trove = CharService.GetCharacterCombatData(char).trove
 	local currentAttack = 1
 
 	-- Apply damage on the hit marker
@@ -87,25 +95,25 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 		-- Loop through each target and apply the appropriate effect based on the move category
 		for _, target in pairs(targets) do
 			if attackData.moveCategory == "Damage" then
-				local damage = CalculateDamage(data.scalings, attackData.origin, target, moveName)
-				DamageService.Damage(attackData.origin, target, damage)
+				local damage = CalculateDamage(data.scalings, char, target, moveName)
+				DamageService.Damage(char, target, damage)
 
 				-- Also deal exposure damage if specified
 				if data.exposureDealt and data.exposureDealt > 0 then
-					DamageService.DealExposure(attackData.origin, target, data.exposureDealt)
+					DamageService.DealExposure(char, target, data.exposureDealt)
 				end
 
 				-- Play the hurt animation for each target
 				AnimationService.Play(target, "Hurt_Normal")
 			elseif attackData.moveCategory == "Heal" then
-				local healingAmount = CalculateHealing(data.scalings, attackData.origin, target, moveName)
-				DamageService.Heal(attackData.origin, target, healingAmount)
+				local healingAmount = CalculateHealing(data.scalings, char, target, moveName)
+				DamageService.Heal(char, target, healingAmount)
 			end
 		end
 
 		-- Provide energy gain for allies
 		if data.energyGain then
-			ProvideEnergy(attackData.origin, data.energyGain, false)
+			ProvideEnergy(char, data.energyGain, false)
 		end
 
 		-- Increment the current attack index for the next hit marker

@@ -6,7 +6,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		moveCategory = "Damage",
 		--
 		targetSelectionType = "Single",
-		selectedSide = "Enemies",
+		selectedSide = "Allies",
 		--
 		attacks = {
 			{
@@ -26,7 +26,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		moveCategory = "Damage",
 		--
 		targetSelectionType = "Blast",
-		selectedSide = "Enemies",
+		selectedSide = "Allies",
 		--
 		attacks = {
 			{

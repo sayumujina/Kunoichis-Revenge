@@ -17,7 +17,7 @@ local Handlers = {
 local AttackHandlers = {
 	WeavingBlade = require(script.Parent.Handlers.Setsuna_WeavingBlade_Handler),
 	TwinBlades = require(script.Parent.Handlers.Setsuna_TwinBlades_Handler),
-} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, { _TYPES.Character }) -> number }
+} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
 
 -- Player
 local player = game.Players.LocalPlayer

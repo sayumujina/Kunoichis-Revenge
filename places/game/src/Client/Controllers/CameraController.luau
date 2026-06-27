@@ -46,40 +46,68 @@ function CameraController.OnStart()
 	Camera.CFrame = CFrame.new(-12.526, 15.672, -15.471) * CFrame.Angles(math.rad(20), math.rad(-180), 0)
 end
 
---- Look at the side of the battlefield based on the current camera state
+--- Look at the side of the battlefield based on the current camera state.
+---
+--- A kind reminder: the "side" that the camera looks at depends on the current side of the character.
+--- So, if the character is an enemy, then the "LookAtEnemies" function will look at THEIR ENEMIES, which are the player's allies
 --- @param origin - The character to look at
 --- @param selectedTargetIndex - The index of the selected target to look at
 function CameraController.LookAtSide(origin: _TYPES.Character, selectedTargetIndex: number)
-	if CameraStates[localPlayer].sideToLookAt == "Allies" then
-		CameraController.LookAtAllies()
+	local charSide = origin:GetAttribute("Side")
+	local sideToLookAt = CameraStates[localPlayer].sideToLookAt
+
+	if charSide == "Allies" then
+		if sideToLookAt == "Allies" then
+			CameraController.LookAtTheirSide(origin)
+		else
+			CameraController.LookAtOpposingSide(origin, selectedTargetIndex)
+		end
 	else
-		CameraController.LookAtEnemies(origin, selectedTargetIndex)
+		-- If the character is an enemy, then the camera should look at the allies
+		if sideToLookAt == "Allies" then
+			CameraController.LookAtOpposingSide(origin, selectedTargetIndex)
+		else
+			CameraController.LookAtTheirSide(origin)
+		end
 	end
 end
 
---- Look at a given CFrame
---- @param targetCFrame - The CFrame to look at
-function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTargetIndex: number)
+--- Look at the opposing side of the battlefield based on the character's side.
+--- @param origin - The character to look at
+--- @param selectedTargetIndex - The index of the selected target to look at
+function CameraController.LookAtOpposingSide(origin: _TYPES.Character, selectedTargetIndex: number)
 	-- Place the camera so that
 	-- The origin is in the bottom left of the screen
+	local folder
+	local numbersMult = 1
+	local anglesAddition = 0
+	if origin:GetAttribute("Side") == "Allies" then
+		folder = workspace.Characters.Enemies
+	elseif origin:GetAttribute("Side") == "Enemies" then
+		folder = workspace.Characters.Allies
+
+		-- If the enemy is looking at the allies, some values are flipped
+		numbersMult = -1
+		anglesAddition = 180
+	end
 
 	-- 1. Get the CFrame of the origin looking at the target
 	local originCFrame = origin.HumanoidRootPart.CFrame
 
 	-- 2. Shift the camera to the left of the origin by ENEMIES_CAMERA_SIDE_OFFSET
-	local cameraXPos = originCFrame.Position.X + ENEMIES_CAMERA_SIDE_OFFSET
+	local cameraXPos = originCFrame.Position.X + ENEMIES_CAMERA_SIDE_OFFSET * numbersMult
 
-	-- 3. Get the enemy in the middle as the point of focus
-	local numberOfEnemies = #workspace.Characters.Enemies:GetChildren()
-	local middleIndex = math.ceil(numberOfEnemies / 2)
+	-- 3. Get the target in the middle as the point of focus
+	local numberOfTargets = #folder:GetChildren()
+	local middleIndex = math.ceil(numberOfTargets / 2)
 
 	-- 4. Calculate the base camera Y rotation angle, looking from the origin to the middle index
 	local cameraYRotation
-	for _, enemy in pairs(workspace.Characters.Enemies:GetChildren()) do
-		if enemy:GetAttribute("Index") == middleIndex then
-			local lookAtCFrame = CFrame.lookAt(originCFrame.Position, enemy.HumanoidRootPart.Position)
+	for _, target in pairs(folder:GetChildren()) do
+		if target:GetAttribute("Index") == middleIndex then
+			local lookAtCFrame = CFrame.lookAt(originCFrame.Position, target.HumanoidRootPart.Position)
 			local _, YRotation, _ = lookAtCFrame:ToWorldSpace(lookAtCFrame):ToOrientation()
-			cameraYRotation = YRotation + ENEMIES_CAMERA_Y_OFFSET
+			cameraYRotation = YRotation + ENEMIES_CAMERA_Y_OFFSET + anglesAddition
 			break
 		end
 	end
@@ -87,17 +115,17 @@ function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTarget
 	-- 5. Calculate the camera's Y rotation based on the difference between the middle index and the selected index
 	if middleIndex - selectedTargetIndex >= 0 then
 		cameraYRotation = cameraYRotation
-			+ ENEMIES_CAMERA_Y_ROTATION_DIFFERENCE_PER_ENEMY * (middleIndex - selectedTargetIndex)
+			+ ENEMIES_CAMERA_Y_ROTATION_DIFFERENCE_PER_ENEMY * (middleIndex - selectedTargetIndex) * numbersMult
 	else
 		cameraYRotation = cameraYRotation
-			- ENEMIES_CAMERA_Y_ROTATION_DIFFERENCE_PER_ENEMY * (selectedTargetIndex - middleIndex)
+			- ENEMIES_CAMERA_Y_ROTATION_DIFFERENCE_PER_ENEMY * (selectedTargetIndex - middleIndex) * numbersMult
 	end
 
 	-- 6. Set the camera's Y position to be ENEMIES_CAMERA_HEIGHT above the origin
 	local cameraYPos = originCFrame.Position.Y + ENEMIES_CAMERA_HEIGHT
 
 	-- 7. Set the camera's Z position to be ENEMIES_CAMERA_Z_OFFSET away from the origin
-	local cameraZPos = originCFrame.Position.Z + ENEMIES_CAMERA_Z_OFFSET
+	local cameraZPos = originCFrame.Position.Z + ENEMIES_CAMERA_Z_OFFSET * numbersMult
 
 	-- 8. Create a new CFrame for the camera
 	local newCameraCFrame = CFrame.new(Vector3.new(cameraXPos, cameraYPos, cameraZPos))
@@ -130,28 +158,42 @@ function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTarget
 	):Play()
 end
 
-function CameraController.LookAtAllies()
+--- Look at the side of the battlefield that the character is on.
+--- @param origin - The character to look at
+function CameraController.LookAtTheirSide(origin: _TYPES.Character)
 	-- Place the camera so that all allies are in the view
+	local folder
+	local numbersMult = 1
+	local anglesAddition = 0
+	if origin:GetAttribute("Side") == "Allies" then
+		folder = workspace.Characters.Allies
+	else
+		folder = workspace.Characters.Enemies
 
-	-- 1. Get the origin of the ally in the middle
-	local numberOfAllies = #workspace.Characters.Allies:GetChildren()
-	local middleIndex = math.ceil(numberOfAllies / 2)
-	local middleAlly
-	for _, ally in pairs(workspace.Characters.Allies:GetChildren()) do
-		if ally:GetAttribute("Index") == middleIndex then
-			middleAlly = ally
+		-- Some values are flipped if the character is an enemy
+		numbersMult = -1
+		anglesAddition = 180
+	end
+
+	-- 1. Get the origin of the target in the middle
+	local numberOfTargets = #folder:GetChildren()
+	local middleIndex = math.ceil(numberOfTargets / 2)
+	local middleTarget
+	for _, target in pairs(folder:GetChildren()) do
+		if target:GetAttribute("Index") == middleIndex then
+			middleTarget = target
 			break
 		end
 	end
 
-	-- 2. Place the camera in front of that ally
-	local cameraYPos = middleAlly.HumanoidRootPart.Position.Y + ALLIES_CAMERA_HEIGHT
-	local cameraZPos = middleAlly.HumanoidRootPart.Position.Z + ALLIES_CAMERA_FRONT_OFFSET
+	-- 2. Place the camera in front of that target
+	local cameraYPos = middleTarget.HumanoidRootPart.Position.Y + ALLIES_CAMERA_HEIGHT
+	local cameraZPos = middleTarget.HumanoidRootPart.Position.Z + ALLIES_CAMERA_FRONT_OFFSET * numbersMult
 
-	-- 3. Make the camera look at the ally in the middle
+	-- 3. Make the camera look at the target in the middle
 	local newCameraCFrame = CFrame.lookAt(
-		Vector3.new(middleAlly.HumanoidRootPart.Position.X, cameraYPos, cameraZPos),
-		middleAlly.HumanoidRootPart.Position
+		Vector3.new(middleTarget.HumanoidRootPart.Position.X, cameraYPos, cameraZPos),
+		middleTarget.HumanoidRootPart.Position
 	)
 
 	-- 4. Set the camera CFrame

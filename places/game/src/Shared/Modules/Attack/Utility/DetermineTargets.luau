@@ -6,9 +6,9 @@ local Utility = require(rep.Shared.Modules.Utility)
 -- A table to map move categories to their corresponding target sides
 local teamEffectMoveCategories = { "Heal", "Shield", "Buff" }
 
-return function(attackData: _TYPES.AttackData, moveName: string)
+return function(char: _TYPES.Character, attackData: _TYPES.AttackData, moveName: string)
 	local targets = {} :: { _TYPES.Character }
-	local side = attackData.origin:GetAttribute("Side")
+	local side = char:GetAttribute("Side")
 	local targetsList
 	-- Depends on the side and move category, retrieve the appropriate folder
 	if side == "Allies" then
@@ -25,7 +25,7 @@ return function(attackData: _TYPES.AttackData, moveName: string)
 		end
 	end
 
-	local moveData = Utility.GetCharacterMoveList(attackData.origin :: _TYPES.Character)[moveName]
+	local moveData = Utility.GetCharacterMoveList(char)[moveName]
 	local targetSelectionType = moveData.targetSelectionType
 	local findChar = Utility.FindCharacterWithIndex
 

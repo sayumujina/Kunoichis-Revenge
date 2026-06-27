@@ -27,7 +27,7 @@ local CombatController = {}
 function CombatController.OnStart()
 	-- Listens to sucessful move events
 	Zap.SuccessfulMove.On(function(successfulMoveData)
-		local char = successfulMoveData.char :: _TYPES.Character
+		local char = successfulMoveData.origin :: _TYPES.Character
 		-- if char ~= CombatController.GetCurrentCharacter() :: any then
 		-- 	return
 		-- end
@@ -52,8 +52,8 @@ function CombatController.OnStart()
 			local cleanupDuration = attackHandlers[moveName](
 				trove,
 				animationTrack,
-				successfulMoveData.char :: _TYPES.Character,
-				successfulMoveData.data.targets :: { _TYPES.Character }
+				successfulMoveData.origin :: _TYPES.Character,
+				successfulMoveData.data.attackData
 			)
 
 			-- Clean up the trove for the current character after the animation is done
@@ -171,7 +171,6 @@ function CombatController.UpdateMovePreview(
 	-- Update the move preview in the HUD
 	HUDController.UpdateManaPreview(manaChangePreviewValue)
 
-	warn(side)
 	-- Call the character combat controller to update the camera
 	local controller = Utility.GetCharacterCombatController(char)
 	if controller then

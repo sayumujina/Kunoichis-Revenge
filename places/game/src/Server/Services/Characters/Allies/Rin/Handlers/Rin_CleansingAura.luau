@@ -11,7 +11,6 @@ local moveInfo = require(rep.Shared.Data.Characters.Allies.Rin.data_Rin_Moves)[m
 
 return function(char: _TYPES.Character, primaryTargetIndex: number)
 	local attackData = {
-		origin = char,
 		primaryTargetIndex = primaryTargetIndex,
 		moveCategory = moveInfo.moveCategory,
 		targets = {},
@@ -19,5 +18,5 @@ return function(char: _TYPES.Character, primaryTargetIndex: number)
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
-	ExecuteMove(moveName, attackData, true)
+	ExecuteMove(char, moveName, attackData, true)
 end
