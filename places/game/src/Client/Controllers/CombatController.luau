@@ -4,7 +4,6 @@ local _TYPES = require(rep.Shared.data_Types)
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local EffectsController = require(StarterPlayerScripts.Client.Controllers.EffectsController)
 local HUDController = require(StarterPlayerScripts.Client.Controllers.HUDController)
-local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Player
@@ -125,25 +124,32 @@ function CombatController.DetermineSelectedTargets(
 	primaryIndex: number,
 	side: "Allies" | "Enemies"
 )
-	local targetsList = side == "Allies" and game.Workspace.Characters.Allies:GetChildren()
-		or game.Workspace.Characters.Enemies:GetChildren()
+	local targetsFolder = side == "Allies" and game.Workspace.Characters.Allies or game.Workspace.Characters.Enemies
 
 	-- Get the list of selected enemies based on the selection type
 	local selectedTargets
+	local findChar = Utility.FindCharacterWithIndex
 
 	if targetSelectionType == "Single" then -- Select a single enemy.
-		selectedTargets = { targetsList[primaryIndex] }
+		selectedTargets = { findChar(primaryIndex, targetsFolder) :: _TYPES.Character }
 	elseif targetSelectionType == "Blast" then -- Select a main enemy and 2 enemies around them (if they exist).
-		selectedTargets = { targetsList[primaryIndex] }
-		if targetsList[primaryIndex - 1] then
-			table.insert(selectedTargets, targetsList[primaryIndex - 1])
+		selectedTargets = { findChar(primaryIndex, targetsFolder) :: _TYPES.Character }
+
+		-- Find adjacent targets
+		local charOnTheLeft = findChar(primaryIndex - 1, targetsFolder)
+		if charOnTheLeft then
+			table.insert(selectedTargets, charOnTheLeft)
 		end
-		if targetsList[primaryIndex + 1] then
-			table.insert(selectedTargets, targetsList[primaryIndex + 1])
+
+		local charOnTheRight = findChar(primaryIndex + 1, targetsFolder)
+		if charOnTheRight then
+			table.insert(selectedTargets, charOnTheRight)
 		end
 	elseif targetSelectionType == "AoE" then -- Select all enemies on the field.
-		selectedTargets = targetsList
+		selectedTargets = targetsFolder:GetChildren()
 	end
+
+	warn(selectedTargets)
 
 	-- Notify EffectsController to update selection marks
 	EffectsController.EnableTargetsSelectionMark(side, selectedTargets, primaryIndex)
@@ -165,6 +171,7 @@ function CombatController.UpdateMovePreview(
 	-- Update the move preview in the HUD
 	HUDController.UpdateManaPreview(manaChangePreviewValue)
 
+	warn(side)
 	-- Call the character combat controller to update the camera
 	local controller = Utility.GetCharacterCombatController(char)
 	if controller then

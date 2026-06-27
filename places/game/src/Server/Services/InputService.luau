@@ -79,7 +79,6 @@ end
 --- @param shouldEnable -- Whether to enable or disable actions
 function InputService.ToggleActionsAvailability(shouldEnable: boolean)
 	allowActions = shouldEnable
-	warn("Actions availability set to", shouldEnable)
 end
 
 return InputService

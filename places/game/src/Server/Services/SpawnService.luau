@@ -57,6 +57,7 @@ end
 --- @param side -- The side the character belongs to (Allies or Enemies)
 --- @param char -- The character model to spawn
 --- @param cframe -- The CFrame position to spawn the character at
+--- @param index -- The index of the character in the side's lineup
 function SpawnService.SpawnCharacter(
 	player: _TYPES.RobloxPlayerType,
 	--
@@ -141,6 +142,7 @@ function SpawnService.SpawnAllCharactersOfSide(
 	local charModelPath = rep.Shared.Assets.Models[side]
 
 	for count, charName in charactersToSpawn do
+		local index
 		local char = charModelPath:FindFirstChild(charName):Clone() :: _TYPES.Character
 
 		-- Calculate spawn position
@@ -159,21 +161,33 @@ function SpawnService.SpawnAllCharactersOfSide(
 
 		-- Spawn the character
 		if side == "Allies" then
+			-- If allies, the index will be ordered inversely
+			-- This is done so that selecting previous/ next ally will be more intuitive when the camera faces the alies
+			index = characterCount - count + 1
+
+			-- Determine the spawn position
 			spawnPosition = CFrame.new(spawnX, char:GetExtentsSize().Y / 2, spawnZ) * CFrame.Angles(0, math.rad(180), 0) -- Rotate allies to face enemies
+
+			-- Parent the character to the Allies folder
 			char.Parent = workspace.Characters.Allies
 		else
+			-- If enemies, the index will be ordered normally
+			index = count
+
+			-- Determine the spawn position
 			spawnPosition = CFrame.new(spawnX, char:GetExtentsSize().Y / 2, spawnZ)
-			-- Clone the character model and set its name
+
+			-- Parent the character to the Enemies folder
 			char.Parent = workspace.Characters.Enemies
 
 			-- Set the index of the enemy
 			-- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 			if not char:GetAttribute("Index") then
-				char:SetAttribute("Index", count + 1)
+				char:SetAttribute("Index", index)
 			end
 		end
 
-		SpawnService.SpawnCharacter(player, side, char, spawnPosition, count)
+		SpawnService.SpawnCharacter(player, side, char, spawnPosition, index)
 	end
 end
 

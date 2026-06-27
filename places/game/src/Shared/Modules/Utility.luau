@@ -156,4 +156,20 @@ function Utility.SetNetworkOwner(part: BasePart, networkOwner: _TYPES.RobloxPlay
 	part:SetNetworkOwner(networkOwner)
 end
 
+--- Find a character in the workspace based on the provided index
+--- @within Utility
+--- @param indexToFind -- The index of the character to find
+--- @param folder -- The folder to search for the character in (e.g., workspace.Char
+function Utility.FindCharacterWithIndex(indexToFind: number, folder: Folder): _TYPES.Character?
+	-- Loop through the children of the folder to find the character with the matching index
+	for _, child in pairs(folder:GetChildren()) do
+		local charIndex = child:GetAttribute("Index")
+		if charIndex and charIndex == indexToFind then
+			return child :: _TYPES.Character
+		end
+	end
+
+	return nil
+end
+
 return Utility
