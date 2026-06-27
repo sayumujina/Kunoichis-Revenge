@@ -91,4 +91,69 @@ function Utility.ToggleCharacterVisibility(char: _TYPES.Character, shouldShow: b
 	end
 end
 
+--- Performs a raycast from the part to the end vector to visualize the knockback path.
+--- @within Utility
+--- @param position -- The starting position of the raycast.
+--- @param endVector -- The direction and magnitude of the ray.
+--- @param includeCharacters -- Whether to include characters in the raycast.
+--- @param origin -- The character performing the raycast, used to ignore themselves in the results.
+--- @param VELOCITY_FACTOR -- The factor to scale the velocity by (**NOTE:** Most of the time, it should be **1**, so DON'T touch this unless you know what you're doing).
+--- @return RaycastResult? -- The result of the raycast, or nil if no obstruction is found.
+function Utility.Raycast(
+	position: Vector3,
+	endVector: Vector3,
+	includeCharacters: boolean?,
+	origin: _TYPES.Character?,
+	VELOCITY_FACTOR: number?
+): RaycastResult?
+	local dir = endVector.Unit
+	local velDistance = endVector.Magnitude / (VELOCITY_FACTOR or 1)
+
+	-- Prepare the raycast to check for collisions
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterType = Enum.RaycastFilterType.Include
+	local filter = {}
+	if includeCharacters then
+		local chars = workspace:WaitForChild("Characters"):GetChildren()
+		local charIndex = chars and origin and table.find(chars, origin)
+		if charIndex then
+			table.remove(chars, charIndex)
+		end
+		table.insert(filter, chars)
+	end
+
+	raycastParams.FilterDescendantsInstances = filter
+
+	raycastParams.IgnoreWater = true
+
+	-- Raycast to check for obstructions
+	local result = workspace:Raycast(position, dir * velDistance, raycastParams)
+
+	return result
+end
+
+--- Sets the network ownership of a part to a specific player.
+--- @within Utility
+--- @param part -- The part to set network ownership for.
+--- @param networkOwner -- The player to set as the network owner of the part.
+function Utility.SetNetworkOwner(part: BasePart, networkOwner: _TYPES.RobloxPlayerType?)
+	-- Get the owner of the base part
+	local parent = part.Parent
+
+	-- If the parent does not have an attribute state, it means it's not a character, so yell the error if that's the case
+	if not parent or not parent:IsA("Model") or parent:GetAttribute("Side") ~= "Allies" then
+		error("Attempted to set network ownership of a non-character part.")
+		return
+	end
+
+	-- If the state is "Dying", also return early
+	if parent:GetAttribute("State") == "Dying" then
+		warn("Attempted to set network ownership of a part whose character is dying.")
+		return
+	end
+
+	-- Set the network ownership of the part to the specified player
+	part:SetNetworkOwner(networkOwner)
+end
+
 return Utility

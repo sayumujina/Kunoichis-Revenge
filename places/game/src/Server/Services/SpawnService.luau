@@ -159,11 +159,10 @@ function SpawnService.SpawnAllCharactersOfSide(
 
 		-- Spawn the character
 		if side == "Allies" then
-			spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, spawnZ)
-				* CFrame.Angles(0, math.rad(180), 0) -- Rotate allies to face enemies
+			spawnPosition = CFrame.new(spawnX, char:GetExtentsSize().Y / 2, spawnZ) * CFrame.Angles(0, math.rad(180), 0) -- Rotate allies to face enemies
 			char.Parent = workspace.Characters.Allies
 		else
-			spawnPosition = CFrame.new(spawnX, char.HumanoidRootPart.Size.Y, spawnZ)
+			spawnPosition = CFrame.new(spawnX, char:GetExtentsSize().Y / 2, spawnZ)
 			-- Clone the character model and set its name
 			char.Parent = workspace.Characters.Enemies
 

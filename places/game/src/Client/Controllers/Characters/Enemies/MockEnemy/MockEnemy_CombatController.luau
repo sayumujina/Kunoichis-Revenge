@@ -6,6 +6,7 @@ local _TYPES = require(rep.Shared.data_Types)
 local CombatController = require(StarterPlayerScripts.Client.Controllers.CombatController)
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
+local Trove = require(rep.Packages.Trove)
 -- Utiltiy
 local Utility = require(rep.Shared.Modules.Utility)
 
@@ -18,7 +19,7 @@ local Handlers = {
 local AttackHandlers = {
 	BasicAttack = require(script.Parent.Handlers.MockEnemy_BasicAttack_Handler),
 	Skill = require(script.Parent.Handlers.MockEnemy_Skill_Handler),
-} :: { [string]: (AnimationTrack, _TYPES.Character, { _TYPES.Character }) -> () }
+} :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, { _TYPES.Character }) -> number }
 
 -- Player
 local player = game.Players.LocalPlayer

@@ -7,6 +7,7 @@ local EventService = require(Services.EventService)
 local PlayerService = require(Services.PlayerService)
 local DamageService = require(Services.DamageService)
 local CharService = require(Services.CharService)
+local InputService = require(Services.InputService)
 -- Combat utility
 local CombatUtility = game.ReplicatedStorage.Shared.Modules.Attack.Utility
 local ProvideEnergy = require(CombatUtility.ProvideEnergy)
@@ -19,28 +20,19 @@ local Utility = require(game.ReplicatedStorage.Shared.Modules.Utility)
 -- Signal
 local Signal = require(game.ReplicatedStorage.Packages.Signal)
 
--- Flag to prevent multiple attacks from being processed simultaneously
-local processingAttack = false
-
 --- Creates an attack function based on the provided attack data
 --- @within Modules
 --- @param attackData -- The data for the attack to create
 --- @param moveToNextTurn -- Whether to move to the next turn after executing the attack
 --- @return boolean -- Returns true if the attack was executed successfully, false otherwise
 local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, moveToNextTurn: boolean?)
-	-- Prevent multiple attacks from being processed at the same time
-	if processingAttack then
-		warn("Already processing an attack, cannot execute another one simultaneously.")
-		return false
-	end
-
-	-- Set processing flag to true
-	processingAttack = true
+	-- Turn off input availability for actions during the attack animation
+	InputService.ToggleActionsAvailability(false)
 
 	local player = PlayerService.GetPlayerFromCharacter(attackData.origin)
 	if not player then
 		warn("Player not found for the origin character.")
-		processingAttack = false
+		InputService.ToggleActionsAvailability(true)
 		return false
 	end
 
@@ -49,7 +41,7 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 	-- Only allies have mana change in the move data,  hence the "if attackData.manaChange" condition
 	if attackData.manaChange and not HandleMana.HasEnoughMana(player, attackData.manaChange) then
 		warn("Not enough mana to perform the move: " .. moveName)
-		processingAttack = false
+		InputService.ToggleActionsAvailability(true)
 		return false
 	end
 
@@ -59,7 +51,7 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 	-- Return false if no valid targets were found
 	if not targets or #targets == 0 then
 		warn("No valid targets found for attack: " .. moveName)
-		processingAttack = false
+		InputService.ToggleActionsAvailability(true)
 		return false
 	end
 
@@ -67,7 +59,7 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 	local anim = AnimationService.Play(attackData.origin, moveName .. "_Execute")
 	if not anim then
 		warn("Failed to play animation for attack: " .. moveName)
-		processingAttack = false
+		InputService.ToggleActionsAvailability(true)
 		return false
 	end
 
@@ -92,7 +84,6 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 	trove:Add(anim:GetMarkerReachedSignal("hit"):Connect(function()
 		-- Retrieve the attack data for the current attack
 		local data = attackData.attacks[currentAttack]
-
 		-- Loop through each target and apply the appropriate effect based on the move category
 		for _, target in pairs(targets) do
 			if attackData.moveCategory == "Damage" then
@@ -112,8 +103,10 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 			end
 		end
 
-		-- Provide energy gain
-		ProvideEnergy(attackData.origin, data.energyGain, false)
+		-- Provide energy gain for allies
+		if data.energyGain then
+			ProvideEnergy(attackData.origin, data.energyGain, false)
+		end
 
 		-- Increment the current attack index for the next hit marker
 		currentAttack += 1
@@ -123,8 +116,7 @@ local function ExecuteMove(moveName: string, attackData: _TYPES.AttackData, move
 	trove:Add(anim.Stopped:Connect(function()
 		-- Move to the next turn if specified
 		if moveToNextTurn then
-			print("Moving to next turn after attack animation")
-			processingAttack = false
+			InputService.ToggleActionsAvailability(true)
 			TurnService.MoveToNextTurn()
 		end
 

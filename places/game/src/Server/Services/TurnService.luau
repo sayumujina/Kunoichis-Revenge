@@ -132,11 +132,6 @@ end
 -- Helper function to get a character's combat service module
 local function getCharacterCombatService(char: _TYPES.Character): any
 	local combatServiceModuleName = char.Name .. "_CombatService"
-	if not combatServiceModuleName then
-		warn("Character", char.Name, "does not have a CombatService module")
-		return nil
-	end
-
 	local combatServiceModule =
 		Services.Characters[char:GetAttribute("Side")][char.Name]:FindFirstChild(combatServiceModuleName)
 	if not combatServiceModule then
@@ -195,6 +190,9 @@ function TurnService.MoveToNextTurn()
 		})
 	end
 
+	-- Wait for 2 seconds before starting the next turn
+	task.wait(1)
+
 	-- Start the next turn
 	TurnService.StartTurn()
 
@@ -236,9 +234,10 @@ end
 function TurnService.StartTurn()
 	-- If the turn belongs to the ally, set that as the active character value
 	if turnQueue[1] and turnQueue[1].side == "Allies" then
-		local player = PlayerService.GetPlayerFromCharacter(turnQueue[1].char)
+		local char = turnQueue[1].char
+		local player = PlayerService.GetPlayerFromCharacter(char)
 		if player then
-			player.ActiveCharacter.Value = turnQueue[1].char
+			player.ActiveCharacter.Value = char
 		end
 	end
 

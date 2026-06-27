@@ -1,3 +1,12 @@
-local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
+local rep = game:GetService("ReplicatedStorage")
+local _TYPES = require(rep.Shared.data_Types)
+local Trove = require(rep.Packages.Trove)
 
-return function(animationTrack: AnimationTrack, char: _TYPES.Character, targets: { _TYPES.Character }) end
+return function(
+	trove: Trove.Trove,
+	animationTrack: AnimationTrack,
+	char: _TYPES.Character,
+	targets: { _TYPES.Character }
+)
+	return 2
+end

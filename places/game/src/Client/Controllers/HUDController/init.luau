@@ -117,7 +117,6 @@ function HUDController.OnStart()
 
 	-- Listen to completed turns to update the turn queue
 	Zap.TurnCompleted.On(function(completedTurnData)
-		warn("Received turn completed event for turn id: ", completedTurnData.turnId)
 		-- Find the corresponding turn card using index and remove it
 		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
 		if turnCardContainer then
@@ -144,7 +143,6 @@ function HUDController.OnStart()
 		-- Reduce the size of the other two character info cards to highlight the current character's turn
 		for _, card in pairs(playerGui:GetDescendants()) do
 			if not card:IsA("Frame") or not card.Name:match("CharacterInfo_Card_") then
-				warn("Skipping non-character info card:", card.Name)
 				continue
 			end
 

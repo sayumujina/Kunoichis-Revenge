@@ -1,16 +1,3 @@
-event RequestAttack = {
-	from: Client,
-	type: Reliable,
-	call: ManyAsync,
-	data: struct {
-		char: Instance.Model,
-		data: struct {
-       		move: string.binary,
-			primaryTargetIndex: u8,
-		}
-    },
-}
-
 event SuccessfulMove = {
 	from: Server,
 	type: Reliable,
@@ -59,5 +46,18 @@ event PlayerCurrentStatsChanged = {
 	call: ManyAsync,
 	data: struct {
 		data: map {[string.binary]: f32}
+	},
+}
+
+event UpdateMovePreview = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		char: Instance.Model, 
+		data: struct {
+			moveName: string.binary,
+			primaryTargetIndex: u8,
+		},
 	},
 }

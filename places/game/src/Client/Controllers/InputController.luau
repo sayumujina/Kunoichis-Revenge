@@ -28,53 +28,23 @@ local InputToActions = {
 
 local CombatActions = { "BasicAttack", "Skill", "Ultimate" }
 
---- Listen to user's input
-UserInputService.InputBegan:Connect(function(input, _)
-	if input.UserInputState == Enum.UserInputState.Begin then
-		local actionName = InputToActions[input.KeyCode] or InputToActions[input.UserInputType]
-
-		-- Handle enemy selection inputs
-		if actionName == "PreviousTarget" then
-			-- Call the combat controller of the active character
-			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)
-			if combatController then
-				require(combatController).HandleInput({
-					action = "PreviousTarget",
-				})
-			end
-		elseif actionName == "NextTarget" then
-			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)
-			if combatController then
-				require(combatController).HandleInput({
-					action = "NextTarget",
-				})
-			end
-		elseif actionName == "SelectTarget" then
-			-- -- Get current primary selected enemy index
-			-- if not mouse.Target or not mouse.Target.Parent:FindFirstChild("Humanoid") then
-			-- 	return
-			-- end
-
-			-- -- Retrieve the index attribute of the selected enemy
-			-- local primaryIndex = mouse.Target.Parent:GetAttribute("Index")
-			-- if primaryIndex then
-			-- 	CombatController.SwitchPrimarySelectedTarget("set", primaryIndex)
-			-- end
-		elseif table.find(CombatActions, actionName) then
-			local combatController = Utility.GetCharacterCombatController(player.ActiveCharacter.Value)
-			if not combatController then
+--- Called when the controller starts
+function InputController.OnStart()
+	-- Listen to user's input
+	UserInputService.InputEnded:Connect(function(input, _)
+		-- Listening to input end event allow players to change their mind before confirming an action
+		if input.UserInputState == Enum.UserInputState.End then
+			local actionName = InputToActions[input.KeyCode] or InputToActions[input.UserInputType]
+			if actionName == "Spawn" then
+				Zap.RequestSpawn.Fire()
 				return
 			end
 
-			-- Switching moves will keep the primary selected enemy
-			-- But we're delegating the effects handling to combat controller, so just increment by 0 to not change the index
-			require(combatController).HandleInput({
-				action = actionName,
-			})
-		elseif actionName == "Spawn" then
-			Zap.RequestSpawn.Fire()
+			if actionName then
+				Zap.InputSent.Fire({ origin = player.ActiveCharacter.Value, action = actionName })
+			end
 		end
-	end
-end)
+	end)
+end
 
 return InputController

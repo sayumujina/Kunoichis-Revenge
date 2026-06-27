@@ -9,6 +9,12 @@ local localPlayer = game:GetService("Players").LocalPlayer
 
 local CameraController = {}
 
+local CameraStates: {
+	[_TYPES.RobloxPlayerType]: {
+		sideToLookAt: "Allies" | "Enemies",
+	},
+} = {}
+
 -- Camera positioning constants
 local CAMERA_FOV = 34
 local CAMERA_HEIGHT = 4.5 -- Height above the character
@@ -19,11 +25,29 @@ local CAMERA_Y_ROTATION_DIFFERENCE_PER_ENEMY = 1
 local CAMERA_Y_OFFSET = 190
 
 function CameraController.OnStart()
+	-- Initalise camera state
+	if not CameraStates[localPlayer] then
+		CameraStates[localPlayer] = {
+			sideToLookAt = "Allies",
+		}
+	end
+
 	-- Set camera to Scriptable mode
 	Camera.CameraType = Enum.CameraType.Scriptable
 	print("CameraController started")
 
 	Camera.CFrame = CFrame.new(-12.526, 15.672, -15.471) * CFrame.Angles(math.rad(20), math.rad(-180), 0)
+end
+
+--- Look at the side of the battlefield based on the current camera state
+--- @param origin - The character to look at
+--- @param selectedTargetIndex - The index of the selected target to look at
+function CameraController.LookAtSide(origin: _TYPES.Character, selectedTargetIndex: number)
+	if CameraStates[localPlayer].sideToLookAt == "Allies" then
+		CameraController.LookAtAllies(origin)
+	else
+		CameraController.LookAtEnemies(origin, selectedTargetIndex)
+	end
 end
 
 --- Look at a given CFrame
@@ -48,7 +72,6 @@ function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTarget
 		if enemy:GetAttribute("Index") == middleIndex then
 			local lookAtCFrame = CFrame.lookAt(originCFrame.Position, enemy.HumanoidRootPart.Position)
 			local _, YRotation, _ = lookAtCFrame:ToWorldSpace(lookAtCFrame):ToOrientation()
-			warn("Y rotation:", YRotation)
 			cameraYRotation = YRotation + CAMERA_Y_OFFSET
 			break
 		end
@@ -93,6 +116,38 @@ function CameraController.LookAtEnemies(origin: _TYPES.Character, selectedTarget
 	-- 10. Tween the camera's CFrame to look at the target
 	TweenService:Create(Camera, TweenInfo.new(0.5), { CFrame = newCameraCFrame }):Play()
 	Camera.FieldOfView = CAMERA_FOV
+end
+
+function CameraController.LookAtAllies(origin: _TYPES.Character)
+	-- Place the camera so that
+	-- The origin is in the bottom left of the screen
+
+	-- 1. Get the CFrame of the origin looking at the target
+	local originCFrame = origin.HumanoidRootPart.CFrame
+
+	-- 2. Shift the camera to the left of the origin by CAMERA_SIDE_OFFSET
+	local cameraXPos = originCFrame.Position.X + CAMERA_SIDE_OFFSET
+
+	-- 3. Set the camera's Y position to be CAMERA_HEIGHT above the origin
+	local cameraYPos = originCFrame.Position.Y + CAMERA_HEIGHT
+
+	-- 4. Set the camera's Z position to be CAMERA_DISTANCE away from the origin
+	local cameraZPos = originCFrame.Position.Z + CAMERA_Z_OFFSET
+
+	-- 5. Create a new CFrame for the camera
+	local newCameraCFrame = CFrame.new(Vector3.new(cameraXPos, cameraYPos, cameraZPos))
+	newCameraCFrame = newCameraCFrame
+		* CFrame.fromEulerAnglesYXZ(math.rad(CAMERA_X_ROTATION), math.rad(180), math.rad(0))
+
+	-- 6. Tween the camera's CFrame to look at the target
+	TweenService:Create(Camera, TweenInfo.new(0.5), { CFrame = newCameraCFrame }):Play()
+	Camera.FieldOfView = CAMERA_FOV
+end
+
+--- Sets the side of the battlefield to look at
+--- @param side - The side to look at ("Allies" or "Enemies")
+function CameraController.SetSideToLookAt(side: "Allies" | "Enemies")
+	CameraStates[localPlayer].sideToLookAt = side
 end
 
 return CameraController
