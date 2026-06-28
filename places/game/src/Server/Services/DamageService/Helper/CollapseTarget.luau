@@ -2,6 +2,7 @@ local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
 -- Services
 local StatusService = require(game:GetService("ServerScriptService").Server.Services.StatusService)
+local AnimationService = require(game:GetService("ServerScriptService").Server.Services.AnimationService)
 
 -- Collapsed status
 local collapsedStatus = {
@@ -29,4 +30,5 @@ local collapsedStatus = {
 return function(target: _TYPES.Character)
 	-- Add the collapsed status to the target character
 	StatusService.AddStatus(target, "Collapsed", collapsedStatus)
+	warn("Collapsed status added to character: " .. target.Name)
 end

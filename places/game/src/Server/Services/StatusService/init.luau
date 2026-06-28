@@ -3,6 +3,7 @@ local _TYPES = require(rep.Shared.data_Types)
 --
 local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
+local EventService = require(Services.EventService)
 
 local StatusService = {}
 
@@ -24,6 +25,16 @@ function StatusService.AddStatus(char: _TYPES.Character, id: string, status: _TY
 
 	-- Add the status to the character's combat data
 	charData.statuses[id] = status
+
+	-- Fire an event to notify that a status has been added to the character
+	EventService.Events.StatusAdded:Fire({
+		char = char,
+		data = {
+			id = id,
+			status = status,
+			new = true,
+		},
+	})
 
 	-- Handle the stat changes of the status for the character
 	CharService.ApplyStatuses(char)
@@ -53,6 +64,15 @@ function StatusService.RemoveStatus(char: _TYPES.Character, id: string)
 
 	-- Remove the stat changes of the status for the character
 	CharService.ApplyStatuses(char)
+
+	-- Fire an event to notify that a status has been removed from the character
+	EventService.Events.StatusRemoved:Fire({
+		char = char,
+		data = {
+			id = id,
+			status = status,
+		},
+	})
 end
 
 --- Reduces the duration of a status on a character by 1

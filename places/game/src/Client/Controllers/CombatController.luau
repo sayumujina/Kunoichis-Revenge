@@ -59,6 +59,7 @@ function CombatController.OnStart()
 			-- Clean up the trove for the current character after the animation is done
 			trove:Add(animationTrack.Stopped:Connect(function()
 				task.delay(cleanupDuration, function()
+					warn("Cleaning up trove for character: " .. char.Name)
 					trove:Clean()
 				end)
 			end))
@@ -148,8 +149,6 @@ function CombatController.DetermineSelectedTargets(
 	elseif targetSelectionType == "AoE" then -- Select all enemies on the field.
 		selectedTargets = targetsFolder:GetChildren()
 	end
-
-	warn(selectedTargets)
 
 	-- Notify EffectsController to update selection marks
 	EffectsController.EnableTargetsSelectionMark(side, selectedTargets, primaryIndex)

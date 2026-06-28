@@ -24,7 +24,7 @@ end
 --- @within AnimationService
 --- @param char -- The character to initialize animations for
 function AnimationService.Init(char: _TYPES.Character)
-	-- Initialize the data for teh character if it doesn't exist already
+	-- Initialize the data for the character if it doesn't exist already
 	if not Chars[char] then
 		Chars[char] = {
 			tracks = {},
@@ -43,6 +43,7 @@ function AnimationService.Init(char: _TYPES.Character)
 	local animsCategories = {
 		"Attacks",
 		"Hurt",
+		"Misc",
 	}
 
 	-- Load custom animations
@@ -51,21 +52,11 @@ function AnimationService.Init(char: _TYPES.Character)
 		if charAnims:FindFirstChild(category) then
 			for __, anim in charAnims[category]:GetChildren() do
 				tracks[anim.Name] = animator:LoadAnimation(anim)
-
-				-- If the category is Attacks, set the priority to Action4
-				if category == "Attacks" then
-					tracks[anim.Name].Priority = Enum.AnimationPriority.Action4
-				end
 			end
 			-- Load global animations if the character doesn't have custom ones for the category
 		else
 			for __, anim in globalAnims[category]:GetChildren() do
 				tracks[anim.Name] = animator:LoadAnimation(anim)
-
-				-- If the category is Attacks, set the priority to Action4
-				if category == "Attacks" then
-					tracks[anim.Name].Priority = Enum.AnimationPriority.Action4
-				end
 			end
 		end
 	end
@@ -87,14 +78,15 @@ end
 --- @within AnimationService
 --- @param char -- The character to play the animation on
 --- @param animName -- The name of the animation to play
-function AnimationService.Play(char: _TYPES.Character, animName: string): AnimationTrack?
+--- @param fadeTime -- The time it takes to fade in the animation
+function AnimationService.Play(char: _TYPES.Character, animName: string, fadeTime: number?): AnimationTrack?
 	local charData = Chars[char]
 	if charData and charData.tracks[animName] then
 		-- Cancel the current animation
 		AnimationService.Stop(char, animName)
 		-- Play the new animation
 		warn("Playing animation for " .. char.Name .. ": " .. animName)
-		charData.tracks[animName]:Play()
+		charData.tracks[animName]:Play(fadeTime or 0.05)
 	else
 		warn("Animation " .. animName .. " not found for character " .. char.Name)
 		return nil

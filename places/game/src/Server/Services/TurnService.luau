@@ -27,11 +27,26 @@ local TurnService = {}
 local turnQueue: { _TYPES.TurnEntry } = {}
 local activeCharacters: { _TYPES.Character } = {}
 
---- Helper function to calculolate action value based on character speed (lower is faster)
---- @param char -- The character to calculate the action value for
+-- Helper function to calculolate action value based on character speed (lower is faster)
 local function calculateActionValue(char: _TYPES.Character): number
 	local charSpd = CharService.GetBaseCharacterStat(char, "spd")
 	return BASE_ACTION_VALUE / charSpd
+end
+
+--- Helper function to add a turn to the queue
+local function addTurnToQueue(char: _TYPES.Character, actionValue: number)
+	currentTurnCount = currentTurnCount + 1
+
+	local turnEntry: _TYPES.TurnEntry = {
+		turnId = currentTurnCount,
+		char = char,
+		side = CharService.GetCharacterCombatData(char).side,
+		actionValue = actionValue,
+	}
+
+	-- Add the new turn entry to the queue and send an event about the new turn
+	table.insert(turnQueue, turnEntry)
+	EventService.Events.TurnAdded:Fire(turnEntry)
 end
 
 --- Called when the service starts
@@ -66,34 +81,10 @@ function TurnService.AddActiveCharacter(char: _TYPES.Character)
 	local actionValue = calculateActionValue(char)
 
 	-- Turn 1
-	currentTurnCount = currentTurnCount + 1
-	table.insert(turnQueue, {
-		turnId = currentTurnCount,
-		char = char,
-		side = CharService.GetCharacterCombatData(char).side,
-		actionValue = actionValue,
-	})
-	EventService.Events.TurnAdded:Fire({
-		turnId = currentTurnCount,
-		char = char,
-		side = CharService.GetCharacterCombatData(char).side,
-		actionValue = actionValue,
-	})
+	addTurnToQueue(char, actionValue)
 
 	-- Turn 2
-	currentTurnCount = currentTurnCount + 1
-	table.insert(turnQueue, {
-		turnId = currentTurnCount,
-		char = char,
-		side = CharService.GetCharacterCombatData(char).side,
-		actionValue = actionValue * 2,
-	})
-	EventService.Events.TurnAdded:Fire({
-		turnId = currentTurnCount,
-		char = char,
-		side = CharService.GetCharacterCombatData(char).side,
-		actionValue = actionValue * 2,
-	})
+	addTurnToQueue(char, actionValue * 2)
 
 	-- Re-sort the turn queue with the new character
 	Utility.SortTurnQueue(turnQueue)
@@ -158,7 +149,6 @@ function TurnService.MoveToNextTurn()
 	-- Reduce the duration of all statuses for the character whose turn just completed
 	StatusService.ReduceStatusesDuration(completedTurn.char)
 
-	warn("Turn id: ", completedTurn.turnId, " completed")
 	-- Notify the client about the turn completion
 	EventService.Events.TurnCompleted:Fire({
 		turnId = completedTurn.turnId,
@@ -171,25 +161,13 @@ function TurnService.MoveToNextTurn()
 
 		-- Add the new turn to the queue
 		currentTurnCount = currentTurnCount + 1
-		table.insert(turnQueue, {
-			turnId = currentTurnCount,
-			char = completedTurn.char,
-			side = completedTurn.side,
-			actionValue = calculateActionValue(completedTurn.char),
-		})
+		addTurnToQueue(completedTurn.char, calculateActionValue(completedTurn.char))
 
 		-- Re-sort the turn queue
 		Utility.SortTurnQueue(turnQueue)
-
-		-- Send update to clients about the new turn
-		EventService.Events.TurnAdded:Fire({
-			turnId = currentTurnCount,
-			char = completedTurn.char,
-			side = completedTurn.side,
-			actionValue = calculateActionValue(completedTurn.char),
-		})
 	end
 
+	warn("turn queue after turn completion: ", turnQueue)
 	-- Wait for 2 seconds before starting the next turn
 	task.wait(1)
 
@@ -225,6 +203,8 @@ function TurnService.StartTurn()
 		warn("No turn available to start.")
 		return
 	end
+
+	warn("Starting turn id: ", turnQueue[1].turnId, " for character: ", turnQueue[1].char.Name)
 
 	-- If the next character is an npc, execute its' attack after a short delay
 	if turnQueue[1].side == "Enemies" then

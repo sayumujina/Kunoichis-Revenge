@@ -13,7 +13,20 @@
               "ClassName": "Animation",
               "Name": "Hurt_Normal",
               "Properties": {
-                "AnimationId": "rbxassetid://14984746628"
+                "AnimationId": "rbxassetid://98988692119119"
+              }
+            }
+          ]
+          },
+          {
+          "ClassName": "Folder",
+          "Name": "Misc",
+          "Children": [
+            {
+              "ClassName": "Animation",
+              "Name": "Collapsed",
+              "Properties": {
+                "AnimationId": "rbxassetid://111318199248117"
               }
             }
           ]

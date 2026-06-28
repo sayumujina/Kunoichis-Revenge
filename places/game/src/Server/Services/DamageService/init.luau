@@ -6,7 +6,7 @@ local CharService = require(Services.CharService)
 local StatusService = require(Services.StatusService)
 -- Helpers
 local Helpers = Services.DamageService.Helper
-local HandleCollapse = require(Helpers.HandleCollapse)
+local CollapseTarget = require(Helpers.CollapseTarget)
 
 local DamageService = {}
 
@@ -58,7 +58,7 @@ function DamageService.DealExposure(origin: _TYPES.Character, target: _TYPES.Cha
 	-- If the target's exposure goes up to the max exposure or above, set it to 0 and handle the character's collapsed state
 	if newExposure >= targetMaxExposure then
 		-- Collapse the target character
-		HandleCollapse(target)
+		CollapseTarget(target)
 
 		-- Reset the target's current exposure to 0
 		CharService.UpdateCurrentCharacterStat(target, "exposure", 0)

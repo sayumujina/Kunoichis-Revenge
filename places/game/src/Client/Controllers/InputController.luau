@@ -15,7 +15,7 @@ local InputToActions = {
 	-- Enemy selection
 	[Enum.KeyCode.A] = "PreviousTarget",
 	[Enum.KeyCode.D] = "NextTarget",
-	[Enum.UserInputType.MouseButton1] = "SelectTarget",
+	-- [Enum.UserInputType.MouseButton1] = "SelectTarget",
 	-- Combat actions
 	[Enum.KeyCode.Q] = "BasicAttack",
 	[Enum.KeyCode.E] = "Skill",
@@ -25,19 +25,16 @@ local InputToActions = {
 
 --- Called when the controller starts
 function InputController.OnStart()
-	-- Listen to user's input
-	UserInputService.InputEnded:Connect(function(input, _)
-		-- Listening to input end event allow players to change their mind before confirming an action
-		if input.UserInputState == Enum.UserInputState.End then
-			local actionName = InputToActions[input.KeyCode] or InputToActions[input.UserInputType]
-			if actionName == "Spawn" then
-				Zap.RequestSpawn.Fire()
-				return
-			end
+	-- Listen to input began event
+	UserInputService.InputBegan:Connect(function(input, _)
+		local actionName = InputToActions[input.KeyCode] or InputToActions[input.UserInputType]
+		if actionName == "Spawn" then
+			Zap.RequestSpawn.Fire()
+			return
+		end
 
-			if actionName then
-				Zap.InputSent.Fire({ origin = player.ActiveCharacter.Value, action = actionName })
-			end
+		if actionName then
+			Zap.InputSent.Fire({ origin = player.ActiveCharacter.Value, action = actionName })
 		end
 	end)
 end

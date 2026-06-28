@@ -10,8 +10,7 @@ game.Players.CharacterAutoLoads = false
 -- Load all services
 Loader.SpawnAll(
 	Loader.LoadDescendants(Server, function(module)
-		-- return (module.Name:match("Service$") ~= nil or module.Name:match("Status$") ~= nil)
-		return (module.Name:match("Service$") ~= nil)
+		return (module.Name:match("Service$") ~= nil or module.Name:match("Status$") ~= nil)
 	end),
 	"OnStart"
 )

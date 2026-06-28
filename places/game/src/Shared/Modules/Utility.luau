@@ -12,6 +12,9 @@ local Utility = {}
 --- @param queue -- The turn queue to sort
 function Utility.SortTurnQueue(queue: { _TYPES.TurnEntry })
 	table.sort(queue, function(a, b)
+		if a.actionValue == b.actionValue then
+			return a.turnId < b.turnId -- Tiebreaker: earlier turns stay first
+		end
 		return a.actionValue < b.actionValue
 	end)
 end

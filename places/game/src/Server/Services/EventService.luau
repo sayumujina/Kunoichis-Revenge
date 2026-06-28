@@ -108,11 +108,40 @@ export type PlayerCurrentStatsChangedEvent = {
 	},
 }
 
+--- @type SuccessfulMoveEvent { origin: _TYPES.Character, data: { moveName: string, attackData: _TYPES.AttackData } }
+--- @within EventService
+--- Describes the event when a move is successfully executed by a character.
+--- Contains the origin of the move, the name of the move, and the associated attack data.
 export type SuccessfulMoveEvent = {
 	origin: _TYPES.Character,
 	data: {
 		moveName: string,
 		attackData: _TYPES.AttackData,
+	},
+}
+
+--- @type StatusAddedEvent<T> { char: _TYPES.Character, data: { id: string, status: _TYPES.Status, new: boolean } }
+--- @within EventService
+--- Describes the event for when a status effect is added or removed from a character.
+--- Contains the origin of the event, the target character, the status ID, status data, and whether it is a new application.
+export type StatusAddedEvent = {
+	char: _TYPES.Character,
+	data: {
+		id: string,
+		status: _TYPES.Status,
+		new: boolean,
+	},
+}
+
+--- @type StatusRemovedEvent<T> { char: _TYPES.Character, data: { id: string, status: _TYPES.Status } }
+--- @within EventService
+--- Describes the event for when a status effect is removed from a character.
+--- Contains the origin of the event, the target character, the status ID, and status data.
+export type StatusRemovedEvent = {
+	char: _TYPES.Character,
+	data: {
+		id: string,
+		status: _TYPES.Status,
 	},
 }
 
@@ -130,12 +159,16 @@ EventService.Events = {
 	PlayerBaseStatsChanged = Signal.new() :: Signal.Signal<PlayerBaseStatsChangedEvent>,
 	PlayerCurrentStatsChanged = Signal.new() :: Signal.Signal<PlayerCurrentStatsChangedEvent>,
 	SuccessfulMove = Signal.new() :: Signal.Signal<SuccessfulMoveEvent>,
+	StatusAdded = Signal.new() :: Signal.Signal<StatusAddedEvent>,
+	StatusRemoved = Signal.new() :: Signal.Signal<StatusRemovedEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService
 --- A list of events that do not need to be replicated to clients.
 EventService.ClientBlacklist = {
 	"RequestSpawn",
+	"StatusAdded",
+	"StatusRemoved",
 }
 
 --- @type PlayerScoped { string }
