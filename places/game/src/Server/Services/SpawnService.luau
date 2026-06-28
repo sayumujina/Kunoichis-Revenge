@@ -27,17 +27,17 @@ local SpawnService = {}
 function SpawnService.OnStart()
 	-- Listens to spawn request from clients
 	Zap.RequestSpawn.On(function(player)
-		local allies = { "Setsuna", "Hayumi", "Rin" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
-		local enemies = { "MockEnemy", "MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+		local playables = { "Setsuna", "Hayumi", "Rin" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+		local npcs = { "MockEnemy", "MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 
 		-- Spawn charactersfor both sides, for now
-		SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "Allies", allies, ALLY_SPAWN_Z_OFFSET)
 		SpawnService.SpawnAllCharactersOfSide(
 			player :: _TYPES.RobloxPlayerType,
-			"Enemies",
-			enemies,
-			ENEMY_SPAWN_Z_OFFSET
+			"Playable",
+			playables,
+			ALLY_SPAWN_Z_OFFSET
 		)
+		SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "NPC", npcs, ENEMY_SPAWN_Z_OFFSET)
 
 		-- Create an active character object value for the player
 		local activeCharValue = Instance.new("ObjectValue")
@@ -54,7 +54,7 @@ end
 --- Spawns a character into the game
 --- @within SpawnService
 --- @param player -- The player associated with the character being spawned
---- @param side -- The side the character belongs to (Allies or Enemies)
+--- @param side -- The side the character belongs to (Playable or NPC)
 --- @param char -- The character model to spawn
 --- @param cframe -- The CFrame position to spawn the character at
 --- @param index -- The index of the character in the side's lineup
@@ -120,7 +120,7 @@ end
 --- Spawn all characters of a side
 --- @within SpawnService
 --- @param player -- The player associated with the characters being spawned
---- @param side -- The side the characters belong to (Allies or Enemies)
+--- @param side -- The side the characters belong to (Playable or NPC)
 --- @param charactersToSpawn -- A list of character names to spawn
 --- @param startingZOffset -- The starting Z offset to spawn the characters at
 function SpawnService.SpawnAllCharactersOfSide(
@@ -133,7 +133,7 @@ function SpawnService.SpawnAllCharactersOfSide(
 	-- Calculate starting X position based on number of characters
 	local characterCount = #charactersToSpawn
 	local startX
-	if side == "Allies" then
+	if side == "Playable" then
 		startX = BASE_ALLY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_X_OFFSET_BETWEEN_CHARACTERS) / 2
 	else
 		startX = BASE_ENEMY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_X_OFFSET_BETWEEN_CHARACTERS) / 2
@@ -151,7 +151,7 @@ function SpawnService.SpawnAllCharactersOfSide(
 		-- Alternate the Z offset for each character to avoid overlap
 		-- If allies, reverse the Z offset
 		local spawnZ
-		if side == "Allies" then
+		if side == "Playable" then
 			spawnZ = startingZOffset - ((count % 2 == 0) and SPAWN_Z_ALTERNATE_OFFSET or -SPAWN_Z_ALTERNATE_OFFSET)
 		else
 			spawnZ = startingZOffset + ((count % 2 == 0) and SPAWN_Z_ALTERNATE_OFFSET or -SPAWN_Z_ALTERNATE_OFFSET)
@@ -160,7 +160,7 @@ function SpawnService.SpawnAllCharactersOfSide(
 		local spawnPosition
 
 		-- Spawn the character
-		if side == "Allies" then
+		if side == "Playable" then
 			-- If allies, the index will be ordered inversely
 			-- This is done so that selecting previous/ next ally will be more intuitive when the camera faces the alies
 			index = characterCount - count + 1
@@ -168,8 +168,8 @@ function SpawnService.SpawnAllCharactersOfSide(
 			-- Determine the spawn position
 			spawnPosition = CFrame.new(spawnX, char:GetExtentsSize().Y / 2, spawnZ) * CFrame.Angles(0, math.rad(180), 0) -- Rotate allies to face enemies
 
-			-- Parent the character to the Allies folder
-			char.Parent = workspace.Characters.Allies
+			-- Parent the character to the Playable folder
+			char.Parent = workspace.Characters.Playable
 		else
 			-- If enemies, the index will be ordered normally
 			index = count
@@ -177,8 +177,8 @@ function SpawnService.SpawnAllCharactersOfSide(
 			-- Determine the spawn position
 			spawnPosition = CFrame.new(spawnX, char:GetExtentsSize().Y / 2, spawnZ)
 
-			-- Parent the character to the Enemies folder
-			char.Parent = workspace.Characters.Enemies
+			-- Parent the character to the NPC folder
+			char.Parent = workspace.Characters.NPC
 
 			-- Set the index of the enemy
 			-- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE

@@ -11,14 +11,14 @@ local localPlayer = game:GetService("Players").LocalPlayer
 --- @tag Client
 local EffectsController = {}
 
-local allEnemies: { _TYPES.Character }
+local allNPC: { _TYPES.Character }
 
 --- Called when the controller starts
 function EffectsController.OnStart()
 	-- Listen to spawn finished event
 	Zap.SpawnFinished.On(function()
 		-- Get all enemies
-		allEnemies = workspace.Characters.Enemies:GetChildren() :: { _TYPES.Character }
+		allNPC = workspace.Characters.NPC:GetChildren() :: { _TYPES.Character }
 	end)
 end
 
@@ -33,14 +33,14 @@ end
 --- Enable selection mark effects on the selected targets
 --- @param targets { _TYPES.Character }
 function EffectsController.EnableTargetsSelectionMark(
-	side: "Allies" | "Enemies",
+	side: "Playable" | "NPC",
 	targets: { _TYPES.Character },
 	primaryIndex: number?
 )
 	-- Toggle selection mark for selected targets
 
 	-- 1. Turn off all the selection marks for the opposite side
-	local oppositeSide = side == "Allies" and "Enemies" or "Allies"
+	local oppositeSide = side == "Playable" and "NPC" or "Playable"
 	for _, target in pairs(workspace.Characters[oppositeSide]:GetChildren()) do
 		toggleHighlights(target, false)
 	end
@@ -58,7 +58,7 @@ end
 --- Disable selection mark effects on all targets
 function EffectsController.DisableAllSelectionMark()
 	-- Toggle selection mark for all enemies
-	for _, enemy in pairs(allEnemies) do
+	for _, enemy in pairs(allNPC) do
 		toggleHighlights(enemy, false)
 	end
 end

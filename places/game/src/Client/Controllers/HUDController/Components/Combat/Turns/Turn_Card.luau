@@ -51,15 +51,15 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 
 	local leftBorderUIGradient = Instance.new("UIGradient")
 	leftBorderUIGradient.Name = "UIGradient"
-	leftBorderUIGradient.Color = if side == "Allies"
+	leftBorderUIGradient.Color = if side == "Playable"
 		then ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 213)),
 			ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 213)),
-		}) -- Blue for allies
+		}) -- Blue for playable characters
 		else ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(213, 0, 0)),
 			ColorSequenceKeypoint.new(1, Color3.fromRGB(213, 0, 0)),
-		}) -- Red for enemies
+		}) -- Red for npcs
 	leftBorderUIGradient.Rotation = 90
 	leftBorderUIGradient.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),

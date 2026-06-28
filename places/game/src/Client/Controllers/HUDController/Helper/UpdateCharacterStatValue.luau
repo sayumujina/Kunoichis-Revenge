@@ -22,10 +22,11 @@ return function(
 	newStats: { [string]: number }
 )
 	local characterInfoContainer
+
 	-- Depending on the side of the character
-	-- For allies, look in the character info frame
-	-- For enemies, look in the billboard gui
-	if char:GetAttribute("Side") == "Allies" then
+	-- For playable characters, look in the character info frame
+	-- For NPCs, look in the billboard gui
+	if char:GetAttribute("Side") == "Playable" then
 		characterInfoContainer = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
 	else
 		characterInfoContainer = playerGui:FindFirstChild("UI_BillboardGui_Folder", true)

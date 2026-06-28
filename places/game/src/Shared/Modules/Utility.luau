@@ -144,7 +144,7 @@ function Utility.SetNetworkOwner(part: BasePart, networkOwner: _TYPES.RobloxPlay
 	local parent = part.Parent
 
 	-- If the parent does not have an attribute state, it means it's not a character, so yell the error if that's the case
-	if not parent or not parent:IsA("Model") or parent:GetAttribute("Side") ~= "Allies" then
+	if not parent or not parent:IsA("Model") or parent:GetAttribute("Side") ~= "Playable" then
 		error("Attempted to set network ownership of a non-character part.")
 		return
 	end

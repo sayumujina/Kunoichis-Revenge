@@ -5,7 +5,7 @@ event SpawnSuccessfulForChar = {
 	data: struct {
 		char: Instance.Model,
 		data: struct {
-			side: enum { Allies, Enemies },
+			side: enum { Playable, NPC },
 		},
 	},
 }

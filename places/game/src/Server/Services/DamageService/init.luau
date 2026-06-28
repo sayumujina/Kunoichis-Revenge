@@ -41,7 +41,7 @@ end
 --- @param exposure - The amount of exposure damage to deal
 function DamageService.DealExposure(origin: _TYPES.Character, target: _TYPES.Character, exposure: number)
 	-- Ignore if the target character is not an NPC
-	if target:GetAttribute("Side") ~= "Enemies" then
+	if target:GetAttribute("Side") ~= "NPC" then
 		return
 	end
 

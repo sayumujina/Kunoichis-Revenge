@@ -46,10 +46,10 @@
       },
       "Characters": {
         "$className": "Folder",
-        "Allies": {
+        "Playable": {
           "$className": "Folder"
         },
-        "Enemies": {
+        "NPC": {
           "$className": "Folder"
         }
       },  

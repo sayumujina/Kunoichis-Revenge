@@ -70,8 +70,8 @@ function HUDController.OnStart()
 		local components = Components.Combat.CharacterCombatInfo
 		local char = spawnSuccessfulEvent.char
 
-		-- If the spawned character is an ally, create a character info card for them
-		if spawnSuccessfulEvent.data.side == "Allies" then
+		-- If the spawned character is a playable character, create a character info card for them
+		if spawnSuccessfulEvent.data.side == "Playable" then
 			-- Create a character info card for the spawned character
 			local characterInfoCard = components.createCharacterCombatInfoCard(char :: _TYPES.Character)
 			local characterInfoFrame = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)

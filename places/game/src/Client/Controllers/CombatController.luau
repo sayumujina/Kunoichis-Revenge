@@ -119,13 +119,13 @@ end
 --- Handle switching primary selected targets.
 --- @param targetSelectionType -- The type of target selection (e.g., "Single", "Blast", "AoE")
 --- @param index -- The index to set or increment by (e.g., -1 for previous, 1 for next)
---- @param side -- The side to switch targets on ("Allies" or "Enemies")
+--- @param side -- The side to switch targets on ("Playable" or "NPC")
 function CombatController.DetermineSelectedTargets(
 	targetSelectionType: string,
 	primaryIndex: number,
-	side: "Allies" | "Enemies"
+	side: "Playable" | "NPC"
 )
-	local targetsFolder = side == "Allies" and game.Workspace.Characters.Allies or game.Workspace.Characters.Enemies
+	local targetsFolder = side == "Playable" and game.Workspace.Characters.Playable or game.Workspace.Characters.NPC
 
 	-- Get the list of selected enemies based on the selection type
 	local selectedTargets
@@ -159,7 +159,7 @@ end
 --- @param manaChangePreviewValue -- The value to preview the mana change (e.g., +15, -10)
 function CombatController.UpdateMovePreview(
 	char: _TYPES.Character,
-	side: "Allies" | "Enemies",
+	side: "Playable" | "NPC",
 	targetSelectionType: string,
 	primaryTargetIndex: number,
 	manaChangePreviewValue: number

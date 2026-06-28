@@ -11,17 +11,17 @@ return function(char: _TYPES.Character, attackData: _TYPES.AttackData, moveName:
 	local side = char:GetAttribute("Side")
 	local targetsList
 	-- Depends on the side and move category, retrieve the appropriate folder
-	if side == "Allies" then
+	if side == "Playable" then
 		if table.find(teamEffectMoveCategories, attackData.moveCategory) then
-			targetsList = game.Workspace.Characters.Allies
+			targetsList = game.Workspace.Characters.Playable
 		else
-			targetsList = game.Workspace.Characters.Enemies
+			targetsList = game.Workspace.Characters.NPC
 		end
 	else
 		if table.find(teamEffectMoveCategories, attackData.moveCategory) then
-			targetsList = game.Workspace.Characters.Enemies
+			targetsList = game.Workspace.Characters.NPC
 		else
-			targetsList = game.Workspace.Characters.Allies
+			targetsList = game.Workspace.Characters.Playable
 		end
 	end
 

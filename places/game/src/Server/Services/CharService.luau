@@ -15,7 +15,7 @@ local Chars = {} :: { [_TYPES.Character]: _TYPES.CharacterCombatData }
 
 -- Stats template
 local statsTemplate = {
-	side = "Allies" :: _TYPES.Sides,
+	side = "Playable" :: _TYPES.Sides,
 	-- Base stats
 	baseStats = {
 		atk = 1,
@@ -132,7 +132,7 @@ end
 
 --- Load base stats of a character into the service's data structure
 --- @param char -- The character to load stats for
---- @param side -- The side the character belongs to (Allies or Enemies)
+--- @param side -- The side the character belongs to (Playable or NPC)
 function CharService.LoadCharacterStats(char: _TYPES.Character, side: _TYPES.Sides)
 	if not Chars[char] then
 		Chars[char] = TableUtil.Copy(statsTemplate, true)

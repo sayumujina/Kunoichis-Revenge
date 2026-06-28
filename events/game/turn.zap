@@ -24,7 +24,7 @@ event TurnRemoved = {
 	data: struct {
 		turnId: u16,
 		char: Instance.Model,
-		side: enum { Allies, Enemies },
+		side: enum { Playable, NPC },
 	},
 }
 
@@ -34,7 +34,7 @@ event TurnRemovedForCharacter = {
 	call: ManyAsync,
 	data: struct {
 		char: Instance.Model,
-		side: enum { Allies, Enemies },
+		side: enum { Playable, NPC },
 	},
 }
 
@@ -45,7 +45,7 @@ event TurnAdded = {
 	data: struct {
 		turnId: u16,
 		char: Instance.Model,
-		side: enum { Allies, Enemies },
+		side: enum { Playable, NPC },
 		actionValue: f64,
 	},
 }

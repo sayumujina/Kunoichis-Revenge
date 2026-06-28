@@ -13,8 +13,8 @@ local CombatService = {}
 
 local CombatData: {
 	[_TYPES.RobloxPlayerType]: {
-		enemies: { _TYPES.Character },
-		allies: { _TYPES.Character },
+		npcs: { _TYPES.Character },
+		playables: { _TYPES.Character },
 		primarySelectedTargetIndex: number, -- The main enemy index (for blast attacks)
 	},
 } =
@@ -30,13 +30,13 @@ function CombatService.OnStart()
 
 		-- Initialize combat data for the player
 		CombatData[data.player] = {
-			enemies = workspace.Characters.Enemies:GetChildren(),
-			allies = workspace.Characters.Allies:GetChildren(),
+			npcs = workspace.Characters.NPC:GetChildren(),
+			playables = workspace.Characters.Playable:GetChildren(),
 			primarySelectedTargetIndex = 0,
 		}
 		-- Count the number of enemies and set the primary selected enemy index to the middle one
 		-- In case of the index not being an integer, it will round down to the lower index
-		local enemyCount = #CombatData[data.player].enemies
+		local enemyCount = #CombatData[data.player].npcs
 		CombatData[data.player].primarySelectedTargetIndex = math.ceil(enemyCount / 2)
 	end)
 
@@ -72,8 +72,8 @@ function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType)
 		return
 	end
 
-	local enemyCount = #combatData.enemies
-	if enemyCount == 0 then
+	local npcCount = #combatData.npcs
+	if npcCount == 0 then
 		return
 	end
 
@@ -92,13 +92,13 @@ function CombatService.SwitchToNextTarget(player: _TYPES.RobloxPlayerType)
 		return
 	end
 
-	local enemyCount = #combatData.enemies
-	if enemyCount == 0 then
+	local npcCount = #combatData.npcs
+	if npcCount == 0 then
 		return
 	end
 
-	-- If the primary selected target index is equal to the number of enemies, don't change the index
-	if combatData.primarySelectedTargetIndex == enemyCount then
+	-- If the primary selected target index is equal to the number of NPCs, don't change the index
+	if combatData.primarySelectedTargetIndex == npcCount then
 		return
 	end
 	combatData.primarySelectedTargetIndex += 1
@@ -112,12 +112,12 @@ function CombatService.SetPrimarySelectedTargetIndex(player: _TYPES.RobloxPlayer
 		return
 	end
 
-	local enemyCount = #combatData.enemies
-	if enemyCount == 0 then
+	local npcCount = #combatData.npcs
+	if npcCount == 0 then
 		return
 	end
 
-	if index < 1 or index > enemyCount then
+	if index < 1 or index > npcCount then
 		return
 	end
 

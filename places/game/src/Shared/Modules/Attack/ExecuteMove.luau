@@ -41,9 +41,9 @@ local function ExecuteMove(
 		return false
 	end
 
-	-- Check if the  ALLY has enough mana to perform the move
-	-- If after the move, the ally's mana would be less than 0, then the move cannot be performed
-	-- Only allies have mana change in the move data,  hence the "if attackData.manaChange" condition
+	-- Check if the playable character has enough mana to perform the move
+	-- If after the move, the playable character's mana would be less than 0, then the move cannot be performed
+	-- Only playable characters have mana change in the move data,  hence the "if attackData.manaChange" condition
 	if attackData.manaChange and not HandleMana.HasEnoughMana(player, attackData.manaChange) then
 		warn("Not enough mana to perform the move: " .. moveName)
 		InputService.ToggleActionsAvailability(true)

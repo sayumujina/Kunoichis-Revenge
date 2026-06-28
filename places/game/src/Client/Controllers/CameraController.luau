@@ -11,7 +11,7 @@ local CameraController = {}
 
 local CameraStates: {
 	[_TYPES.RobloxPlayerType]: {
-		sideToLookAt: "Allies" | "Enemies",
+		sideToLookAt: "Playable" | "NPC",
 	},
 } = {}
 
@@ -33,7 +33,7 @@ function CameraController.OnStart()
 	-- Initalise camera state
 	if not CameraStates[localPlayer] then
 		CameraStates[localPlayer] = {
-			sideToLookAt = "Allies",
+			sideToLookAt = "Playable",
 		}
 	end
 
@@ -49,22 +49,22 @@ end
 --- Look at the side of the battlefield based on the current camera state.
 ---
 --- A kind reminder: the "side" that the camera looks at depends on the current side of the character.
---- So, if the character is an enemy, then the "LookAtEnemies" function will look at THEIR ENEMIES, which are the player's allies
+--- So, if the character is an enemy, then the "LookAtNPC" function will look at THEIR ENEMIES, which are the player's allies
 --- @param origin - The character to look at
 --- @param selectedTargetIndex - The index of the selected target to look at
 function CameraController.LookAtSide(origin: _TYPES.Character, selectedTargetIndex: number)
 	local charSide = origin:GetAttribute("Side")
 	local sideToLookAt = CameraStates[localPlayer].sideToLookAt
 
-	if charSide == "Allies" then
-		if sideToLookAt == "Allies" then
+	if charSide == "Playable" then
+		if sideToLookAt == "Playable" then
 			CameraController.LookAtTheirSide(origin)
 		else
 			CameraController.LookAtOpposingSide(origin, selectedTargetIndex)
 		end
 	else
 		-- If the character is an enemy, then the camera should look at the allies
-		if sideToLookAt == "Allies" then
+		if sideToLookAt == "Playable" then
 			CameraController.LookAtOpposingSide(origin, selectedTargetIndex)
 		else
 			CameraController.LookAtTheirSide(origin)
@@ -81,10 +81,10 @@ function CameraController.LookAtOpposingSide(origin: _TYPES.Character, selectedT
 	local folder
 	local numbersMult = 1
 	local anglesAddition = 0
-	if origin:GetAttribute("Side") == "Allies" then
-		folder = workspace.Characters.Enemies
-	elseif origin:GetAttribute("Side") == "Enemies" then
-		folder = workspace.Characters.Allies
+	if origin:GetAttribute("Side") == "Playable" then
+		folder = workspace.Characters.NPC
+	elseif origin:GetAttribute("Side") == "NPC" then
+		folder = workspace.Characters.Playable
 
 		-- If the enemy is looking at the allies, some values are flipped
 		numbersMult = -1
@@ -165,10 +165,10 @@ function CameraController.LookAtTheirSide(origin: _TYPES.Character)
 	local folder
 	local numbersMult = 1
 	local anglesAddition = 0
-	if origin:GetAttribute("Side") == "Allies" then
-		folder = workspace.Characters.Allies
+	if origin:GetAttribute("Side") == "Playable" then
+		folder = workspace.Characters.Playable
 	else
-		folder = workspace.Characters.Enemies
+		folder = workspace.Characters.NPC
 
 		-- Some values are flipped if the character is an enemy
 		numbersMult = -1
@@ -205,8 +205,8 @@ function CameraController.LookAtTheirSide(origin: _TYPES.Character)
 end
 
 --- Sets the side of the battlefield to look at
---- @param side - The side to look at ("Allies" or "Enemies")
-function CameraController.SetSideToLookAt(side: "Allies" | "Enemies")
+--- @param side - The side to look at ("Playable" or "NPC")
+function CameraController.SetSideToLookAt(side: "Playable" | "NPC")
 	CameraStates[localPlayer].sideToLookAt = side
 end
 

@@ -207,7 +207,7 @@ function TurnService.StartTurn()
 	warn("Starting turn id: ", turnQueue[1].turnId, " for character: ", turnQueue[1].char.Name)
 
 	-- If the next character is an npc, execute its' attack after a short delay
-	if turnQueue[1].side == "Enemies" then
+	if turnQueue[1].side == "NPC" then
 		task.wait(1) -- This is a placeholder, we will implement NPC attack delay and behaviour later
 		-- Call the NPC's combat service to execute its' attack
 		local npcCombatService = getCharacterCombatService(turnQueue[1].char)
@@ -216,7 +216,7 @@ function TurnService.StartTurn()
 		else
 			warn("No combat service found for NPC character:", turnQueue[1].char.Name)
 		end
-	-- If the turn belongs to the ally, set that as the active character value
+	-- If the turn belongs to a playable character, set that as the active character value
 	else
 		local char = turnQueue[1].char
 		local player = PlayerService.GetPlayerFromCharacter(char)

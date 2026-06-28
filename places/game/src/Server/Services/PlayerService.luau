@@ -65,7 +65,7 @@ end
 
 function PlayerService.SpawnCharactersForPlayer(player: _TYPES.RobloxPlayerType)
 	-- Spawn player's characters
-	-- SpawnService.SpawnAllCharactersOfSide("Allies", { "Setsuna", "Setsuna" }, CHARACTER_SPAWN_OFFSET)
+	-- SpawnService.SpawnAllCharactersOfSide("Playable", { "Setsuna", "Setsuna" }, CHARACTER_SPAWN_OFFSET)
 end
 
 --- Get the associated player for a character
