@@ -152,6 +152,20 @@
                   "Properties": {
                     "AnimationId": "rbxassetid://80048522470874"
                   }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "VanguardsCall_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://126740540448677"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "VanguardsCall_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://80048522470874"
+                  }
                 }
               ]
             }

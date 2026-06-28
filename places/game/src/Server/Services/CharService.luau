@@ -88,9 +88,9 @@ local function importCharacterStatsFromSource(char: _TYPES.Character, side: _TYP
 	local dataSource
 	local dataFolder = rep.Shared.Data.Characters[side]:FindFirstChild(char.Name)
 	if dataFolder then
-		dataSource = require(dataFolder["data_" .. char.Name .. "_Info"]) :: _TYPES.CharacterData
+		dataSource = require(dataFolder["data_" .. char.Name .. "_Info"]) :: _TYPES.CharacterInfo
 	else
-		dataSource = require(rep.Shared.Data.Characters.Default.data_Default_Info) :: _TYPES.CharacterData
+		dataSource = require(rep.Shared.Data.Characters.Default.data_Default_Info) :: _TYPES.CharacterInfo
 	end
 
 	-- Set the character's side

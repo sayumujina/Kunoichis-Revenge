@@ -27,7 +27,7 @@ export type MoveData = MoveTypes.MoveData
 
 -- Character data types
 export type CharacterStats = CharacterDataTypes.CharacterStats
-export type CharacterData = CharacterDataTypes.CharacterData
+export type CharacterInfo = CharacterDataTypes.CharacterInfo
 
 -- Turn types
 export type TurnEntry = TurnTypes.TurnEntry

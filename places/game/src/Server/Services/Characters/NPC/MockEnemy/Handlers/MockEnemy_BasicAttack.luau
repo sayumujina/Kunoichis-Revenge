@@ -12,7 +12,6 @@ local moveInfo = require(rep.Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy
 return function(char: _TYPES.Character, primaryTargetIndex: number)
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
-		moveCategory = moveInfo.moveCategory,
 		manaChange = moveInfo.manaChange,
 		targets = {},
 		attacks = moveInfo.attacks,

@@ -3,12 +3,15 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local TurnService = require(Services.TurnService)
+-- Utility
+local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
 local Zap = require(Services.Parent.zap)
 
 local InputService = {}
 
-local allowActions = true
+local allowActionsDuringAttack = true
+
 -- A list of disallowed actions during an attack animation
 local DisallowedActionsDuringAttack = {
 	-- Attacks (except ultimate)
@@ -19,12 +22,18 @@ local DisallowedActionsDuringAttack = {
 	"NextTarget",
 }
 
+local DisallowedActionsDuringUltimate = {
+	-- Attacks (except ultimate)
+	"BasicAttack",
+	"Skill",
+}
+
 -- Helper function to check if an action is allowed based on the current state
 local function isActionAllowed(actionName: string): boolean
-	if allowActions then
+	-- If the player is in the middle of an attack, only allow certain actions
+	if allowActionsDuringAttack then
 		return true
 	end
-
 	return not table.find(DisallowedActionsDuringAttack, actionName)
 end
 
@@ -78,7 +87,7 @@ end
 --- Disables actions for the player
 --- @param shouldEnable -- Whether to enable or disable actions
 function InputService.ToggleActionsAvailability(shouldEnable: boolean)
-	allowActions = shouldEnable
+	allowActionsDuringAttack = shouldEnable
 end
 
 return InputService

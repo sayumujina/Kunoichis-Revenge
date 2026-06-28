@@ -10,6 +10,7 @@ return function(char: _TYPES.Character)
 	characterInfoCard.BackgroundTransparency = 1
 	characterInfoCard.Position = UDim2.fromScale(1, 0)
 	characterInfoCard.Size = UDim2.fromScale(1, 1)
+	characterInfoCard.LayoutOrder = char:GetAttribute("Index")
 
 	local associatedCharValue = Instance.new("ObjectValue")
 	associatedCharValue.Name = "AssociatedCharValue"

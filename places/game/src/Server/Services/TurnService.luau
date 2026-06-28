@@ -167,7 +167,6 @@ function TurnService.MoveToNextTurn()
 		Utility.SortTurnQueue(turnQueue)
 	end
 
-	warn("turn queue after turn completion: ", turnQueue)
 	-- Wait for 2 seconds before starting the next turn
 	task.wait(1)
 
@@ -203,8 +202,6 @@ function TurnService.StartTurn()
 		warn("No turn available to start.")
 		return
 	end
-
-	warn("Starting turn id: ", turnQueue[1].turnId, " for character: ", turnQueue[1].char.Name)
 
 	-- If the next character is an npc, execute its' attack after a short delay
 	if turnQueue[1].side == "NPC" then

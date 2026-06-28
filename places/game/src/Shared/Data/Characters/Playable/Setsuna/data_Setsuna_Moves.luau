@@ -5,7 +5,6 @@ local moves: { [string]: _TYPES.MoveData } = {
 		isDefault = true,
 		--
 		moveType = "BasicAttack",
-		moveCategory = "Damage",
 		--
 		targetSelectionType = "Single",
 		selectedSide = "NPC",
@@ -14,6 +13,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		--
 		attacks = {
 			{
+				attackCategory = "Damage",
 				scalings = {
 					realStats = { atk = 100 / 100 },
 				},
@@ -29,7 +29,6 @@ local moves: { [string]: _TYPES.MoveData } = {
 	},
 	["TwinBlades"] = {
 		moveType = "Skill",
-		moveCategory = "Damage",
 		--
 		targetSelectionType = "Blast",
 		selectedSide = "NPC",
@@ -38,6 +37,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		--
 		attacks = {
 			{
+				attackCategory = "Damage",
 				scalings = {
 					realStats = { atk = 120 / 100 },
 				},
@@ -45,6 +45,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 				exposureDealt = 10,
 			},
 			{
+				attackCategory = "Damage",
 				scalings = {
 					realStats = { atk = 120 / 100 },
 				},

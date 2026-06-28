@@ -35,6 +35,6 @@ local info = {
 		--
 		exposure = 40,
 	},
-} :: _TYPES.CharacterData
+} :: _TYPES.CharacterInfo
 
 return info

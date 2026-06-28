@@ -3,13 +3,13 @@ local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 local moves: { [string]: _TYPES.MoveData } = {
 	["BasicAttack"] = {
 		moveType = "BasicAttack",
-		moveCategory = "Damage",
 		--
 		targetSelectionType = "Single",
 		selectedSide = "Playable",
 		--
 		attacks = {
 			{
+				attackCategory = "Damage",
 				scalings = {
 					realStats = { atk = 100 / 100 },
 				},
@@ -23,13 +23,13 @@ local moves: { [string]: _TYPES.MoveData } = {
 	},
 	["Skill"] = {
 		moveType = "Skill",
-		moveCategory = "Damage",
 		--
 		targetSelectionType = "Blast",
 		selectedSide = "Playable",
 		--
 		attacks = {
 			{
+				attackCategory = "Damage",
 				scalings = {
 					realStats = { atk = 200 / 100 },
 				},

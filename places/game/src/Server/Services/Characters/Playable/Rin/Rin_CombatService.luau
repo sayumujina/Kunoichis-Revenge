@@ -6,15 +6,17 @@ local Services = ServerScriptService.Server.Services
 local TurnService = require(Services.TurnService)
 local PlayerService = require(Services.PlayerService)
 local CombatService = require(Services.CombatService)
+-- Utility
+local IsAtFullEnergy = require(rep.Shared.Modules.Attack.Utility.IsAtFullEnergy)
 
 -- Attack handlers
 local Handlers = {
 	HiddenAssistance = require(script.Parent.Handlers.Rin_HiddenAssistance),
 	CleansingAura = require(script.Parent.Handlers.Rin_CleansingAura),
+	VanguardsCall = require(script.Parent.Handlers.Rin_VanguardsCall),
 } :: { [string]: (_TYPES.Character, number) -> () }
 
 local charName = "Rin"
-local Chars = {} :: {}
 
 -- Character data
 local CharData = {
@@ -25,6 +27,7 @@ local CharData = {
 local ActionToMoveMap = {
 	BasicAttack = "HiddenAssistance",
 	Skill = "CleansingAura",
+	Ultimate = "VanguardsCall",
 }
 local Rin_CombatService = {}
 
@@ -42,6 +45,7 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local action = inputData.action
+	local combatData = CombatService.GetCombatData(player)
 
 	-- Handle target selection actions
 	if action == "PreviousTarget" then
@@ -52,8 +56,34 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 		CombatService.SwitchToNextTarget(player)
 		CombatService.UpdateMovePreview(player, char, CharData.selectedMove)
 		return
+	-- Handle ultimates differently
+	elseif action:find("Ultimate") then
+		-- If the selected move is the ultimate again, execute it
+		if CharData.selectedMove == "VanguardsCall" then
+			print(charName .. " executes their ultimate!")
+			Handlers.VanguardsCall(char, combatData.primarySelectedTargetIndex)
+
+			-- Reset the selected move to the default after executing the ultimate
+			CharData.selectedMove = "HiddenAssistance"
+			return
+		end
+
+		-- Check if Rin's energy is full
+		if not IsAtFullEnergy(char) then
+			warn("Rin's energy is not full. Cannot execute ultimate.")
+			return
+		end
+
+		-- Set the selected move to the ultimate
+		CharData.selectedMove = "VanguardsCall"
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
+		-- If ultimate is already selected, disallow switching to other moves
+		if CharData.selectedMove == "VanguardsCall" then
+			warn("Ultimate is already selected. Cannot switch to " .. action)
+			return
+		end
+
 		-- Handle move selection actions
 		local mappedMove = ActionToMoveMap[action]
 
@@ -67,14 +97,13 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 			return
 		end
 
-		local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
 		-- Handle the input based on the action
 		if CharData.selectedMove == "HiddenAssistance" then
 			print(charName .. " performs a basic attack!")
-			Handlers.HiddenAssistance(char, primaryTargetIndex)
+			Handlers.HiddenAssistance(char, combatData.primarySelectedTargetIndex)
 		elseif CharData.selectedMove == "CleansingAura" then
 			print(charName .. " uses their skill!")
-			Handlers.CleansingAura(char, primaryTargetIndex)
+			Handlers.CleansingAura(char, combatData.primarySelectedTargetIndex)
 		end
 	end
 end

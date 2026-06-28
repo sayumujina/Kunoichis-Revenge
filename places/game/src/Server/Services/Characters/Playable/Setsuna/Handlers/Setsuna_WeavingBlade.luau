@@ -13,12 +13,11 @@ local moveInfo = require(rep.Shared.Data.Characters.Playable.Setsuna.data_Setsun
 return function(char: _TYPES.Character, primaryTargetIndex: number)
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
-		moveCategory = moveInfo.moveCategory,
 		manaChange = moveInfo.manaChange,
 		targets = {},
 		attacks = moveInfo.attacks,
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
-	ExecuteMove(char, moveName, attackData, true)
+	ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, true)
 end

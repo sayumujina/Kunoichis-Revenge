@@ -12,11 +12,10 @@ local moveInfo = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Moves)
 return function(char: _TYPES.Character, primaryTargetIndex: number)
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
-		moveCategory = moveInfo.moveCategory,
 		targets = {},
 		attacks = moveInfo.attacks,
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
-	ExecuteMove(char, moveName, attackData, true)
+	ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, true)
 end

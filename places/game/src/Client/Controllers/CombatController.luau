@@ -168,7 +168,7 @@ function CombatController.UpdateMovePreview(
 	CombatController.DetermineSelectedTargets(targetSelectionType, primaryTargetIndex, side)
 
 	-- Update the move preview in the HUD
-	HUDController.UpdateManaPreview(manaChangePreviewValue)
+	HUDController.UpdateManaPreview(manaChangePreviewValue or 0)
 
 	-- Call the character combat controller to update the camera
 	local controller = Utility.GetCharacterCombatController(char)

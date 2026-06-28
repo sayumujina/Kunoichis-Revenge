@@ -19,6 +19,9 @@ local InputToActions = {
 	-- Combat actions
 	[Enum.KeyCode.Q] = "BasicAttack",
 	[Enum.KeyCode.E] = "Skill",
+	[Enum.KeyCode.One] = "Ultimate1",
+	[Enum.KeyCode.Two] = "Ultimate2",
+	[Enum.KeyCode.Three] = "Ultimate3",
 	-- Spawn
 	[Enum.KeyCode.U] = "Spawn",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
@@ -28,6 +31,7 @@ function InputController.OnStart()
 	-- Listen to input began event
 	UserInputService.InputBegan:Connect(function(input, _)
 		local actionName = InputToActions[input.KeyCode] or InputToActions[input.UserInputType]
+		warn("Input began:", input.UserInputType, input.KeyCode, "mapped to action:", actionName)
 		if actionName == "Spawn" then
 			Zap.RequestSpawn.Fire()
 			return

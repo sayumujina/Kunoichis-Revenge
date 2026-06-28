@@ -7,8 +7,6 @@ local AttackScalingsTypes = require(game.ReplicatedStorage.Shared.data_Types.Com
 export type AttackData = {
 	-- Primary target of the attack
 	primaryTargetIndex: number,
-	-- Move category
-	moveCategory: MoveTypes.MoveCategory,
 	-- Targets to hit
 	targets: { CharacterTypes.Character },
 	-- Mana change
@@ -16,6 +14,8 @@ export type AttackData = {
 	-- Attacks data
 	attacks: {
 		{
+			-- Attack category
+			attackCategory: MoveTypes.AttackCategory,
 			scalings: AttackScalingsTypes.AttackScalings,
 			energyGain: number?,
 			exposureDealt: number?,

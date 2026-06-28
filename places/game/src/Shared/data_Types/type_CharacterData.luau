@@ -1,5 +1,5 @@
 --- @within data_TYPES
---- @type CharacterData = {atk: number, def: number, startingHp: number, hp: number, spd: number, critRate: number, critDmg: number, maxEnergy: number,
+--- @type CharacterInfo = {atk: number, def: number, startingHp: number, hp: number, spd: number, critRate: number, critDmg: number, maxEnergy: number,
 --- ultimateGainEfficiency: number, manaGainEfficiency: number, dmgTakenMult: number, dmgDealtMult: number, healingProvidedMult: number, healingReceivedMult: number}
 export type CharacterStats = {
 	--
@@ -26,7 +26,7 @@ export type CharacterStats = {
 	healingReceivedMult: number,
 }
 
-export type CharacterData = {
+export type CharacterInfo = {
 	name: string,
 	description: string,
 	-- Base stats

@@ -5,7 +5,6 @@ local moves: { [string]: _TYPES.MoveData } = {
 		isDefault = true,
 		--
 		moveType = "BasicAttack",
-		moveCategory = "Damage",
 		--
 		targetSelectionType = "Single",
 		selectedSide = "NPC",
@@ -14,6 +13,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		--
 		attacks = {
 			{
+				attackCategory = "Damage",
 				scalings = {
 					realStats = { atk = 70 / 100 },
 				},
@@ -29,7 +29,6 @@ local moves: { [string]: _TYPES.MoveData } = {
 	},
 	["LightningRain"] = {
 		moveType = "Skill",
-		moveCategory = "Damage",
 		--
 		targetSelectionType = "Blast",
 		selectedSide = "NPC",
@@ -38,6 +37,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		--
 		attacks = {
 			{
+				attackCategory = "Damage",
 				scalings = {
 					realStats = { atk = 160 / 100 },
 				},

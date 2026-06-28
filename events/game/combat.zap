@@ -8,10 +8,10 @@ event SuccessfulMove = {
 			moveName: string.binary,
 			attackData: struct {
 				primaryTargetIndex: u8,
-				moveCategory: string.binary,
 				targets: Instance.Model[],
 				manaChange: f32?,
 				attacks: struct {
+					attackCategory: string.binary,
 					scalings: struct {
 						baseStats: map {[string.binary]: f32}?,
 						realStats: map {[string.binary]: f32}?,

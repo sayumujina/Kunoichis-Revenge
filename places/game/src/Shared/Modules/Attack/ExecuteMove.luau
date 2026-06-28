@@ -27,6 +27,7 @@ local Signal = require(game.ReplicatedStorage.Packages.Signal)
 --- @return boolean -- Returns true if the attack was executed successfully, false otherwise
 local function ExecuteMove(
 	char: _TYPES.Character,
+	fromSide: _TYPES.Sides,
 	moveName: string,
 	attackData: _TYPES.AttackData,
 	moveToNextTurn: boolean?
@@ -52,7 +53,7 @@ local function ExecuteMove(
 
 	-- Determine targets on the server
 	-- The client has its own version of this for visual purposes, but the server will verify it to be safe
-	local targets = DetermineTargets(char, attackData, moveName)
+	local targets = DetermineTargets(char, fromSide, attackData.primaryTargetIndex, moveName)
 	-- Return false if no valid targets were found
 	if not targets or #targets == 0 then
 		warn("No valid targets found for attack: " .. moveName)
@@ -94,7 +95,7 @@ local function ExecuteMove(
 		local data = attackData.attacks[currentAttack]
 		-- Loop through each target and apply the appropriate effect based on the move category
 		for _, target in pairs(targets) do
-			if attackData.moveCategory == "Damage" then
+			if data.attackCategory == "Damage" then
 				local damage = CalculateDamage(data.scalings, char, target, moveName)
 				DamageService.Damage(char, target, damage)
 
@@ -105,7 +106,7 @@ local function ExecuteMove(
 
 				-- Play the hurt animation for each target
 				AnimationService.Play(target, "Hurt_Normal")
-			elseif attackData.moveCategory == "Heal" then
+			elseif data.attackCategory == "Heal" then
 				local healingAmount = CalculateHealing(data.scalings, char, target, moveName)
 				DamageService.Heal(char, target, healingAmount)
 			end

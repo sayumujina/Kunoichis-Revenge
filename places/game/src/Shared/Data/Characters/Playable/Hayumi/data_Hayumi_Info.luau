@@ -31,6 +31,6 @@ local info = {
 		energy = 40,
 		shield = 0,
 	},
-} :: _TYPES.CharacterData
+} :: _TYPES.CharacterInfo
 
 return info

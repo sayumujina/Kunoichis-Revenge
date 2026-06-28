@@ -3,26 +3,15 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 
--- A table to map move categories to their corresponding target sides
-local teamEffectMoveCategories = { "Heal", "Shield", "Buff" }
-
-return function(char: _TYPES.Character, attackData: _TYPES.AttackData, moveName: string)
+return function(char: _TYPES.Character, side: _TYPES.Sides, primaryTargetIndex: number, moveName: string)
 	local targets = {} :: { _TYPES.Character }
-	local side = char:GetAttribute("Side")
 	local targetsList
-	-- Depends on the side and move category, retrieve the appropriate folder
+
+	-- Retrieve the folder containing the targets to look for
 	if side == "Playable" then
-		if table.find(teamEffectMoveCategories, attackData.moveCategory) then
-			targetsList = game.Workspace.Characters.Playable
-		else
-			targetsList = game.Workspace.Characters.NPC
-		end
+		targetsList = workspace.Characters.Playable
 	else
-		if table.find(teamEffectMoveCategories, attackData.moveCategory) then
-			targetsList = game.Workspace.Characters.NPC
-		else
-			targetsList = game.Workspace.Characters.Playable
-		end
+		targetsList = workspace.Characters.NPC
 	end
 
 	local moveData = Utility.GetCharacterMoveList(char)[moveName]
@@ -31,18 +20,18 @@ return function(char: _TYPES.Character, attackData: _TYPES.AttackData, moveName:
 
 	-- Determine the indexes first
 	if targetSelectionType == "Single" then -- Select a single target.
-		table.insert(targets, findChar(attackData.primaryTargetIndex, targetsList) :: _TYPES.Character)
+		table.insert(targets, findChar(primaryTargetIndex, targetsList) :: _TYPES.Character)
 	elseif targetSelectionType == "Blast" then -- Select a main target and 2 targets around them (if they exist).
 		-- Insert the primary target first
-		table.insert(targets, findChar(attackData.primaryTargetIndex, targetsList) :: _TYPES.Character)
+		table.insert(targets, findChar(primaryTargetIndex, targetsList) :: _TYPES.Character)
 
 		-- Find adjacent targets
-		local charOnTheLeft = findChar(attackData.primaryTargetIndex - 1, targetsList)
+		local charOnTheLeft = findChar(primaryTargetIndex - 1, targetsList)
 		if charOnTheLeft then
 			table.insert(targets, charOnTheLeft)
 		end
 
-		local charOnTheRight = findChar(attackData.primaryTargetIndex + 1, targetsList)
+		local charOnTheRight = findChar(primaryTargetIndex + 1, targetsList)
 		if charOnTheRight then
 			table.insert(targets, charOnTheRight)
 		end
