@@ -16,6 +16,8 @@ local CombatData: {
 		npcs: { _TYPES.Character },
 		playables: { _TYPES.Character },
 		primarySelectedTargetIndex: number, -- The main enemy index (for blast attacks)
+		--
+		isProcessingAttack: boolean, -- Whether the player is currently processing an attack
 	},
 } =
 	{}
@@ -47,20 +49,14 @@ function CombatService.OnStart()
 			return
 		end
 
-		local moveList = Utility.GetCharacterMoveList(char :: _TYPES.Character)
-		for moveName, moveData in pairs(moveList) do
-			-- If the move is not default, skip it
-			if not moveData.isDefault then
-				continue
-			end
-
-			-- Play the idle animation of the default move
-			AnimationService.Play(char :: _TYPES.Character, moveName .. "_Idle")
-
-			-- Update the move preview for the player with the default move
-			CombatService.UpdateMovePreview(turnData.player, char :: _TYPES.Character, moveName)
-			break
+		local defaultMove = Utility.GetCharacterDefaultMove(char :: _TYPES.Character)
+		if not defaultMove then
+			return
 		end
+		-- Play the idle animation of the default move
+		AnimationService.Play(char :: _TYPES.Character, defaultMove .. "_Idle")
+		-- Update the move preview for the player with the default move
+		CombatService.UpdateMovePreview(turnData.player, char :: _TYPES.Character, defaultMove)
 	end)
 end
 
@@ -146,6 +142,18 @@ function CombatService.UpdateMovePreview(player: _TYPES.RobloxPlayerType, char: 
 			primaryTargetIndex = combatData.primarySelectedTargetIndex,
 		},
 	})
+end
+
+--- Sets the attacking state for the player
+--- @param player - The player whose attacking state to set
+--- @param isAttacking - Whether the player is currently processing an attack
+function CombatService.SetAttackingState(player: _TYPES.RobloxPlayerType, isAttacking: boolean)
+	local combatData = CombatData[player]
+	if not combatData then
+		return
+	end
+
+	combatData.isProcessingAttack = isAttacking
 end
 
 --- Get the combat data for the player

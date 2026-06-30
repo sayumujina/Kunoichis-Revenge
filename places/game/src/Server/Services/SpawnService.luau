@@ -1,5 +1,6 @@
 -- Services
 local rep = game:GetService("ReplicatedStorage")
+local _TYPES = require(rep.Shared.data_Types)
 local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
@@ -7,8 +8,6 @@ local CharService = require(Services.CharService)
 
 -- Packages
 local Zap = require(Services.Parent.zap)
-
-local _TYPES = require(rep.Shared.data_Types)
 
 -- Constants
 local SPAWN_X_OFFSET_BETWEEN_CHARACTERS = 8
@@ -29,6 +28,11 @@ function SpawnService.OnStart()
 	Zap.RequestSpawn.On(function(player)
 		local playables = { "Setsuna", "Hayumi", "Rin" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 		local npcs = { "MockEnemy", "MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+
+		-- Initialise the player entry in the turn system
+		if not TurnService.GetPlayerTurnData(player :: _TYPES.RobloxPlayerType) then
+			TurnService.InitialisePlayerEntry(player :: _TYPES.RobloxPlayerType)
+		end
 
 		-- Spawn charactersfor both sides, for now
 		SpawnService.SpawnAllCharactersOfSide(
@@ -114,7 +118,7 @@ function SpawnService.SpawnCharacter(
 	CharService.LoadCharacterStats(char, side)
 
 	-- Add the character to the turn system
-	TurnService.AddActiveCharacter(char)
+	TurnService.AddActiveCharacter(char, player)
 end
 
 --- Spawn all characters of a side

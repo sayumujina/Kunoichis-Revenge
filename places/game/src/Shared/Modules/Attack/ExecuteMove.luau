@@ -3,6 +3,7 @@ local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
 local Services = game:GetService("ServerScriptService").Server.Services
 local AnimationService = require(Services.AnimationService)
 local TurnService = require(Services.TurnService)
+local CombatService = require(Services.CombatService)
 local EventService = require(Services.EventService)
 local PlayerService = require(Services.PlayerService)
 local DamageService = require(Services.DamageService)
@@ -17,8 +18,14 @@ local DetermineTargets = require(CombatUtility.DetermineTargets)
 local HandleMana = require(CombatUtility.HandleMana)
 -- Utility
 local Utility = require(game.ReplicatedStorage.Shared.Modules.Utility)
--- Signal
-local Signal = require(game.ReplicatedStorage.Packages.Signal)
+
+-- Helper function to reset the attacking state for a player after an attack animation is complete
+local function resetAttackingState(player: _TYPES.RobloxPlayerType)
+	-- Re-enable input availability for actions after the attack animation is complete
+	InputService.ToggleActionsAvailability(true)
+	-- Mark the attack as not being processed
+	CombatService.SetAttackingState(player :: _TYPES.RobloxPlayerType, false)
+end
 
 --- Creates an attack function based on the provided attack data
 --- @within Modules
@@ -30,15 +37,18 @@ local function ExecuteMove(
 	fromSide: _TYPES.Sides,
 	moveName: string,
 	attackData: _TYPES.AttackData,
-	moveToNextTurn: boolean?
+	isExtraAction: boolean?
 )
+	local player = PlayerService.GetPlayerFromCharacter(char)
+
 	-- Turn off input availability for actions during the attack animation
 	InputService.ToggleActionsAvailability(false)
+	-- Mark the attack as being processed
+	CombatService.SetAttackingState(player :: _TYPES.RobloxPlayerType, true)
 
-	local player = PlayerService.GetPlayerFromCharacter(char)
 	if not player then
 		warn("Player not found for the origin character.")
-		InputService.ToggleActionsAvailability(true)
+		resetAttackingState(player :: _TYPES.RobloxPlayerType)
 		return false
 	end
 
@@ -47,7 +57,7 @@ local function ExecuteMove(
 	-- Only playable characters have mana change in the move data,  hence the "if attackData.manaChange" condition
 	if attackData.manaChange and not HandleMana.HasEnoughMana(player, attackData.manaChange) then
 		warn("Not enough mana to perform the move: " .. moveName)
-		InputService.ToggleActionsAvailability(true)
+		resetAttackingState(player :: _TYPES.RobloxPlayerType)
 		return false
 	end
 
@@ -57,7 +67,7 @@ local function ExecuteMove(
 	-- Return false if no valid targets were found
 	if not targets or #targets == 0 then
 		warn("No valid targets found for attack: " .. moveName)
-		InputService.ToggleActionsAvailability(true)
+		resetAttackingState(player :: _TYPES.RobloxPlayerType)
 		return false
 	-- Else, append the targets to the attackData
 	else
@@ -68,7 +78,7 @@ local function ExecuteMove(
 	local anim = AnimationService.Play(char, moveName .. "_Execute")
 	if not anim then
 		warn("Failed to play animation for attack: " .. moveName)
-		InputService.ToggleActionsAvailability(true)
+		resetAttackingState(player :: _TYPES.RobloxPlayerType)
 		return false
 	end
 
@@ -124,10 +134,18 @@ local function ExecuteMove(
 	-- Move to the next turn after the attack animation is complete
 	trove:Add(anim.Stopped:Connect(function()
 		-- Move to the next turn if specified
-		if moveToNextTurn then
-			InputService.ToggleActionsAvailability(true)
-			TurnService.MoveToNextTurn()
+		if not isExtraAction then
+			TurnService.CompleteTurn(player :: _TYPES.RobloxPlayerType)
+			task.delay(1, function()
+				TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
+			end)
+		-- End the current extra action for the player if this was an extra action
+		else
+			TurnService.EndCurrentExtraAction(player :: _TYPES.RobloxPlayerType)
 		end
+
+		-- Reset the attacking state for the player after the attack animation is complete
+		resetAttackingState(player :: _TYPES.RobloxPlayerType)
 
 		-- Clean up the trove after the animation is complete
 		trove:Clean()

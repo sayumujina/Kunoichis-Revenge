@@ -14,7 +14,7 @@ local allowActionsDuringAttack = true
 
 -- A list of disallowed actions during an attack animation
 local DisallowedActionsDuringAttack = {
-	-- Attacks (except ultimate)
+	-- Attacks (except casting an ultimate)
 	"BasicAttack",
 	"Skill",
 	-- Target selection
@@ -22,10 +22,11 @@ local DisallowedActionsDuringAttack = {
 	"NextTarget",
 }
 
-local DisallowedActionsDuringUltimate = {
-	-- Attacks (except ultimate)
-	"BasicAttack",
-	"Skill",
+-- A list of allowed inputs outside of the character's turn
+local AllowedInputsOutsideOfTurn = {
+	"Ultimate1",
+	"Ultimate2",
+	"Ultimate3",
 }
 
 -- Helper function to check if an action is allowed based on the current state
@@ -53,7 +54,7 @@ end
 --- Called when the service starts
 function InputService.OnStart()
 	-- Listen to input sent event from the client
-	Zap.InputSent.On(function(_, inputData)
+	Zap.InputSent.On(function(player, inputData)
 		-- Check if the action is allowed
 		local action = inputData.action
 		if not isActionAllowed(action) then
@@ -63,9 +64,15 @@ function InputService.OnStart()
 
 		-- Get the character from the input data
 		local char = inputData.origin
-		local currentTurnChar = TurnService.GetCurrentTurn()
-		if not char or not currentTurnChar or char :: any ~= currentTurnChar.char then
-			return
+		local activeChar = player.ActiveCharacter.Value
+
+		-- Check if the character is valid and is the player's active character
+		if not char or char ~= activeChar then
+			-- Check if the action is allowed outside of the character's turn
+			if not table.find(AllowedInputsOutsideOfTurn, inputData.action) then
+				warn("action", action, "is not allowed outside of the character's turn.")
+				return
+			end
 		end
 
 		-- Get the combat service module

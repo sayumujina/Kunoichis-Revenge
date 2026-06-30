@@ -145,6 +145,15 @@ export type StatusRemovedEvent = {
 	},
 }
 
+--- @type ActionAdvanceEvent { char: _TYPES.Character, advancedBy: number }
+--- @within EventService
+--- Describes the event for when a character's action value is advanced.
+--- Contains the character whose action value is advanced and the amount by which it is advanced.
+export type ActionAdvanceEvent = {
+	char: _TYPES.Character,
+	advancedBy: number,
+}
+
 --- @type Events { [string]: Signal.Signal<any> }
 --- @within EventService
 --- A collection of events that can be fired and listened to. Refer to the specific event types for more information.
@@ -161,6 +170,7 @@ EventService.Events = {
 	SuccessfulMove = Signal.new() :: Signal.Signal<SuccessfulMoveEvent>,
 	StatusAdded = Signal.new() :: Signal.Signal<StatusAddedEvent>,
 	StatusRemoved = Signal.new() :: Signal.Signal<StatusRemovedEvent>,
+	ActionAdvance = Signal.new() :: Signal.Signal<ActionAdvanceEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService

@@ -79,7 +79,6 @@ function DamageService.Heal(origin: _TYPES.Character, target: _TYPES.Character, 
 	local targetMaxHP = CharService.GetRealCharacterStat(target, "hp")
 
 	local newHP = targetCombatData + healAmount
-	warn(newHP, targetMaxHP)
 	-- If the target hp goes above max HP, set it to max HP
 	if newHP >= targetMaxHP then
 		CharService.UpdateCurrentCharacterStat(target, "hp", targetMaxHP)

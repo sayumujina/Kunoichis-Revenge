@@ -5,6 +5,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
 local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
+local PlayerService = require(Services.PlayerService)
 -- Utilities
 local DeterminePrimaryTargetIndex = require(rep.Shared.Modules.Attack.Utility.DeterminePrimaryTargetIndex)
 -- Data
@@ -37,7 +38,8 @@ end
 --- Handles the attack behaviour for the MockEnemy character
 --- @param char - The character to handle the attack behaviour for
 function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
-	local currentTurn = TurnService.GetCurrentTurn()
+	local currentTurn =
+		TurnService.GetCurrentTurn(PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType)
 
 	-- Check if the origin of the event data is the current character whose turn it is
 	if not currentTurn or char ~= currentTurn.char :: any then
@@ -71,6 +73,11 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 	else
 		Chars[char].currentPatternIndex += 1
 	end
+end
+
+--- Get the attack handlers for MockEnemy's combat service
+function MockEnemy_CombatService.GetAttackHandlers()
+	return Handlers
 end
 
 return MockEnemy_CombatService

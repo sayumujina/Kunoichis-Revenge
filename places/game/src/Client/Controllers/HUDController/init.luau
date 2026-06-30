@@ -170,7 +170,7 @@ function HUDController.OnStart()
 		table.insert(turnQueue, turn)
 
 		-- Sort the turn list after adding the new turn
-		Utility.SortTurnQueue(turnQueue)
+		turnQueue = Utility.SortTurnQueue(turnQueue)
 
 		-- Create a new turn card for the added turn
 		local turnCard = Components.Combat.Turns.createTurnCard(
@@ -237,7 +237,41 @@ function HUDController.OnStart()
 		end
 
 		-- Re-sort the turn list after removal
-		Utility.SortTurnQueue(turnQueue)
+		turnQueue = Utility.SortTurnQueue(turnQueue)
+	end)
+
+	-- Listens to action advance events
+	Zap.ActionAdvance.On(function(data)
+		-- Find the corresponding turn in the local turn list and update its action value
+		for _, turn in pairs(turnQueue) do
+			if turn.char :: any ~= data.char then
+				continue
+			end
+
+			-- Update the action value for the character's turn
+			turn.actionValue = turn.actionValue - (turn.actionValue * data.advancedBy)
+
+			-- Update the corresponding turn card UI as well
+			local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
+			if turnCardContainer then
+				local turnCard = turnCardContainer:FindFirstChild("Turn_Card_" .. turn.turnId)
+				warn(turnCard, "Turn Card for", turn.char.Name, "with Turn ID", turn.turnId, "found:", turnCard ~= nil)
+				if turnCard then
+					local actionValueLabel = turnCard:FindFirstChild("ActionValueLabel", true)
+					if actionValueLabel and actionValueLabel:IsA("TextLabel") then
+						actionValueLabel.Text = tostring(math.floor(turn.actionValue))
+					end
+				end
+			end
+
+			break -- Exit the loop after updating the relevant character's turn
+		end
+
+		-- Re-sort the turn list after updating the action value
+		turnQueue = Utility.SortTurnQueue(turnQueue)
+
+		-- Update the turn queue UI after re-sorting
+		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 	end)
 end
 

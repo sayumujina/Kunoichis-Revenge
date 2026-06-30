@@ -19,5 +19,5 @@ return function(char: _TYPES.Character, primaryTargetIndex: number)
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
-	ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, true)
+	ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, false)
 end

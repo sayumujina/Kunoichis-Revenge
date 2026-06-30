@@ -35,12 +35,6 @@ function Hayumi_CombatService.OnStart() end
 --- @param char -- The character performing the action
 --- @param inputData -- The input data containing the action and target information
 function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES.InputData)
-	-- Check if the input is for this character
-	local currentTurnChar = TurnService.GetCurrentTurn()
-	if not currentTurnChar or char :: any ~= currentTurnChar.char then
-		return
-	end
-
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local action = inputData.action
 
@@ -78,6 +72,11 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 			Handlers.LightningRain(char, primaryTargetIndex)
 		end
 	end
+end
+
+--- Get the attack handlers for Hayumi's combat service
+function Hayumi_CombatService.GetAttackHandlers()
+	return Handlers
 end
 
 return Hayumi_CombatService

@@ -36,7 +36,8 @@ function Setsuna_CombatService.OnStart() end
 --- @param inputData -- The input data containing the action and target information
 function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES.InputData)
 	-- Check if the input is for this character
-	local currentTurnChar = TurnService.GetCurrentTurn()
+	local currentTurnChar =
+		TurnService.GetCurrentTurn(PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType)
 	if not currentTurnChar or char :: any ~= currentTurnChar.char then
 		return
 	end
@@ -78,6 +79,11 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 			Handlers.TwinBlades(char, primaryTargetIndex)
 		end
 	end
+end
+
+--- Get the attack handlers for Setsuna's combat service
+function Setsuna_CombatService.GetAttackHandlers()
+	return Handlers
 end
 
 return Setsuna_CombatService

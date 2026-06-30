@@ -49,3 +49,13 @@ event TurnAdded = {
 		actionValue: f64,
 	},
 }
+
+event ActionAdvance = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		char: Instance.Model,
+		advancedBy: f64,
+	},
+}

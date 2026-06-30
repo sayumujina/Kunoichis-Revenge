@@ -9,14 +9,58 @@ local TableUtil = require(rep.Packages.TableUtil)
 local Utility = {}
 
 --- Sort the turn queue by action value
+---
+--- This is intentionally a two-pass sort:
+--- 1. Sort the entire queue by action value so lower values always resolve first.
+--- 2. Scan the sorted queue for tied action-value groups and only reorder entries
+---    inside each tied group by turnId.
+---
+--- This keeps the turnId tiebreaker scoped to entries that are actually tied,
+--- instead of letting turnId influence the order of the whole queue.
 --- @param queue -- The turn queue to sort
 function Utility.SortTurnQueue(queue: { _TYPES.TurnEntry })
-	table.sort(queue, function(a, b)
-		if a.actionValue == b.actionValue then
-			return a.turnId < b.turnId -- Tiebreaker: earlier turns stay first
-		end
+	local sortedQueue = TableUtil.Copy(queue, true)
+
+	-- First, sort only by action value.
+	table.sort(sortedQueue, function(a, b)
 		return a.actionValue < b.actionValue
 	end)
+
+	local tieStartIndex = 1
+	while tieStartIndex <= #sortedQueue do
+		local tieEndIndex = tieStartIndex
+		local actionValue = sortedQueue[tieStartIndex].actionValue
+
+		-- Expand this range until we reach the end of the current tied group.
+		while tieEndIndex < #sortedQueue and sortedQueue[tieEndIndex + 1].actionValue == actionValue do
+			tieEndIndex += 1
+		end
+
+		-- Once we have the full range of tied entries, sort only that range by turnId.
+		if tieEndIndex > tieStartIndex then
+			-- Copy only the tied entries into a temporary list so we can apply
+			-- the turnId tiebreaker without disturbing entries outside this group.
+			local tiedEntries = table.create(tieEndIndex - tieStartIndex + 1)
+			for index = tieStartIndex, tieEndIndex do
+				tiedEntries[index - tieStartIndex + 1] = sortedQueue[index]
+			end
+
+			-- Within a tie group, earlier turns should stay on top.
+			table.sort(tiedEntries, function(a, b)
+				return a.turnId < b.turnId
+			end)
+
+			-- Write the locally re-sorted tie group back into the main queue.
+			for index = tieStartIndex, tieEndIndex do
+				sortedQueue[index] = tiedEntries[index - tieStartIndex + 1]
+			end
+		end
+
+		-- Move to the next action-value group and repeat until the queue is exhausted.
+		tieStartIndex = tieEndIndex + 1
+	end
+
+	return sortedQueue :: { _TYPES.TurnEntry }
 end
 
 --- Normalise the turn queue after a turn is completed
@@ -26,7 +70,7 @@ end
 function Utility.NormaliseTurnQueue(queue: { _TYPES.TurnEntry })
 	-- Deep copy the queue to avoid mutating the original
 	if #queue == 0 then
-		return
+		return {}
 	end
 
 	local normalisedQueue = TableUtil.Copy(queue, true)
@@ -36,7 +80,7 @@ function Utility.NormaliseTurnQueue(queue: { _TYPES.TurnEntry })
 		entry.actionValue = entry.actionValue - topActionValue
 	end
 
-	return normalisedQueue
+	return normalisedQueue :: { _TYPES.TurnEntry }
 end
 
 --- Get the combat controller module for a character
@@ -170,6 +214,23 @@ function Utility.FindCharacterWithIndex(indexToFind: number, folder: Folder): _T
 		if charIndex and charIndex == indexToFind then
 			return child :: _TYPES.Character
 		end
+	end
+
+	return nil
+end
+
+--- Get the default move for a character
+--- @within Utility
+--- @param char -- The character to get the default move for
+function Utility.GetCharacterDefaultMove(char: _TYPES.Character)
+	local moveList = Utility.GetCharacterMoveList(char)
+	for moveName, moveData in pairs(moveList) do
+		-- If the move is not default, skip it
+		if not moveData.isDefault then
+			continue
+		end
+
+		return moveName
 	end
 
 	return nil

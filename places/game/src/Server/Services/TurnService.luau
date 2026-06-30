@@ -5,7 +5,9 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local PlayerService = require(Services.PlayerService)
 local CharService = require(script.Parent.CharService)
 local EventService = require(script.Parent.EventService)
+local CombatService = require(script.Parent.CombatService)
 local StatusService = require(script.Parent.StatusService)
+local AnimationService = require(script.Parent.AnimationService)
 --
 local Zap = require(Services.Parent.zap)
 --
@@ -13,19 +15,25 @@ local Utility = require(rep.Shared.Modules.Utility)
 
 -- Constants
 local BASE_ACTION_VALUE = 10000
--- Variables
-local currentTurnCount: number
 
 --- @class TurnService
 --- @server
 --- @tag Service
 local TurnService = {}
 
--- Turn queue stores characters and their action values
--- Each character gets 2 entries for upcoming turns
-
-local turnQueue: { _TYPES.TurnEntry } = {}
-local activeCharacters: { _TYPES.Character } = {}
+local Players = {} :: {
+	[_TYPES.RobloxPlayerType]: {
+		turnQueue: { _TYPES.TurnEntry },
+		currentTurnCount: number,
+		currentTurn: _TYPES.TurnEntry?,
+		--
+		activeCharacters: { _TYPES.Character },
+		previousTurnChar: _TYPES.Character?,
+		--
+		currentExtraAction: { char: _TYPES.Character, action: string }?,
+		extraActionQueue: { { char: _TYPES.Character, action: string } },
+	},
+}
 
 -- Helper function to calculolate action value based on character speed (lower is faster)
 local function calculateActionValue(char: _TYPES.Character): number
@@ -35,47 +43,76 @@ end
 
 --- Helper function to add a turn to the queue
 local function addTurnToQueue(char: _TYPES.Character, actionValue: number)
-	currentTurnCount = currentTurnCount + 1
+	local player = PlayerService.GetPlayerFromCharacter(char)
+	if not player then
+		warn("Player not found for character:", char.Name)
+		return
+	end
+
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
+
+	playerData.currentTurnCount = playerData.currentTurnCount + 1
 
 	local turnEntry: _TYPES.TurnEntry = {
-		turnId = currentTurnCount,
+		turnId = playerData.currentTurnCount,
 		char = char,
 		side = CharService.GetCharacterCombatData(char).side,
 		actionValue = actionValue,
 	}
 
 	-- Add the new turn entry to the queue and send an event about the new turn
-	table.insert(turnQueue, turnEntry)
+	table.insert(playerData.turnQueue, turnEntry)
 	EventService.Events.TurnAdded:Fire(turnEntry)
 end
 
 --- Called when the service starts
 function TurnService.OnStart()
-	-- Initialise an empty turn system
-	turnQueue = {}
-	activeCharacters = {}
-	currentTurnCount = 0
-
 	-- Listens to spawn finished event to add the spawned character to the turn system
 	-- This event is used ONCE per battle, to ensure that the battle is ready for proceeding
-	EventService.Events.SpawnFinished:Connect(function()
-		Utility.NormaliseTurnQueue(turnQueue)
+	EventService.Events.SpawnFinished:Connect(function(event)
+		-- Initialize player data if it doesn't exist
+		if not Players[event.player] then
+			TurnService.InitialisePlayerEntry(event.player)
+		end
+
+		warn("Spawn finished event received for player:", event.player.Name)
+		local playerData = Players[event.player]
+		if not playerData then
+			warn("Player data not found for player:", event.player.Name)
+			return
+		end
+
+		-- Normalise the turn queue
+		playerData.turnQueue = Utility.NormaliseTurnQueue(playerData.turnQueue)
+		warn("Turn queue normalised for player:", event.player.Name, "Queue:", playerData.turnQueue)
+
 		-- Do this at the end of the thread to make sure spawn finished reaches the client first
 		task.defer(function()
-			TurnService.StartTurn()
+			TurnService.StartTurn(event.player)
 		end)
 	end)
 end
 
 --- Add a character to the turn system
---- @param char -- _TYPES.Character
-function TurnService.AddActiveCharacter(char: _TYPES.Character)
-	-- Only add if not already in the active characters list
-	if table.find(activeCharacters, char) then
+--- @param char -- The character to be added to the turn system
+--- @param player -- The player associated with the character being added
+function TurnService.AddActiveCharacter(char: _TYPES.Character, player: _TYPES.RobloxPlayerType)
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
 		return
 	end
 
-	table.insert(activeCharacters, char)
+	-- Only add if not already in the active characters list
+	if table.find(playerData.activeCharacters, char) then
+		return
+	end
+
+	table.insert(playerData.activeCharacters, char)
 
 	-- Add 2 turns for this character to the queue and notify clients about the new turns
 	local actionValue = calculateActionValue(char)
@@ -87,37 +124,50 @@ function TurnService.AddActiveCharacter(char: _TYPES.Character)
 	addTurnToQueue(char, actionValue * 2)
 
 	-- Re-sort the turn queue with the new character
-	Utility.SortTurnQueue(turnQueue)
+	playerData.turnQueue = Utility.SortTurnQueue(playerData.turnQueue)
 end
 
 --- Remove a character from the turn system
---- @param char -- _TYPES.Character
-function TurnService.RemoveActiveCharacter(char: _TYPES.Character)
+--- @param char -- The character to be removed from the turn system
+--- @param player -- The player associated with the character being removed
+function TurnService.RemoveActiveCharacter(char: _TYPES.Character, player: _TYPES.RobloxPlayerType)
 	-- Remove from active characters
-	local index = table.find(activeCharacters, char)
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
+
+	local index = table.find(playerData.activeCharacters, char)
 
 	if index then
-		table.remove(activeCharacters, index)
+		table.remove(playerData.activeCharacters, index)
 
 		-- Notify the client about the turn removal
-		Zap.TurnRemovedForCharacter.Fire(PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType, {
+		Zap.TurnRemovedForCharacter.Fire(player, {
 			char = char,
 			side = CharService.GetCharacterCombatData(char).side,
 		})
 	end
 
 	-- Re-sort the turn queue after removal
-	Utility.SortTurnQueue(turnQueue)
+	playerData.turnQueue = Utility.SortTurnQueue(playerData.turnQueue)
 end
 
 --- Get the current turn data
-function TurnService.GetCurrentTurn(): _TYPES.TurnEntry?
-	if #turnQueue == 0 then
+--- @param player -- The player to get the current turn for
+function TurnService.GetCurrentTurn(player: _TYPES.RobloxPlayerType): _TYPES.TurnEntry?
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
 		return nil
 	end
 
-	local currentEntry = turnQueue[1]
-	return currentEntry
+	if #playerData.turnQueue == 0 then
+		return nil
+	end
+
+	return playerData.currentTurn
 end
 
 -- Helper function to get a character's combat service module
@@ -133,113 +183,307 @@ local function getCharacterCombatService(char: _TYPES.Character): any
 	return combatServiceModule
 end
 
---- Advance to the next turn
-function TurnService.MoveToNextTurn()
-	if #turnQueue == 0 then
+--- Mark a turn as completed, allowing the next turn to proceed
+--- @param player -- The player to mark the completed turn for
+function TurnService.CompleteTurn(player: _TYPES.RobloxPlayerType)
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
+
+	if #playerData.turnQueue == 0 then
 		return
 	end
 
 	-- Remove the current turn from the queue
-	local completedTurn = table.remove(turnQueue, 1)
+	local completedTurn = table.remove(playerData.turnQueue, 1)
 
 	if not completedTurn then
-		return -- bro there's no way this check ever fails cuz there's alraedy an empty table check earlier, I just don't want the Language server to yell
+		return
 	end
 
-	-- Reduce the duration of all statuses for the character whose turn just completed
-	StatusService.ReduceStatusesDuration(completedTurn.char)
+	-- Set the current turn entry to nil since the turn has completed
+	-- Note: Before starting each turn, there is a brief moment where actions like ultimates can be used, and they wouldn't count
+	-- as a "current turn", but rather an extra action
+	playerData.currentTurn = nil
+
+	-- Store the removed char for turn-based statuses
+	playerData.previousTurnChar = completedTurn.char
 
 	-- Notify the client about the turn completion
 	EventService.Events.TurnCompleted:Fire({
 		turnId = completedTurn.turnId,
 	})
-
-	-- Check if this character is still active
-	if table.find(activeCharacters, completedTurn.char) then
-		-- Normalise the turn queue
-		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
-
-		-- Add the new turn to the queue
-		currentTurnCount = currentTurnCount + 1
-		addTurnToQueue(completedTurn.char, calculateActionValue(completedTurn.char))
-
-		-- Re-sort the turn queue
-		Utility.SortTurnQueue(turnQueue)
-	end
-
-	-- Wait for 2 seconds before starting the next turn
-	task.wait(1)
-
-	-- Start the next turn
-	TurnService.StartTurn()
 end
 
---- Modifies a character's action value (in case of action delay/ advance)
---- @param char -- The character to modify
---- @param newActionValue -- The new action value to set for the character's next turn
-function TurnService.ModifyCharacterActionValue(char: _TYPES.Character, newActionValue: number)
-	-- Only update one single turn entry (the one with the lowest action value)
-	for _, entry in pairs(turnQueue) do
-		if entry.char :: any == char then
-			entry.actionValue = newActionValue
-			break
-		end
-	end
-
-	-- Re-sort the turn queue after modification
-	Utility.SortTurnQueue(turnQueue)
-end
-
---- Get the turn order preview
-function TurnService.GetTurnQueue(): { _TYPES.TurnEntry }
-	return turnQueue
-end
-
---- Start the turn
-function TurnService.StartTurn()
-	-- Return if no turn is available
-	if not turnQueue[1] then
-		warn("No turn available to start.")
+--- Advance to the next turn
+--- @param player -- The player to move to the next turn for
+function TurnService.MoveToNextTurn(player: _TYPES.RobloxPlayerType)
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
 		return
 	end
 
+	local char = playerData.previousTurnChar :: _TYPES.Character
+	-- Reduce the duration of all statuses for the character whose turn just completed
+	StatusService.ReduceStatusesDuration(char)
+
+	-- Check if this character is still active
+	if table.find(playerData.activeCharacters, char) then
+		-- Normalise the turn queue
+		playerData.turnQueue = Utility.NormaliseTurnQueue(playerData.turnQueue)
+
+		-- Add the new turn to the queue
+		playerData.currentTurnCount = playerData.currentTurnCount + 1
+		addTurnToQueue(char, calculateActionValue(char))
+
+		-- Re-sort the turn queue
+		playerData.turnQueue = Utility.SortTurnQueue(playerData.turnQueue)
+	end
+
+	-- Start the next turn
+	TurnService.StartTurn(player)
+end
+
+--- Get the player turn data
+--- @param player -- The player to get the turn data for
+function TurnService.GetPlayerTurnData(player: _TYPES.RobloxPlayerType)
+	return Players[player] or nil
+end
+
+--- Start the turn
+--- @param player -- The player to start the turn for
+function TurnService.StartTurn(player: _TYPES.RobloxPlayerType)
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
+
+	-- Return if no turn is available
+	if not playerData.turnQueue[1] then
+		warn("No turn available to start.")
+		return
+	end
+	warn(playerData.turnQueue)
+
+	-- Set the current turn entry
+	playerData.currentTurn = playerData.turnQueue[1]
+
+	-- Set the turn's character as the active character for the player
+	player.ActiveCharacter.Value = playerData.turnQueue[1].char
+
 	-- If the next character is an npc, execute its' attack after a short delay
-	if turnQueue[1].side == "NPC" then
+	if playerData.turnQueue[1].side == "NPC" then
 		task.wait(1) -- This is a placeholder, we will implement NPC attack delay and behaviour later
 		-- Call the NPC's combat service to execute its' attack
-		local npcCombatService = getCharacterCombatService(turnQueue[1].char)
+		local npcCombatService = getCharacterCombatService(playerData.turnQueue[1].char)
 		if npcCombatService then
-			require(npcCombatService).HandleAttackBehaviour(turnQueue[1].char)
+			require(npcCombatService).HandleAttackBehaviour(playerData.turnQueue[1].char)
 		else
-			warn("No combat service found for NPC character:", turnQueue[1].char.Name)
+			warn("No combat service found for NPC character:", playerData.turnQueue[1].char.Name)
 		end
 	-- If the turn belongs to a playable character, set that as the active character value
 	else
-		local char = turnQueue[1].char
-		local player = PlayerService.GetPlayerFromCharacter(char)
-		if player then
-			player.ActiveCharacter.Value = char
-		end
+		local char = playerData.turnQueue[1].char
+		player.ActiveCharacter.Value = char
 	end
 
 	-- Send the turn started event to the client
 	EventService.Events.TurnStarted:Fire({
-		player = PlayerService.GetPlayerFromCharacter(turnQueue[1].char) :: _TYPES.RobloxPlayerType,
+		player = PlayerService.GetPlayerFromCharacter(playerData.turnQueue[1].char) :: _TYPES.RobloxPlayerType,
 		data = {
-			char = turnQueue[1].char,
-			turnId = turnQueue[1].turnId,
+			char = playerData.turnQueue[1].char,
+			turnId = playerData.turnQueue[1].turnId,
 		},
 	})
 end
 
---- Check if there are any active characters
-function TurnService.HasActiveCharacters(): boolean
-	return #activeCharacters > 0
+--- Advance a character's action value by a specified amount
+--- @param char -- The character whose action value is to be advanced
+--- @param advancedBy -- The amount to advance the action value by, in percentages
+function TurnService.AdvanceAction(char: _TYPES.Character, advancedBy: number)
+	local player = PlayerService.GetPlayerFromCharacter(char)
+	if not player then
+		warn("Player not found for character:", char.Name)
+		return
+	end
+
+	-- Find the turn entry for the character
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
+
+	for _, entry in pairs(playerData.turnQueue) do
+		if entry.char :: any ~= char then
+			continue
+		end
+
+		-- Advance the action value by the specified amount
+		entry.actionValue = entry.actionValue - (entry.actionValue * advancedBy)
+
+		-- Ensure the action value does not go below 0
+		if entry.actionValue < 0 then
+			entry.actionValue = 0
+		end
+
+		-- Re-sort the turn queue after modification
+		local sortedQueue = Utility.SortTurnQueue(playerData.turnQueue) or {}
+		warn(sortedQueue)
+
+		-- Then set the current turn queue to the sorted queue
+		playerData.turnQueue = sortedQueue
+
+		-- Fire the ActionAdvance event
+		EventService.Events.ActionAdvance:Fire({
+			char = char,
+			advancedBy = advancedBy,
+		})
+		return
+	end
+
+	warn("Character", char.Name, "not found in turn queue. Cannot advance action.")
 end
 
---- Get all active characters
-function TurnService.GetActiveCharacters(): { _TYPES.Character }
-	return activeCharacters
+--- Execute the current extra action for a player, if any
+--- @param player -- The player to execute the extra action for
+function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
+	-- Set the current extra action for the player
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
+
+	if #playerData.extraActionQueue == 0 then
+		warn("No extra actions queued for player:", player.Name)
+		return
+	end
+
+	local extraAction = playerData.extraActionQueue[1]
+	playerData.currentExtraAction = playerData.extraActionQueue[1]
+
+	local char = extraAction.char
+	local action = extraAction.action
+
+	-- Get the combat service for the character
+	local characterCombatService = getCharacterCombatService(char)
+	if not characterCombatService then
+		warn("No combat service found for character:", char.Name)
+		return
+	end
+
+	-- Set the char as the active character for the player
+	player.ActiveCharacter.Value = char
+
+	-- Set the current extra action for the player
+	playerData.currentExtraAction = { char = char, action = action }
+
+	-- Call the handle input function of the character's combat service
+	--
+	-- Note: why did I not call the move handler directly?
+	-- Because the extra action can be taken back if the requirements aren't met anymore after the action
+	-- Example: if I casted Setsuna's ultimate and queue it, and then after the previous extra action her energy isn't
+	-- full anymore, the ultimate won't be executed and the extra action will be lost.
+	-- So we need to call the handle input function to check the requirements again
+	warn("Extra action executed immediately for character:", char.Name, "with action:", action)
+	require(characterCombatService).HandleInput(char, { action = action })
+end
+
+--- Add an extra action for a character
+--- @param char -- The character to add the extra action for
+--- @param action -- The action to add for the character
+function TurnService.AddExtraAction(char: _TYPES.Character, action: string)
+	local player = PlayerService.GetPlayerFromCharacter(char)
+	if not player then
+		warn("Player not found for character:", char.Name)
+		return
+	end
+
+	-- Get the player data
+	local playerData = Players[player]
+	local processingAttack = CombatService.GetCombatData(player).isProcessingAttack
+
+	-- Add the extra action to the queue
+	warn("Adding extra action for character:", char.Name, "with action:", action)
+	table.insert(playerData.extraActionQueue, { char = char, action = action })
+
+	-- If there is no current extra action or the current turn's character has not used an attack yet, execute the extra action immediately
+	if not playerData.currentExtraAction or not processingAttack then
+		TurnService.ExecuteNextExtraAction(player)
+	end
+end
+
+--- End the current extra action for a player, allowing the next queued extra action to be executed,
+--- or if there are no queued extra actions, the turn system will proceed to the next turn
+--- @param player -- The player to end the current extra action for
+function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
+
+	-- Remove the current extra action
+	table.remove(playerData.extraActionQueue, 1)
+
+	-- Clear the current extra action
+	playerData.currentExtraAction = nil
+
+	-- If there are queued extra actions, execute the next one
+	if #playerData.extraActionQueue > 0 then
+		TurnService.ExecuteNextExtraAction(player)
+		return
+	end
+
+	-- Else, return the active character to the current turn's character
+	local currentTurn = playerData.currentTurn
+	if not currentTurn then
+		warn("No current turn found for player:", player.Name)
+		return
+	end
+
+	local currentTurnChar = currentTurn.char
+	player.ActiveCharacter.Value = currentTurnChar
+
+	-- PLay the move preview again for the current turn's character
+	local defaultMove = Utility.GetCharacterDefaultMove(currentTurnChar :: _TYPES.Character)
+	if not defaultMove then
+		return
+	end
+	-- Play the idle animation of the default move
+	AnimationService.Play(currentTurnChar :: _TYPES.Character, defaultMove .. "_Idle")
+	-- Update the move preview for the player with the default move
+	CombatService.UpdateMovePreview(player, currentTurnChar :: _TYPES.Character, defaultMove)
+end
+
+--- Check if there are any active characters
+--- @param player -- The player to check for active characters
+function TurnService.HasActiveCharacters(player: _TYPES.RobloxPlayerType): boolean
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return false
+	end
+	return #playerData.activeCharacters > 0
+end
+
+--- Initialise player entry in the turn system
+--- @param player -- The player to initialise the entry for
+function TurnService.InitialisePlayerEntry(player: _TYPES.RobloxPlayerType)
+	Players[player] = {
+		turnQueue = {},
+		currentTurnCount = 0,
+		currentTurn = nil,
+		activeCharacters = {},
+		previousTurnChar = nil,
+		currentExtraAction = nil,
+		extraActionQueue = {},
+	}
 end
 
 return TurnService

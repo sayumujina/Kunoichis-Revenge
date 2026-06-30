@@ -10,7 +10,6 @@ return function(playerGui: PlayerGui, newValue: number)
 	-- Update the current mana value
 	local currentManaValueObject = manaFrame:FindFirstChild("PlayerCurrentManaValue", true)
 	if currentManaValueObject and currentManaValueObject:IsA("NumberValue") then
-		warn("Updating current mana value to: " .. newValue)
 		currentManaValueObject.Value = newValue
 	end
 end

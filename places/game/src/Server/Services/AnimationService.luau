@@ -85,10 +85,8 @@ function AnimationService.Play(char: _TYPES.Character, animName: string, fadeTim
 		-- Cancel the current animation
 		AnimationService.Stop(char, animName)
 		-- Play the new animation
-		warn("Playing animation for " .. char.Name .. ": " .. animName)
 		charData.tracks[animName]:Play(fadeTime or 0.05)
 	else
-		warn("Animation " .. animName .. " not found for character " .. char.Name)
 		return nil
 	end
 

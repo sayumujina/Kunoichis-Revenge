@@ -37,12 +37,6 @@ function Rin_CombatService.OnStart() end
 --- @param char -- The character performing the action
 --- @param inputData -- The input data containing the action and target information
 function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES.InputData)
-	-- Check if the input is for this character
-	local currentTurnChar = TurnService.GetCurrentTurn()
-	if not currentTurnChar or char :: any ~= currentTurnChar.char then
-		return
-	end
-
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local action = inputData.action
 	local combatData = CombatService.GetCombatData(player)
@@ -60,7 +54,6 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 	elseif action:find("Ultimate") then
 		-- If the selected move is the ultimate again, execute it
 		if CharData.selectedMove == "VanguardsCall" then
-			print(charName .. " executes their ultimate!")
 			Handlers.VanguardsCall(char, combatData.primarySelectedTargetIndex)
 
 			-- Reset the selected move to the default after executing the ultimate
@@ -76,6 +69,12 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 
 		-- Set the selected move to the ultimate
 		CharData.selectedMove = "VanguardsCall"
+
+		-- Add this move as an extra action
+		TurnService.AddExtraAction(char, "VanguardsCall")
+
+		-- Update the selection type reference for the new move
+		CombatService.UpdateMovePreview(player, char, CharData.selectedMove)
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		-- If ultimate is already selected, disallow switching to other moves
@@ -99,13 +98,16 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 
 		-- Handle the input based on the action
 		if CharData.selectedMove == "HiddenAssistance" then
-			print(charName .. " performs a basic attack!")
 			Handlers.HiddenAssistance(char, combatData.primarySelectedTargetIndex)
 		elseif CharData.selectedMove == "CleansingAura" then
-			print(charName .. " uses their skill!")
 			Handlers.CleansingAura(char, combatData.primarySelectedTargetIndex)
 		end
 	end
+end
+
+--- Get the attack handlers for Rin's combat service
+function Rin_CombatService.GetAttackHandlers()
+	return Handlers
 end
 
 return Rin_CombatService
