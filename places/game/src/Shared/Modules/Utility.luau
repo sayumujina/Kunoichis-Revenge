@@ -5,6 +5,7 @@ local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScrip
 --
 local _TYPES = require(rep.Shared.data_Types)
 local TableUtil = require(rep.Packages.TableUtil)
+local Timer = require(rep.Packages.Timer)
 
 local Utility = {}
 
@@ -234,6 +235,25 @@ function Utility.GetCharacterDefaultMove(char: _TYPES.Character)
 	end
 
 	return nil
+end
+
+--- Sets up a timeout that will call the provided callback function after the specified duration.
+--- @within Utility
+--- @param timeout -- The duration in seconds before the callback is called.
+--- @param callback -- The function to call when the timeout is reached.
+function Utility.SetupTimeout(timeout: number, callback: () -> ()?)
+	-- Create a timer
+	local timer = Timer.new(timeout or 1)
+
+	-- Run the callback and destroy the timer once the timer ticks
+	timer.Tick:Once(function()
+		if callback then
+			callback()
+		end
+		timer:Stop()
+	end)
+
+	return timer
 end
 
 return Utility

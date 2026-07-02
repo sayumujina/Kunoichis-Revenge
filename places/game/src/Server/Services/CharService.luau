@@ -139,17 +139,6 @@ function CharService.LoadCharacterStats(char: _TYPES.Character, side: _TYPES.Sid
 	end
 
 	importCharacterStatsFromSource(char, side)
-
-	-- Fire the event to notify clients about the character stat load
-	EventService.Events.RealStatsChanged:Fire({
-		char = char,
-		data = Chars[char].realStats :: { [string]: number },
-	})
-
-	EventService.Events.CurrentStatsChanged:Fire({
-		char = char,
-		data = Chars[char].currentStats :: { [string]: number },
-	})
 end
 
 --- Retrieve data from a specified character

@@ -170,6 +170,21 @@ function HUDController.OnStart()
 			-- Create a billboard GUI for the spawned enemy character
 			components.createCharacterCombatInfoBillboardGui(char :: _TYPES.Character, playerGui)
 		end
+
+		Helpers.UpdateCharacterStatValue(
+			playerGui,
+			spawnSuccessfulEvent.char :: _TYPES.Character,
+			"realStats",
+			spawnSuccessfulEvent.data.realStats
+		)
+
+		-- Update the character's stat values on the character info cards
+		Helpers.UpdateCharacterStatValue(
+			playerGui,
+			spawnSuccessfulEvent.char :: _TYPES.Character,
+			"currentStats",
+			spawnSuccessfulEvent.data.currentStats
+		)
 	end)
 
 	-- Listens to current stats changed events to update the stat values on the character info cards
@@ -217,7 +232,7 @@ function HUDController.OnStart()
 		end
 
 		-- Remove the main turn card from the turn cards list
-		turnCardsList:Destroy()
+		turnCardsList:FindFirstChild("MainTurn_Card", true):Destroy()
 
 		-- Remove the turn from the local turn list
 		for index, turn in pairs(turnQueue) do
@@ -228,12 +243,21 @@ function HUDController.OnStart()
 			end
 		end
 
-		-- Normalise the turn queue after removal
+		-- Normalise the turn queue after removal and update the turn queue UI
 		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
+		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 	end)
 
 	-- Listens to turn started event
 	Zap.TurnStarted.On(function(startedTurnData)
+		-- Find the corresponding turn cards list for the previous turn and destroy it
+		if startedTurnData.previousTurnId then
+			local turnCardsList = findTurnCardsList(startedTurnData.previousTurnId)
+			if turnCardsList then
+				turnCardsList:Destroy()
+			end
+		end
+
 		-- Reduce the size of the other two character info cards to highlight the current character's turn
 		for _, card in pairs(playerGui:GetDescendants()) do
 			if not card:IsA("Frame") or not card.Name:match("CharacterInfo_Card_") then

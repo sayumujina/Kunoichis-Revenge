@@ -10,7 +10,7 @@ local Zap = require(Services.Parent.zap)
 
 local InputService = {}
 
-local allowActionsDuringAttack = true
+local allowActions = true
 
 -- A list of disallowed actions during an attack animation
 local DisallowedActionsDuringAttack = {
@@ -32,7 +32,7 @@ local AllowedInputsOutsideOfTurn = {
 -- Helper function to check if an action is allowed based on the current state
 local function isActionAllowed(actionName: string): boolean
 	-- If the player is in the middle of an attack, only allow certain actions
-	if allowActionsDuringAttack then
+	if allowActions then
 		return true
 	end
 	return not table.find(DisallowedActionsDuringAttack, actionName)
@@ -94,7 +94,7 @@ end
 --- Disables actions for the player
 --- @param shouldEnable -- Whether to enable or disable actions
 function InputService.ToggleActionsAvailability(shouldEnable: boolean)
-	allowActionsDuringAttack = shouldEnable
+	allowActions = shouldEnable
 end
 
 return InputService

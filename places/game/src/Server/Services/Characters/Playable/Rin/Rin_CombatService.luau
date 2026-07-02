@@ -21,6 +21,7 @@ local charName = "Rin"
 -- Character data
 local CharData = {
 	selectedMove = "HiddenAssistance", -- Player needs to confirm the move twice before executing
+	queuedUltimateId = nil, -- The ID of the queued ultimate action, if any
 }
 
 -- Action to move mapping at the top of the file
@@ -54,7 +55,11 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 	elseif action:find("Ultimate") then
 		-- If the selected move is the ultimate again, execute it
 		if CharData.selectedMove == "VanguardsCall" then
+			warn("Executing ultimate for Rin:", char.Name, "with queued ID:", CharData.queuedUltimateId)
 			Handlers.VanguardsCall(char, combatData.primarySelectedTargetIndex)
+
+			-- Reset the queued ultimate ID after executing the ultimate
+			CharData.queuedUltimateId = nil
 
 			-- Reset the selected move to the default after executing the ultimate
 			CharData.selectedMove = "HiddenAssistance"
@@ -67,11 +72,25 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 			return
 		end
 
+		-- Store the queued ultimate action ID for later execution
+		if combatData.isProcessingAttack then
+			if CharData.queuedUltimateId then
+				return
+			end
+
+			CharData.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
+			return
+		else
+			warn(CharData.queuedUltimateId, "is the queued ultimate ID for Rin:", char.Name)
+			if not CharData.queuedUltimateId then
+				CharData.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
+				TurnService.ExecuteNextExtraAction(player)
+				return
+			end
+		end
+
 		-- Set the selected move to the ultimate
 		CharData.selectedMove = "VanguardsCall"
-
-		-- Add this move as an extra action
-		TurnService.AddExtraAction(char, "VanguardsCall")
 
 		-- Update the selection type reference for the new move
 		CombatService.UpdateMovePreview(player, char, CharData.selectedMove)

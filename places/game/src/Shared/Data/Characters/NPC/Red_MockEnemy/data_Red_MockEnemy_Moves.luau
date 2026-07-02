@@ -1,54 +1,44 @@
 local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 
 local moves: { [string]: _TYPES.MoveData } = {
-	["LightningArrow"] = {
-		isDefault = true,
-		--
+	["BasicAttack"] = {
 		moveType = "BasicAttack",
 		--
 		targetSelectionType = "Single",
-		selectedSide = "NPC",
-		--
-		manaChange = 20,
+		selectedSide = "Playable",
 		--
 		attacks = {
 			{
 				attackCategory = "Damage",
 				scalings = {
-					realStats = { atk = 70 / 100 },
+					realStats = { atk = 100 / 100 },
 				},
-				energyGain = 20,
-				exposureDealt = 10,
 			},
 		},
 		--
 		info = {
-			name = "Lightning Arrow",
+			name = "Basic Attack",
 			description = "A simple attack that deals damage to a single target.",
 		},
 	},
-	["LightningRain"] = {
+	["Skill"] = {
 		moveType = "Skill",
 		--
 		targetSelectionType = "Blast",
-		selectedSide = "NPC",
-		--
-		manaChange = -15,
+		selectedSide = "Playable",
 		--
 		attacks = {
 			{
 				attackCategory = "Damage",
 				scalings = {
-					realStats = { atk = 160 / 100 },
+					realStats = { atk = 200 / 100 },
 				},
-				energyGain = 40,
-				exposureDealt = 20,
 			},
 		},
 		--
 		info = {
-			name = "Lightning Rain",
-			description = "A powerful skill that hits multiple enemies in a blast.",
+			name = "Skill",
+			description = "A skill that hits multiple enemies in a blast.",
 		},
 	},
 }

@@ -1,6 +1,6 @@
 --- @within data_TYPES
---- @type StatusTypes = "Collapsed"
-export type StatusTypes = "Collapsed"
+--- @type StatusTypes = "Collapsed" | "Buff"
+export type StatusTypes = "Collapsed" | "DmgTakenReduced" | "DmgTakenIncreased"
 
 --- @within data_TYPES
 --- @type StatChangeTypes = {statChangeType: "Flat" | "Mult" | "Set", statToChange: string, value: number}

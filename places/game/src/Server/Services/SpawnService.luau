@@ -27,7 +27,7 @@ function SpawnService.OnStart()
 	-- Listens to spawn request from clients
 	Zap.RequestSpawn.On(function(player)
 		local playables = { "Setsuna", "Hayumi", "Rin" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
-		local npcs = { "MockEnemy", "MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+		local npcs = { "MockEnemy", "Red_MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 
 		-- Initialise the player entry in the turn system
 		if not TurnService.GetPlayerTurnData(player :: _TYPES.RobloxPlayerType) then
@@ -76,7 +76,9 @@ function SpawnService.SpawnCharacter(
 	-- Create a highlight instance for the character
 	local highlight = Instance.new("Highlight")
 	highlight.Name = "Highlight"
-	highlight.FillColor = Color3.new(0.984314, 1, 0)
+	highlight.FillTransparency = 1
+	highlight.OutlineColor = Color3.new(0.984314, 1, 0)
+	highlight.OutlineTransparency = 0
 	highlight.Parent = char
 	highlight.Enabled = false
 
@@ -103,6 +105,15 @@ function SpawnService.SpawnCharacter(
 	-- Spawn from above the baseplate
 	char:PivotTo(cframe)
 
+	-- Load the character's base stats into the CharService
+	CharService.LoadCharacterStats(char, side)
+
+	warn(
+		"SpawnService:SpawnCharacter - Loaded base stats for character ",
+		char.Name,
+		": ",
+		CharService.GetCharacterCombatData(char).realStats
+	)
 	-- Send a signal that spawn is successful
 	EventService.Events.SpawnSuccessfulForChar:Fire({
 		player = player,
@@ -110,12 +121,11 @@ function SpawnService.SpawnCharacter(
 			char = char,
 			data = {
 				side = side,
+				realStats = CharService.GetCharacterCombatData(char).realStats :: { [string]: number },
+				currentStats = CharService.GetCharacterCombatData(char).currentStats :: { [string]: number },
 			},
 		},
 	})
-
-	-- Load the character's base stats into the CharService
-	CharService.LoadCharacterStats(char, side)
 
 	-- Add the character to the turn system
 	TurnService.AddActiveCharacter(char, player)

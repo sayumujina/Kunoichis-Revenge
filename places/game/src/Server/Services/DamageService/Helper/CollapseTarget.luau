@@ -20,9 +20,9 @@ local collapsedStatus = {
 	--
 	statChanges = {
 		{
-			statChangeType = "Mult",
+			statChangeType = "Flat",
 			statName = "dmgTakenMult",
-			value = 10 / 100, -- Take 10% more damage while collapsed
+			value = 10, -- Take 10% more damage while collapsed
 		},
 	} :: { _TYPES.StatChangeTypes },
 } :: _TYPES.Status

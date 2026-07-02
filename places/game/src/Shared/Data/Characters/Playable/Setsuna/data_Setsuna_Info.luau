@@ -5,9 +5,9 @@ local info = {
 	description = "",
 	-- Base stats
 	baseStats = {
-		atk = 200,
+		atk = 950,
 		def = 140,
-		hp = 1800,
+		hp = 2500,
 		spd = 120,
 		shield = 0,
 		--

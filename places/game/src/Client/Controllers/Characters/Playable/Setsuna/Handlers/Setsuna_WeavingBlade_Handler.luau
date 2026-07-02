@@ -45,8 +45,7 @@ return function(
 
 	-- In case the animation is stopped before reaching the "return" marker, return to the original position on trove end
 	trove:Add(function()
-		warn("Animation stopped, returning to original position")
-		TweenService:Create(cframeValue, tweenInfo, { Value = originalCFrame }):Play()
+		char:PivotTo(originalCFrame)
 	end)
 
 	return 1

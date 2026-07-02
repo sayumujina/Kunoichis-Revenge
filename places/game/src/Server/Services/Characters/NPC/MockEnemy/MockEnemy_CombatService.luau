@@ -26,6 +26,11 @@ function MockEnemy_CombatService.OnStart()
 	EventService.Events.SpawnSuccessfulForChar:Connect(function(spawnSuccessfulForCharEvent)
 		local char = spawnSuccessfulForCharEvent.data.char
 
+		-- Skip if the character is not MockEnemy
+		if char.Name ~= charName then
+			return
+		end
+
 		-- Initialize combat data for the character if it doesn't exist already
 		if not Chars[char] then
 			Chars[char] = {

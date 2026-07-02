@@ -1,35 +1,39 @@
 local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
 
 local info = {
-	name = "Hayumi",
+	name = "MockEnemy",
 	description = "",
 	-- Base stats
 	baseStats = {
 		atk = 200,
 		def = 140,
-		hp = 5000,
-		spd = 170,
+		hp = 12000,
+		spd = 60,
 		shield = 0,
+		--
+		exposure = 100,
 		--
 		critRate = 0,
 		critDmg = 0,
 		--
-		energy = 120,
-		ultimateGainEfficiency = 120,
+		energy = 100,
+		ultimateGainEfficiency = 100,
 		--
 		manaGainEfficiency = 100,
 		--
-		dmgTakenMult = 100,
+		dmgTakenMult = 130,
 		dmgDealtMult = 100,
 		--
-		healingProvidedMult = 140,
+		healingProvidedMult = 100,
 		healingReceivedMult = 100,
 	},
 	-- Starting stats
 	startingStats = {
-		hp = 2000,
-		energy = 120,
+		hp = 12000,
+		energy = 0,
 		shield = 0,
+		--
+		exposure = 40,
 	},
 } :: _TYPES.CharacterInfo
 

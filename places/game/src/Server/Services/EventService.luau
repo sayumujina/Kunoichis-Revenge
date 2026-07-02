@@ -25,6 +25,8 @@ export type SpawnSuccessfulForCharEvent = {
 		char: _TYPES.Character,
 		data: {
 			side: _TYPES.Sides,
+			realStats: { [string]: number },
+			currentStats: { [string]: number },
 		},
 	},
 }

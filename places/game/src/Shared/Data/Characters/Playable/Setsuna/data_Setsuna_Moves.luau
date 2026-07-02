@@ -17,7 +17,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 				scalings = {
 					realStats = { atk = 100 / 100 },
 				},
-				energyGain = 5,
+				energyGain = 20,
 				exposureDealt = 10,
 			},
 		},
@@ -41,7 +41,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 				scalings = {
 					realStats = { atk = 120 / 100 },
 				},
-				energyGain = 5,
+				energyGain = 20,
 				exposureDealt = 10,
 			},
 			{
@@ -49,7 +49,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 				scalings = {
 					realStats = { atk = 120 / 100 },
 				},
-				energyGain = 5,
+				energyGain = 20,
 				exposureDealt = 10,
 			},
 		},

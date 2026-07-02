@@ -133,19 +133,32 @@ local function ExecuteMove(
 
 	-- Move to the next turn after the attack animation is complete
 	trove:Add(anim.Stopped:Connect(function()
+		-- Reset the attacking state for the player after the attack animation is complete
+		resetAttackingState(player :: _TYPES.RobloxPlayerType)
+
+		local turnData = TurnService.GetTurnData(player :: _TYPES.RobloxPlayerType)
+
 		-- Move to the next turn if specified
 		if not isExtraAction then
 			TurnService.CompleteTurn(player :: _TYPES.RobloxPlayerType)
-			task.delay(1, function()
-				TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
-			end)
 		-- End the current extra action for the player if this was an extra action
 		else
 			TurnService.EndCurrentExtraAction(player :: _TYPES.RobloxPlayerType)
 		end
 
-		-- Reset the attacking state for the player after the attack animation is complete
-		resetAttackingState(player :: _TYPES.RobloxPlayerType)
+		-- Get the timer for the player
+		-- Skip this step there is already an extra action queued
+
+		if turnData and not next(turnData.extraActionQueue) then
+			local combatData = CombatService.GetCombatData(player :: _TYPES.RobloxPlayerType)
+			combatData.startTurnTimeout.Tick:Once(function()
+				warn("Start turn timeout reached for player:", player.Name)
+				TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
+			end)
+			-- Start the timer for the player to move to the next turn
+			combatData.startTurnTimeout:Start()
+			warn("Starting start turn timeout for player:", player.Name)
+		end
 
 		-- Clean up the trove after the animation is complete
 		trove:Clean()

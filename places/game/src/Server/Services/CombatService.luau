@@ -8,6 +8,8 @@ local AnimationService = require(Services.AnimationService)
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
 local Zap = require(Services.Parent.zap)
+-- Constants
+local START_TURN_TIMEOUT = 2 -- second(s)
 
 local CombatService = {}
 
@@ -18,6 +20,7 @@ local CombatData: {
 		primarySelectedTargetIndex: number, -- The main enemy index (for blast attacks)
 		--
 		isProcessingAttack: boolean, -- Whether the player is currently processing an attack
+		startTurnTimeout: any, -- Timeout before starting the next turn
 	},
 } =
 	{}
@@ -26,16 +29,21 @@ local CombatData: {
 function CombatService.OnStart()
 	-- Listens to spawn finished event to initialise combat data for the player
 	EventService.Events.SpawnFinished:Connect(function(data)
-		if not data.player then
+		local player = data.player
+		if not player then
 			return
 		end
 
 		-- Initialize combat data for the player
-		CombatData[data.player] = {
+		CombatData[player] = {
 			npcs = workspace.Characters.NPC:GetChildren(),
 			playables = workspace.Characters.Playable:GetChildren(),
 			primarySelectedTargetIndex = 0,
+			--
+			isProcessingAttack = false,
+			startTurnTimeout = Utility.SetupTimeout(START_TURN_TIMEOUT),
 		}
+
 		-- Count the number of enemies and set the primary selected enemy index to the middle one
 		-- In case of the index not being an integer, it will round down to the lower index
 		local enemyCount = #CombatData[data.player].npcs
@@ -57,6 +65,14 @@ function CombatService.OnStart()
 		AnimationService.Play(char :: _TYPES.Character, defaultMove .. "_Idle")
 		-- Update the move preview for the player with the default move
 		CombatService.UpdateMovePreview(turnData.player, char :: _TYPES.Character, defaultMove)
+	end)
+
+	-- Clean up combat data for the player when they leave the game
+	game.Players.PlayerRemoving:Connect(function(player)
+		if CombatData[player].startTurnTimeout then
+			CombatData[player].startTurnTimeout:Destroy()
+		end
+		CombatData[player] = nil
 	end)
 end
 

@@ -5,6 +5,7 @@ event TurnStarted = {
 	data: struct {
 		turnId: u16,
 		char: Instance.Model,
+		previousTurnId: u16?,
 	},
 }
 

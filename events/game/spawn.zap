@@ -6,6 +6,8 @@ event SpawnSuccessfulForChar = {
 		char: Instance.Model,
 		data: struct {
 			side: enum { Playable, NPC },
+			realStats: map {[string.binary]: f32},
+			currentStats: map {[string.binary]: f32},
 		},
 	},
 }
