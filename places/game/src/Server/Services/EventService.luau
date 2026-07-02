@@ -68,6 +68,36 @@ export type TurnAddedEvent = {
 	actionValue: number,
 }
 
+--- @type ExtraActionAddedEvent { currentTurnId: number, extraActionId: number, char: _TYPES.Character, side: _TYPES.Sides, action: string, isProcessingAttack: boolean }
+--- @within EventService
+--- Describes the event when an extra action is added to the turn order.
+--- Contains the data of the current turn and the character that was added for an extra action.
+export type ExtraActionAddedEvent = {
+	currentTurnId: number,
+	--
+	extraActionId: number,
+	char: _TYPES.Character,
+	side: _TYPES.Sides,
+	action: string,
+	isProcessingAttack: boolean,
+}
+
+--- @type ExtraActionRemovedEvent { extraActionId: number }
+--- @within EventService
+--- Describes the event when an extra action is removed from the turn order.
+--- Contains the data of the current turn and the character that was removed from the extra action queue.
+export type ExtraActionRemovedEvent = {
+	extraActionId: number,
+}
+
+--- @type ExtraActionCompletedEvent { extraActionId: number }
+--- @within EventService
+--- Describes the event when an extra action is completed in the turn order.
+--- Contains the data of the current turn and the character that completed their extra action.
+export type ExtraActionCompletedEvent = {
+	extraActionId: number,
+}
+
 --- @type RealStatsChangedEvent { char: _TYPES.Character, data: { [string]: number } }
 --- @within EventService
 --- Describes the event when a character's real stats have changed.
@@ -163,6 +193,9 @@ EventService.Events = {
 	TurnCompleted = Signal.new() :: Signal.Signal<TurnCompletedEvent>,
 	TurnStarted = Signal.new() :: Signal.Signal<TurnStartedEvent>,
 	TurnAdded = Signal.new() :: Signal.Signal<TurnAddedEvent>,
+	ExtraActionAdded = Signal.new() :: Signal.Signal<ExtraActionAddedEvent>,
+	ExtraActionRemoved = Signal.new() :: Signal.Signal<ExtraActionRemovedEvent>,
+	ExtraActionCompleted = Signal.new() :: Signal.Signal<ExtraActionCompletedEvent>,
 	RealStatsChanged = Signal.new() :: Signal.Signal<RealStatsChangedEvent>,
 	CurrentStatsChanged = Signal.new() :: Signal.Signal<CurrentStatsChangedEvent>,
 	PlayerBaseStatsChanged = Signal.new() :: Signal.Signal<PlayerBaseStatsChangedEvent>,

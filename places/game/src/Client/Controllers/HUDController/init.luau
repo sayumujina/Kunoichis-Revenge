@@ -33,16 +33,103 @@ local Components = {
 		},
 		Turns = {
 			createTurnsFrame = require(ComponentsPath.Combat.Turns.Turns_Frame),
-			createTurnCard = require(ComponentsPath.Combat.Turns.Turn_Card),
+			createExtraActionCard = require(ComponentsPath.Combat.Turns.ExtraAction_Card),
+			createMainTurnCard = require(ComponentsPath.Combat.Turns.MainTurn_Card),
+			createTurnCardsList = require(ComponentsPath.Combat.Turns.Turn_Cards_List),
 		},
 	},
 }
 
 --
 local turnQueue = {} :: { _TYPES.TurnEntry }
+-- Tracks whether each extra action should render before or after its owning turn card.
+local extraActionLayoutInfoByTurnId = {} :: { [number]: { layoutGroup: string, turnId: number } }
+local MAIN_TURN_LAYOUT_ORDER = 1
 
 -- PlayerGui reference for creating UI elements
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Helper function to get the turn card container
+local function getTurnCardContainer()
+	return playerGui:FindFirstChild("UI_TurnCard_Container", true)
+end
+
+-- Helper function to find the turn cards list for a specific turnId
+local function findTurnCardsList(turnId: number)
+	local turnCardContainer = getTurnCardContainer()
+	if not turnCardContainer then
+		return nil
+	end
+
+	return turnCardContainer:FindFirstChild("Turn_Cards_List_" .. turnId)
+end
+
+-- Helper function to get the extra action ID from an extra action card
+local function getExtraActionId(extraActionCard: Instance): number
+	local extraActionIdValue = extraActionCard:FindFirstChild("ExtraActionIdValue")
+	if extraActionIdValue and extraActionIdValue:IsA("NumberValue") then
+		return extraActionIdValue.Value
+	end
+
+	return 0
+end
+
+-- Helper function to get the layout info for an extra action by its ID
+local function clearExtraActionLayoutInfoForTurn(turnId: number)
+	for extraActionId, layoutInfo in pairs(extraActionLayoutInfoByTurnId) do
+		if layoutInfo.turnId == turnId then
+			extraActionLayoutInfoByTurnId[extraActionId] = nil
+		end
+	end
+end
+
+-- Helper function to update the layout order of turn cards and extra action cards within a turn cards list
+local function updateTurnCardsListLayout(turnCardsList: Instance)
+	local mainTurnCard = turnCardsList:FindFirstChild("MainTurn_Card")
+	if not mainTurnCard or not mainTurnCard:IsA("Frame") then
+		return
+	end
+
+	local extraActionsBeforeMainTurn = {}
+	local extraActionsAfterMainTurn = {}
+
+	for _, child in turnCardsList:GetChildren() do
+		if not child:IsA("Frame") or not child.Name:match("^ExtraAction_") then
+			continue
+		end
+
+		local extraActionId = getExtraActionId(child)
+		local layoutInfo = extraActionLayoutInfoByTurnId[extraActionId]
+		-- Extra actions created while an attack is still resolving should stay in the left of the turn card.
+		if layoutInfo and layoutInfo.layoutGroup == "before" then
+			table.insert(extraActionsBeforeMainTurn, child)
+		else
+			table.insert(extraActionsAfterMainTurn, child)
+		end
+	end
+
+	local function sortExtraActions(left: Instance, right: Instance): boolean
+		return getExtraActionId(left) < getExtraActionId(right)
+	end
+
+	table.sort(extraActionsBeforeMainTurn, sortExtraActions)
+	table.sort(extraActionsAfterMainTurn, sortExtraActions)
+
+	-- Pack all "before" extra actions on the left of the main turn card.
+	for index, extraActionCard in pairs(extraActionsBeforeMainTurn) do
+		extraActionCard.LayoutOrder = index
+	end
+
+	-- Shift the main turn card right by however many extra actions are currently ahead of it.
+	local mainTurnLayoutOrder = MAIN_TURN_LAYOUT_ORDER + #extraActionsBeforeMainTurn
+	mainTurnCard.LayoutOrder = mainTurnLayoutOrder
+
+	-- Then place any post-attack extra actions immediately after the main turn card.
+	for index, extraActionCard in pairs(extraActionsAfterMainTurn) do
+		warn("Setting layout order for extra action card:", extraActionCard.Name, "to", mainTurnLayoutOrder + index)
+		extraActionCard.LayoutOrder = mainTurnLayoutOrder + index
+	end
+end
 
 -- Helper function to determine the index of a turn in the turn queue
 local function findTurnIndex(turnId: number): number?
@@ -119,16 +206,23 @@ function HUDController.OnStart()
 	Zap.TurnCompleted.On(function(completedTurnData)
 		-- Find the corresponding turn card using index and remove it
 		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
-		if turnCardContainer then
-			local turnCard = turnCardContainer:FindFirstChild("Turn_Card_" .. completedTurnData.turnId, true)
-			if turnCard then
-				turnCard:Destroy()
-			end
+		if not turnCardContainer then
+			return
 		end
+
+		-- Find the corresponding turn cards list for the completed turn and remove it
+		local turnCardsList = findTurnCardsList(completedTurnData.turnId)
+		if not turnCardsList then
+			return
+		end
+
+		-- Remove the main turn card from the turn cards list
+		turnCardsList:Destroy()
 
 		-- Remove the turn from the local turn list
 		for index, turn in pairs(turnQueue) do
 			if turn.turnId == completedTurnData.turnId then
+				clearExtraActionLayoutInfoForTurn(turn.turnId)
 				table.remove(turnQueue, index)
 				break
 			end
@@ -173,7 +267,7 @@ function HUDController.OnStart()
 		turnQueue = Utility.SortTurnQueue(turnQueue)
 
 		-- Create a new turn card for the added turn
-		local turnCard = Components.Combat.Turns.createTurnCard(
+		local turnCardsList = Components.Combat.Turns.createTurnCardsList(
 			turn.char :: _TYPES.Character,
 			turn.turnId,
 			findTurnIndex(turn.turnId) or 0,
@@ -181,13 +275,56 @@ function HUDController.OnStart()
 			turn.actionValue
 		)
 
-		-- Update the turn queue UI after adding the new turn
-		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
-
 		-- Parent the turn card to the container
 		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
 		if turnCardContainer then
-			turnCard.Parent = turnCardContainer
+			turnCardsList.Parent = turnCardContainer
+		end
+
+		-- Update the turn queue UI after adding the new turn
+		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+	end)
+
+	-- Listens to extra action added events
+	Zap.ExtraActionAdded.On(function(extraActionData)
+		local turnCardsList = findTurnCardsList(extraActionData.currentTurnId)
+		if not turnCardsList then
+			warn("Turn card list not found for extra action currentTurnId:", extraActionData.currentTurnId)
+			return
+		end
+
+		-- Remember which side of the main turn card this extra action belongs on for future reflows.
+		extraActionLayoutInfoByTurnId[extraActionData.extraActionId] = {
+			layoutGroup = if extraActionData.isProcessingAttack then "after" else "before",
+			turnId = extraActionData.currentTurnId,
+		}
+
+		local extraActionCard = Components.Combat.Turns.createExtraActionCard(
+			extraActionData.char :: _TYPES.Character,
+			extraActionData.extraActionId,
+			MAIN_TURN_LAYOUT_ORDER
+		)
+		extraActionCard.Parent = turnCardsList
+		-- Recompute the whole row so multiple extra actions stay ordered consistently.
+		updateTurnCardsListLayout(turnCardsList)
+	end)
+
+	-- Listens to extra action completed events
+	Zap.ExtraActionCompleted.On(function(extraActionData)
+		local turnCardContainer = getTurnCardContainer()
+		if not turnCardContainer then
+			return
+		end
+
+		local extraActionCard = turnCardContainer:FindFirstChild("ExtraAction_" .. extraActionData.extraActionId, true)
+		if extraActionCard then
+			local turnCardsList = extraActionCard.Parent
+			extraActionCard:Destroy()
+			extraActionLayoutInfoByTurnId[extraActionData.extraActionId] = nil
+			if turnCardsList then
+				-- Closing a gap can change the main turn card's slot, so reflow the row after removal.
+				updateTurnCardsListLayout(turnCardsList)
+			end
 		end
 	end)
 
@@ -196,15 +333,16 @@ function HUDController.OnStart()
 		-- Find the corresponding turn card using index and remove it
 		local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
 		if turnCardContainer then
-			local turnCard = turnCardContainer:FindFirstChild("Turn_Card_" .. data.turnId, true)
-			if turnCard then
-				turnCard:Destroy()
+			local mainTurnCard = turnCardContainer:FindFirstChild("MainTurn_Card", true)
+			if mainTurnCard then
+				mainTurnCard:Destroy()
 			end
 		end
 
 		-- Remove the turn from the local turn list
 		for index, turn in pairs(turnQueue) do
 			if turn.turnId == data.turnId then
+				clearExtraActionLayoutInfoForTurn(turn.turnId)
 				table.remove(turnQueue, index)
 				break
 			end
@@ -224,15 +362,26 @@ function HUDController.OnStart()
 				continue
 			end
 
+			clearExtraActionLayoutInfoForTurn(turn.turnId)
+
 			-- Remove the entry from the turn queue
 			table.remove(turnQueue, index)
 
 			-- Remove the corresponding turn card UI as well
-			if turnCardContainer then
-				local turnCard = turnCardContainer:FindFirstChild("Turn_Card_" .. turn.turnId)
-				if turnCard then
-					turnCard:Destroy()
-				end
+			if not turnCardContainer then
+				return
+			end
+
+			-- Find the corresponding turn cards list for the character's turn and remove it
+			local turnCardsList = turnCardContainer:FindFirstChild("Turn_Cards_List_" .. turn.turnId, true)
+			if not turnCardsList then
+				return
+			end
+
+			-- Remove the turn cards list from the UI
+			local mainTurnCard = turnCardContainer:FindFirstChild("MainTurn_Card")
+			if mainTurnCard then
+				mainTurnCard:Destroy()
 			end
 		end
 
@@ -253,14 +402,22 @@ function HUDController.OnStart()
 
 			-- Update the corresponding turn card UI as well
 			local turnCardContainer = playerGui:FindFirstChild("UI_TurnCard_Container", true)
-			if turnCardContainer then
-				local turnCard = turnCardContainer:FindFirstChild("Turn_Card_" .. turn.turnId)
-				warn(turnCard, "Turn Card for", turn.char.Name, "with Turn ID", turn.turnId, "found:", turnCard ~= nil)
-				if turnCard then
-					local actionValueLabel = turnCard:FindFirstChild("ActionValueLabel", true)
-					if actionValueLabel and actionValueLabel:IsA("TextLabel") then
-						actionValueLabel.Text = tostring(math.floor(turn.actionValue))
-					end
+			if not turnCardContainer then
+				return
+			end
+
+			-- Find the corresponding turn cards list for the character's turn and remove it
+			local turnCardsList = turnCardContainer:FindFirstChild("Turn_Cards_List_" .. turn.turnId, true)
+			if not turnCardsList then
+				return
+			end
+			local mainTurnCard = turnCardContainer:FindFirstChild("MainTurn_Card")
+
+			-- Update the action value label on the main turn card
+			if mainTurnCard then
+				local actionValueLabel = mainTurnCard:FindFirstChild("ActionValueLabel", true)
+				if actionValueLabel and actionValueLabel:IsA("TextLabel") then
+					actionValueLabel.Text = tostring(math.floor(turn.actionValue))
 				end
 			end
 

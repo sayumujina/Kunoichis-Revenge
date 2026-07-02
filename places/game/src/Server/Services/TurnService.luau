@@ -30,8 +30,9 @@ local Players = {} :: {
 		activeCharacters: { _TYPES.Character },
 		previousTurnChar: _TYPES.Character?,
 		--
-		currentExtraAction: { char: _TYPES.Character, action: string }?,
-		extraActionQueue: { { char: _TYPES.Character, action: string } },
+		currentExtraActionCount: number,
+		currentExtraAction: _TYPES.ExtraActionEntry?,
+		extraActionQueue: { _TYPES.ExtraActionEntry },
 	},
 }
 
@@ -67,6 +68,40 @@ local function addTurnToQueue(char: _TYPES.Character, actionValue: number)
 	-- Add the new turn entry to the queue and send an event about the new turn
 	table.insert(playerData.turnQueue, turnEntry)
 	EventService.Events.TurnAdded:Fire(turnEntry)
+end
+
+-- Helper function to promote a turn to the top of its tie group in the queue
+local function promoteTurnToTopOfTieGroup(
+	player: _TYPES.RobloxPlayerType,
+	entry: _TYPES.TurnEntry,
+	queue: { _TYPES.TurnEntry }
+)
+	for sortedIndex, sortedEntry in ipairs(queue) do
+		if sortedEntry.turnId ~= entry.turnId then
+			continue
+		end
+
+		local tieStartIndex = sortedIndex
+		while tieStartIndex > 1 and queue[tieStartIndex - 1].actionValue == sortedEntry.actionValue do
+			-- If the action value is 0 when there's a current turn, it should not take over the current turn
+			if
+				sortedEntry.actionValue == 0
+				and Players[player].currentTurn
+				and queue[tieStartIndex - 1].turnId == Players[player].currentTurn.turnId
+			then
+				break
+			end
+
+			tieStartIndex -= 1
+		end
+
+		if tieStartIndex ~= sortedIndex then
+			table.remove(queue, sortedIndex)
+			table.insert(queue, tieStartIndex, sortedEntry)
+		end
+
+		break
+	end
 end
 
 --- Called when the service starts
@@ -335,6 +370,10 @@ function TurnService.AdvanceAction(char: _TYPES.Character, advancedBy: number)
 		local sortedQueue = Utility.SortTurnQueue(playerData.turnQueue) or {}
 		warn(sortedQueue)
 
+		-- Promote that queue to the top of the tie group if it's not already
+		-- If the action value is 0 when there's a current turn, it should not take over the current turn
+		promoteTurnToTopOfTieGroup(player, entry, sortedQueue)
+
 		-- Then set the current turn queue to the sorted queue
 		playerData.turnQueue = sortedQueue
 
@@ -380,9 +419,6 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 	-- Set the char as the active character for the player
 	player.ActiveCharacter.Value = char
 
-	-- Set the current extra action for the player
-	playerData.currentExtraAction = { char = char, action = action }
-
 	-- Call the handle input function of the character's combat service
 	--
 	-- Note: why did I not call the move handler directly?
@@ -406,11 +442,42 @@ function TurnService.AddExtraAction(char: _TYPES.Character, action: string)
 
 	-- Get the player data
 	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
 	local processingAttack = CombatService.GetCombatData(player).isProcessingAttack
+
+	playerData.currentExtraActionCount += 1
+
+	local currentTurnId = 0
+	if playerData.currentTurn then
+		currentTurnId = playerData.currentTurn.turnId
+	elseif playerData.turnQueue[1] then
+		currentTurnId = playerData.turnQueue[1].turnId
+	end
 
 	-- Add the extra action to the queue
 	warn("Adding extra action for character:", char.Name, "with action:", action)
-	table.insert(playerData.extraActionQueue, { char = char, action = action })
+	table.insert(playerData.extraActionQueue, {
+		currentTurnId = currentTurnId,
+		--
+		extraActionId = playerData.currentExtraActionCount,
+		char = char,
+		side = CharService.GetCharacterCombatData(char).side,
+		action = action,
+	})
+
+	-- Notify the client about the new extra action
+	EventService.Events.ExtraActionAdded:Fire({
+		currentTurnId = currentTurnId,
+		--
+		extraActionId = playerData.currentExtraActionCount,
+		char = char,
+		side = CharService.GetCharacterCombatData(char).side,
+		action = action,
+		isProcessingAttack = processingAttack,
+	})
 
 	-- If there is no current extra action or the current turn's character has not used an attack yet, execute the extra action immediately
 	if not playerData.currentExtraAction or not processingAttack then
@@ -428,8 +495,23 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 		return
 	end
 
+	if not playerData.currentExtraAction then
+		warn("No current extra action to end for player:", player.Name)
+		return
+	end
+
 	-- Remove the current extra action
-	table.remove(playerData.extraActionQueue, 1)
+	local removedExtraAction = table.remove(playerData.extraActionQueue, 1)
+
+	if not removedExtraAction then
+		warn("Failed to remove current extra action for player:", player.Name)
+		return
+	end
+
+	-- Notify the client about the extra action completion
+	EventService.Events.ExtraActionCompleted:Fire({
+		extraActionId = removedExtraAction.extraActionId,
+	})
 
 	-- Clear the current extra action
 	playerData.currentExtraAction = nil
@@ -481,6 +563,7 @@ function TurnService.InitialisePlayerEntry(player: _TYPES.RobloxPlayerType)
 		currentTurn = nil,
 		activeCharacters = {},
 		previousTurnChar = nil,
+		currentExtraActionCount = 0,
 		currentExtraAction = nil,
 		extraActionQueue = {},
 	}

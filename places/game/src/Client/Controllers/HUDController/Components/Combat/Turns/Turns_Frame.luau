@@ -5,7 +5,7 @@ return function()
 	uiTurnsFrame.Active = true
 	uiTurnsFrame.BackgroundTransparency = 1
 	uiTurnsFrame.Position = UDim2.fromScale(0.02, 0.02)
-	uiTurnsFrame.Size = UDim2.fromScale(0.075, 0.6)
+	uiTurnsFrame.Size = UDim2.fromScale(0.2, 0.6)
 	uiTurnsFrame.ClipsDescendants = true
 
 	local leftBorder = Instance.new("Frame")
@@ -21,7 +21,7 @@ return function()
 	turnCardContainer.Name = "UI_TurnCard_Container"
 	turnCardContainer.AnchorPoint = Vector2.new(1, 0)
 	turnCardContainer.BackgroundTransparency = 1
-	turnCardContainer.Position = UDim2.fromScale(1, 0)
+	turnCardContainer.Position = UDim2.fromScale(0.94, 0)
 	turnCardContainer.Size = UDim2.fromScale(0.9, 1)
 
 	leftBorder.Parent = uiTurnsFrame

@@ -31,6 +31,7 @@ export type CharacterInfo = CharacterDataTypes.CharacterInfo
 
 -- Turn types
 export type TurnEntry = TurnTypes.TurnEntry
+export type ExtraActionEntry = TurnTypes.ExtraActionEntry
 
 -- Combat data
 export type AttackData = AttackDataTypes.AttackData

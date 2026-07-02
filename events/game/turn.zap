@@ -50,6 +50,29 @@ event TurnAdded = {
 	},
 }
 
+event ExtraActionAdded = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		currentTurnId: u16,
+		extraActionId: u16,
+		char: Instance.Model,
+		side: enum { Playable, NPC },
+		action: string.binary,
+		isProcessingAttack: boolean,
+	},
+}
+
+event ExtraActionCompleted = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		extraActionId: u16,
+	},
+}
+
 event ActionAdvance = {
 	from: Server,
 	type: Reliable,

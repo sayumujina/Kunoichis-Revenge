@@ -10,4 +10,15 @@ export type TurnEntry = {
 	actionValue: number,
 }
 
+--- @within data_TYPES
+--- @type ExtraActionEntry = {currentTurnId: number, extraActionId: number, char: Character, side: Sides, action: string}
+export type ExtraActionEntry = {
+	currentTurnId: number,
+	--
+	extraActionId: number,
+	char: CharacterTypes.Character,
+	side: SidesTypes.Sides,
+	action: string,
+}
+
 return nil

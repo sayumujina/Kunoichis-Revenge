@@ -9,14 +9,6 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 	actionValueValue.Name = "ActionValue"
 	actionValueValue.Value = actionValue
 
-	local idValue = Instance.new("NumberValue")
-	idValue.Name = "TurnIdValue"
-	idValue.Value = turnId
-
-	local orderValue = Instance.new("NumberValue")
-	orderValue.Name = "OrderValue"
-	orderValue.Value = order
-
 	local sideValue = Instance.new("StringValue")
 	sideValue.Name = "SideValue"
 	sideValue.Value = side
@@ -27,17 +19,16 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 
 	-- Create the turn card frame
 	local turnCard = Instance.new("Frame")
-	turnCard.Name = "Turn_Card_" .. turnId
-	turnCard.LayoutOrder = orderValue.Value
+	turnCard.Name = "MainTurn_Card"
 	turnCard.AnchorPoint = Vector2.new(1, 0)
 	turnCard.BackgroundTransparency = 1
+	-- The HUD controller shifts this forward when extra actions need to render before it.
+	turnCard.LayoutOrder = 1
 	turnCard.Position = UDim2.fromScale(1, 0)
-	turnCard.Size = UDim2.fromScale(1, 0.08)
+	turnCard.Size = UDim2.fromScale(0.375, 1)
 
 	actionValueValue.Parent = turnCard
-	idValue.Parent = turnCard
 	sideValue.Parent = turnCard
-	orderValue.Parent = turnCard
 	charValue.Parent = turnCard
 
 	local leftBorder = Instance.new("Frame")
@@ -145,11 +136,6 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 	-- Update the action value label whenever the value changes
 	actionValueValue.Changed:Connect(function()
 		actionValueLabel.Text = tostring(math.floor(actionValueValue.Value))
-	end)
-
-	-- Update the turn card's layout order whenever the order changes
-	orderValue.Changed:Connect(function()
-		turnCard.LayoutOrder = orderValue.Value
 	end)
 
 	return turnCard
