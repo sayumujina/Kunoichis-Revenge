@@ -14,28 +14,27 @@ local AttackPattern = require(rep.Shared.Data.Characters.NPC.MockEnemy.data_Mock
 local Handlers = {
 	BasicAttack = require(script.Parent.Handlers.MockEnemy_BasicAttack),
 	Skill = require(script.Parent.Handlers.MockEnemy_Skill),
-} :: { [string]: (_TYPES.Character, number) -> () }
+} :: { [string]: (_TYPES.Character) -> boolean }
 
 local charName = "MockEnemy"
 local Chars = {} :: { [_TYPES.Character]: { _TYPES.NPCCombatData } }
 
 local MockEnemy_CombatService = {}
 
-function MockEnemy_CombatService.OnStart()
-	-- Listens to spawn successful events to initialize combat data for the spawned characters
-	EventService.Events.SpawnSuccessfulForChar:Connect(function(spawnSuccessfulForCharEvent)
-		local char = spawnSuccessfulForCharEvent.data.char
+function MockEnemy_CombatService.OnStart() end
 
-		-- Skip if the character is not MockEnemy
-		if char.Name ~= charName then
-			return
-		end
+function MockEnemy_CombatService.Init(char: _TYPES.Character)
+	-- Initialize the character's combat data if it doesn't exist
+	if not Chars[char] then
+		Chars[char] = {
+			currentPatternIndex = 1,
+		}
+	end
 
-		-- Initialize combat data for the character if it doesn't exist already
-		if not Chars[char] then
-			Chars[char] = {
-				currentPatternIndex = 1,
-			}
+	-- Clean up when the character is destroyed
+	char.Destroying:Connect(function()
+		if Chars[char] then
+			Chars[char] = nil
 		end
 	end)
 end
@@ -48,13 +47,13 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 
 	-- Check if the origin of the event data is the current character whose turn it is
 	if not currentTurn or char ~= currentTurn.char :: any then
-		return
-	end
+		return false
+	end 
 
 	-- Use the attack pattern module to determine which attack to execute based on the current action
 	local currentPatternIndex = Chars[char].currentPatternIndex
 	if not currentPatternIndex then
-		return
+		return false
 	end
 
 	local attackToExecute = AttackPattern[currentPatternIndex]
@@ -62,14 +61,14 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 
 	-- If there's no valid attack or primary target index, skip the turn
 	if not attackToExecute or not primaryTargetIndex then
-		return
+		return false
 	end
 
 	-- Execute the attack using the appropriate handler
 	if attackToExecute == "BasicAttack" then
-		Handlers.BasicAttack(char, primaryTargetIndex)
+		return Handlers.BasicAttack(char)
 	elseif attackToExecute == "Skill" then
-		Handlers.Skill(char, primaryTargetIndex)
+		return Handlers.Skill(char)
 	end
 
 	-- Loop back to the start of the attack pattern if we've reached the end
@@ -78,6 +77,8 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 	else
 		Chars[char].currentPatternIndex += 1
 	end
+
+	return false
 end
 
 --- Get the attack handlers for MockEnemy's combat service

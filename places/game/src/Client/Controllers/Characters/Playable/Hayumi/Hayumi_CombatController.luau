@@ -17,12 +17,24 @@ local Handlers = {
 local AttackHandlers = {
 	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow_Handler),
 	LightningRain = require(script.Parent.Handlers.Hayumi_LightningRain_Handler),
+	ArcherysVision = require(script.Parent.Handlers.Hayumi_ArcherysVision),
 } :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
 
 -- Player
 local player = game.Players.LocalPlayer
 
 local Hayumi_CombatController = {}
+
+function Hayumi_CombatController.Init(char: _TYPES.Character)
+	-- Initialize the character's combat data
+	Zap.SuccessfulMove.On(function(successfulMoveData)
+		local moveName = successfulMoveData.data.moveName
+		if moveName == "ArcherysVision" then
+			local target = successfulMoveData.data.attackData.targets[1]
+			CameraController.LookAtSide(char, target:GetAttribute("Index") :: number)
+		end
+	end)
+end
 
 --- Gets the attack handlers for Hayumi
 function Hayumi_CombatController.GetAttackHandlers()

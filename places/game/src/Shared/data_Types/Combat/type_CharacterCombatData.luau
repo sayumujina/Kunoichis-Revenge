@@ -38,4 +38,11 @@ export type NPCCombatData = CharacterCombatData & {
 	currentPatternIndex: number, -- The index of the current action the NPC is performing in its' action list. Resets after reaching the end of the list.
 }
 
+--- @within data_TYPES
+--- @type ComabtCharData<I> = { Info: I }
+export type CombatCharData<I> = {
+	Info: I,
+	Trove: Trove.Trove & any,
+}
+
 return nil

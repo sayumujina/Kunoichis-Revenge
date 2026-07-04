@@ -19,6 +19,8 @@ export type ExtraActionEntry = {
 	char: CharacterTypes.Character,
 	side: SidesTypes.Sides,
 	action: string,
+	--
+	isFollowupAttack: boolean?,
 }
 
 return nil

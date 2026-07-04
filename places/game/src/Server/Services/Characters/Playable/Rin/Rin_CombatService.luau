@@ -1,5 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
+local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Types)
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
@@ -8,21 +9,20 @@ local PlayerService = require(Services.PlayerService)
 local CombatService = require(Services.CombatService)
 -- Utility
 local IsAtFullEnergy = require(rep.Shared.Modules.Attack.Utility.IsAtFullEnergy)
+--  Packages
+local Trove = require(rep.Packages.Trove)
 
 -- Attack handlers
 local Handlers = {
 	HiddenAssistance = require(script.Parent.Handlers.Rin_HiddenAssistance),
 	CleansingAura = require(script.Parent.Handlers.Rin_CleansingAura),
 	VanguardsCall = require(script.Parent.Handlers.Rin_VanguardsCall),
-} :: { [string]: (_TYPES.Character, number) -> () }
+} :: { [string]: (_TYPES.Character, _TYPES_CHAR.ServerCharData) -> boolean }
 
 local charName = "Rin"
 
 -- Character data
-local CharData = {
-	selectedMove = "HiddenAssistance", -- Player needs to confirm the move twice before executing
-	queuedUltimateId = nil, -- The ID of the queued ultimate action, if any
-}
+local Chars = {} :: { [_TYPES.Character]: _TYPES_CHAR.ServerCharData }
 
 -- Action to move mapping at the top of the file
 local ActionToMoveMap = {
@@ -34,6 +34,27 @@ local Rin_CombatService = {}
 
 function Rin_CombatService.OnStart() end
 
+function Rin_CombatService.Init(char: _TYPES.Character)
+	-- Initialize the character's combat data if it doesn't exist
+	if not Chars[char] then
+		Chars[char] = {
+			Info = {
+				selectedMove = "HiddenAssistance",
+				queuedUltimateId = nil,
+			},
+			Trove = Trove.new(),
+		} :: _TYPES_CHAR.ServerCharData
+	end
+
+	-- Clean up when the character is destroyed
+	char.Destroying:Connect(function()
+		if Chars[char] then
+			Chars[char].Trove:Destroy()
+			Chars[char] = nil
+		end
+	end)
+end
+
 --- Handle input for Rin's combat service
 --- @param char -- The character performing the action
 --- @param inputData -- The input data containing the action and target information
@@ -42,64 +63,65 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 	local action = inputData.action
 	local combatData = CombatService.GetCombatData(player)
 
+	local charData = Chars[char]
+
 	-- Handle target selection actions
 	if action == "PreviousTarget" then
 		CombatService.SwitchToPreviousTarget(player)
-		CombatService.UpdateMovePreview(player, char, CharData.selectedMove)
-		return
+		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
+		return true
 	elseif action == "NextTarget" then
 		CombatService.SwitchToNextTarget(player)
-		CombatService.UpdateMovePreview(player, char, CharData.selectedMove)
-		return
+		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
+		return true
 	-- Handle ultimates differently
 	elseif action:find("Ultimate") then
 		-- If the selected move is the ultimate again, execute it
-		if CharData.selectedMove == "VanguardsCall" then
-			warn("Executing ultimate for Rin:", char.Name, "with queued ID:", CharData.queuedUltimateId)
-			Handlers.VanguardsCall(char, combatData.primarySelectedTargetIndex)
+		if charData.Info.selectedMove == "VanguardsCall" then
+			warn("Executing ultimate for Rin:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
+			Handlers.VanguardsCall(char, charData)
 
 			-- Reset the queued ultimate ID after executing the ultimate
-			CharData.queuedUltimateId = nil
+			charData.Info.queuedUltimateId = nil
 
 			-- Reset the selected move to the default after executing the ultimate
-			CharData.selectedMove = "HiddenAssistance"
-			return
+			charData.Info.selectedMove = "HiddenAssistance"
+			return true
 		end
 
 		-- Check if Rin's energy is full
 		if not IsAtFullEnergy(char) then
 			warn("Rin's energy is not full. Cannot execute ultimate.")
-			return
+			return false
 		end
 
 		-- Store the queued ultimate action ID for later execution
 		if combatData.isProcessingAttack then
-			if CharData.queuedUltimateId then
-				return
+			if charData.Info.queuedUltimateId then
+				return true
 			end
 
-			CharData.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
-			return
+			charData.Info.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
+			return true
 		else
-			warn(CharData.queuedUltimateId, "is the queued ultimate ID for Rin:", char.Name)
-			if not CharData.queuedUltimateId then
-				CharData.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
+			if not charData.Info.queuedUltimateId then
+				charData.Info.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
 				TurnService.ExecuteNextExtraAction(player)
-				return
+				return true
 			end
 		end
 
 		-- Set the selected move to the ultimate
-		CharData.selectedMove = "VanguardsCall"
+		charData.Info.selectedMove = "VanguardsCall"
 
 		-- Update the selection type reference for the new move
-		CombatService.UpdateMovePreview(player, char, CharData.selectedMove)
+		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		-- If ultimate is already selected, disallow switching to other moves
-		if CharData.selectedMove == "VanguardsCall" then
+		if charData.Info.selectedMove == "VanguardsCall" then
 			warn("Ultimate is already selected. Cannot switch to " .. action)
-			return
+			return false
 		end
 
 		-- Handle move selection actions
@@ -107,21 +129,23 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 
 		-- If the move isn't the same as the currently selected move, it means the player is selecting a new move
 		-- Only confirm the move if the player has selected the same move twice in a row
-		if mappedMove and CharData.selectedMove ~= mappedMove then
-			CharData.selectedMove = mappedMove
+		if mappedMove and charData.Info.selectedMove ~= mappedMove then
+			charData.Info.selectedMove = mappedMove
 			-- Update the selection type reference for the new move
 			CombatService.UpdateMovePreview(player, char, mappedMove)
 
-			return
+			return true
 		end
 
 		-- Handle the input based on the action
-		if CharData.selectedMove == "HiddenAssistance" then
-			Handlers.HiddenAssistance(char, combatData.primarySelectedTargetIndex)
-		elseif CharData.selectedMove == "CleansingAura" then
-			Handlers.CleansingAura(char, combatData.primarySelectedTargetIndex)
+		if charData.Info.selectedMove == "HiddenAssistance" then
+			Handlers.HiddenAssistance(char, charData)
+		elseif charData.Info.selectedMove == "CleansingAura" then
+			Handlers.CleansingAura(char, charData)
 		end
 	end
+
+	return true
 end
 
 --- Get the attack handlers for Rin's combat service

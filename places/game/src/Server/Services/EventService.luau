@@ -82,6 +82,8 @@ export type ExtraActionAddedEvent = {
 	side: _TYPES.Sides,
 	action: string,
 	isProcessingAttack: boolean,
+	--
+	isFollowupAttack: boolean?,
 }
 
 --- @type ExtraActionRemovedEvent { extraActionId: number }
@@ -152,6 +154,17 @@ export type SuccessfulMoveEvent = {
 	},
 }
 
+--- @type MoveEndedEvent { origin: _TYPES.Character }
+--- @within EventService
+--- Describes the event when a move is successfully executed by a character.
+--- Contains the origin of the move.
+export type MoveEndedEvent = {
+	origin: _TYPES.Character,
+	data: {
+		moveName: string,
+	},
+}
+
 --- @type StatusAddedEvent<T> { char: _TYPES.Character, data: { id: string, status: _TYPES.Status, new: boolean } }
 --- @within EventService
 --- Describes the event for when a status effect is added or removed from a character.
@@ -203,6 +216,7 @@ EventService.Events = {
 	PlayerBaseStatsChanged = Signal.new() :: Signal.Signal<PlayerBaseStatsChangedEvent>,
 	PlayerCurrentStatsChanged = Signal.new() :: Signal.Signal<PlayerCurrentStatsChangedEvent>,
 	SuccessfulMove = Signal.new() :: Signal.Signal<SuccessfulMoveEvent>,
+	MoveEnded = Signal.new() :: Signal.Signal<MoveEndedEvent>,
 	StatusAdded = Signal.new() :: Signal.Signal<StatusAddedEvent>,
 	StatusRemoved = Signal.new() :: Signal.Signal<StatusRemovedEvent>,
 	ActionAdvance = Signal.new() :: Signal.Signal<ActionAdvanceEvent>,

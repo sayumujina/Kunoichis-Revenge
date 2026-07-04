@@ -62,6 +62,7 @@ event ExtraActionAdded = {
 		side: enum { Playable, NPC },
 		action: string.binary,
 		isProcessingAttack: boolean,
+		isFollowupAttack: boolean,
 	},
 }
 

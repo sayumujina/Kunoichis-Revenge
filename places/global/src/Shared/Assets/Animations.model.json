@@ -101,6 +101,13 @@
                 },
                 {
                   "ClassName": "Animation",
+                  "Name": "ArcherysVision_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://80048522470874"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
                   "Name": "LightningRain_Idle",
                   "Properties": {
                     "AnimationId": "rbxassetid://126740540448677"

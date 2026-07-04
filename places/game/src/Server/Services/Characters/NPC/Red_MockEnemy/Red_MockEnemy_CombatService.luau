@@ -17,7 +17,7 @@ local CombatInfo = require(rep.Shared.Data.Characters.NPC.Red_MockEnemy.data_Red
 local Handlers = {
 	BasicAttack = require(script.Parent.Handlers.Red_MockEnemy_BasicAttack),
 	Skill = require(script.Parent.Handlers.Red_MockEnemy_Skill),
-} :: { [string]: (_TYPES.Character, number) -> () }
+} :: { [string]: (_TYPES.Character) -> boolean }
 
 local charName = "Red_MockEnemy"
 local Chars = {} :: { [_TYPES.Character]: { _TYPES.NPCCombatData } }
@@ -87,12 +87,6 @@ function Red_MockEnemy_CombatService.OnStart()
 
 		-- Add the toughened status to the character
 		StatusService.AddStatus(char, "Red_MockEnemy_Toughened", toughenedStatus)
-		-- warn(
-		-- 	"current  dmgTakenMult for "
-		-- 		.. char.Name
-		-- 		.. ": "
-		-- 		.. tostring(CharService.GetCharacterStat(char, "realStats", "dmgTakenMult"))
-		-- )
 	end)
 
 	-- Listens to status added event
@@ -130,6 +124,8 @@ function Red_MockEnemy_CombatService.OnStart()
 	end)
 end
 
+function Red_MockEnemy_CombatService.Init(char: _TYPES.Character) end
+
 --- Handles the attack behaviour for the Red_MockEnemy character
 --- @param char - The character to handle the attack behaviour for
 function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
@@ -138,13 +134,13 @@ function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Characte
 
 	-- Check if the origin of the event data is the current character whose turn it is
 	if not currentTurn or char ~= currentTurn.char :: any then
-		return
+		return false
 	end
 
 	-- Use the attack pattern module to determine which attack to execute based on the current action
 	local currentPatternIndex = Chars[char].currentPatternIndex
 	if not currentPatternIndex then
-		return
+		return false
 	end
 
 	local attackToExecute = AttackPattern[currentPatternIndex]
@@ -152,14 +148,14 @@ function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Characte
 
 	-- If there's no valid attack or primary target index, skip the turn
 	if not attackToExecute or not primaryTargetIndex then
-		return
+		return false
 	end
 
 	-- Execute the attack using the appropriate handler
 	if attackToExecute == "BasicAttack" then
-		Handlers.BasicAttack(char, primaryTargetIndex)
+		return Handlers.BasicAttack(char)
 	elseif attackToExecute == "Skill" then
-		Handlers.Skill(char, primaryTargetIndex)
+		return Handlers.Skill(char)
 	end
 
 	-- Loop back to the start of the attack pattern if we've reached the end
@@ -168,6 +164,8 @@ function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Characte
 	else
 		Chars[char].currentPatternIndex += 1
 	end
+
+	return false
 end
 
 --- Get the attack handlers for Red_MockEnemy's combat service

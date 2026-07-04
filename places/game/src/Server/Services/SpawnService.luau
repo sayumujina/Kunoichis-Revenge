@@ -5,7 +5,8 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
 local CharService = require(Services.CharService)
-
+-- Utility
+local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
 local Zap = require(Services.Parent.zap)
 
@@ -21,6 +22,20 @@ local BASE_ALLY_SPAWN_POSITION = Vector3.new(0, 0, 0)
 --- @server
 --- @tag Service
 local SpawnService = {}
+
+-- Helper function to get a character's combat service module
+local function getCharacterCombatService(char: _TYPES.Character): any
+	local combatServiceModuleName = char.Name .. "_CombatService"
+	local combatServiceModule =
+		Services.Characters[char:GetAttribute("Side")][char.Name]:FindFirstChild(combatServiceModuleName)
+	if not combatServiceModule then
+		warn("CombatService module", combatServiceModuleName, "not found for character", char.Name)
+		return nil
+	end
+
+	return combatServiceModule
+end
+
 
 --- Called when the service starts
 function SpawnService.OnStart()
@@ -108,12 +123,6 @@ function SpawnService.SpawnCharacter(
 	-- Load the character's base stats into the CharService
 	CharService.LoadCharacterStats(char, side)
 
-	warn(
-		"SpawnService:SpawnCharacter - Loaded base stats for character ",
-		char.Name,
-		": ",
-		CharService.GetCharacterCombatData(char).realStats
-	)
 	-- Send a signal that spawn is successful
 	EventService.Events.SpawnSuccessfulForChar:Fire({
 		player = player,
@@ -129,6 +138,12 @@ function SpawnService.SpawnCharacter(
 
 	-- Add the character to the turn system
 	TurnService.AddActiveCharacter(char, player)
+
+	-- Initialize the character's combat service
+	local combatService = getCharacterCombatService(char)
+	if combatService then
+		require(combatService).Init(char)
+	end
 end
 
 --- Spawn all characters of a side

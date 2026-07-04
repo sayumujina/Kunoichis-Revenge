@@ -63,7 +63,8 @@ local function ExecuteMove(
 
 	-- Determine targets on the server
 	-- The client has its own version of this for visual purposes, but the server will verify it to be safe
-	local targets = DetermineTargets(char, fromSide, attackData.primaryTargetIndex, moveName)
+	local targets = #attackData.targets > 0 and attackData.targets -- Use the provided targets if they exist
+	or DetermineTargets(char, fromSide, attackData.primaryTargetIndex, moveName) -- Determine targets if not provided
 	-- Return false if no valid targets were found
 	if not targets or #targets == 0 then
 		warn("No valid targets found for attack: " .. moveName)

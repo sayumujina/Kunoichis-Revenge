@@ -412,6 +412,8 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 		return
 	end
 
+	task.wait(1.5)
+
 	-- Stop the start turn timeout for the player to avoid moving to the next turn
 	local combatData = CombatService.GetCombatData(player)
 	if combatData and combatData.startTurnTimeout and combatData.startTurnTimeout.IsRunning then
@@ -424,31 +426,40 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 
 	local char = extraAction.char
 	local action = extraAction.action
+	local isFollowupAttack = extraAction.isFollowupAttack
 
 	-- Get the combat service for the character
-	local characterCombatService = getCharacterCombatService(char)
-	if not characterCombatService then
+	if not getCharacterCombatService(char) then
 		warn("No combat service found for character:", char.Name)
 		return
 	end
+	
+	local charCombatService = require(getCharacterCombatService(char))
 
 	-- Set the char as the active character for the player
 	player.ActiveCharacter.Value = char
 
-	-- Call the handle input function of the character's combat service
-	--
-	-- Note: why did I not call the move handler directly?
-	-- Because the extra action can be taken back if the requirements aren't met anymore after the action
-	-- Example: if I casted Setsuna's ultimate and queue it, and then after the previous extra action her energy isn't
-	-- full anymore, the ultimate won't be executed and the extra action will be lost.
-	-- So we need to call the handle input function to check the requirements again
-	require(characterCombatService).HandleInput(char, { action = action })
+	-- If the attack is a follow-up, call the attack handler directly
+	if isFollowupAttack then
+		local charCombatData = charCombatService.GetCharData(char)
+		if not charCombatService.GetAttackHandlers()[action](char, charCombatData) then
+			warn("Failed to execute follow-up attack for character:", char.Name, "with action:", action)
+			TurnService.EndCurrentExtraAction(player)
+		end
+	-- Otherwise, call the input handler for the character's combat service
+	else
+		if not charCombatService.HandleInput(char, { action = action }) then
+			warn("Failed to execute extra action for character:", char.Name, "with action:", action)
+			TurnService.EndCurrentExtraAction(player)
+		end
+	end
 end
 
 --- Add an extra action for a character
 --- @param char -- The character to add the extra action for
 --- @param action -- The action to add for the character
-function TurnService.AddExtraAction(char: _TYPES.Character, action: string)
+--- @param isFollowupAttack -- Whether the extra action is a follow-up attack
+function TurnService.AddExtraAction(char: _TYPES.Character, action: string, isFollowupAttack: boolean?)
 	local player = PlayerService.GetPlayerFromCharacter(char)
 	if not player then
 		warn("Player not found for character:", char.Name)
@@ -473,9 +484,8 @@ function TurnService.AddExtraAction(char: _TYPES.Character, action: string)
 	elseif playerData.turnQueue[1] then
 		currentTurnId = playerData.turnQueue[1].turnId
 	end
-
+	
 	-- Add the extra action to the queue
-	warn("Adding extra action for character:", char.Name, "with action:", action)
 	table.insert(playerData.extraActionQueue, {
 		currentTurnId = currentTurnId,
 		--
@@ -483,6 +493,8 @@ function TurnService.AddExtraAction(char: _TYPES.Character, action: string)
 		char = char,
 		side = CharService.GetCharacterCombatData(char).side,
 		action = action,
+		--
+		isFollowupAttack = isFollowupAttack ~= nil,
 	})
 
 	-- Notify the client about the new extra action
@@ -494,18 +506,10 @@ function TurnService.AddExtraAction(char: _TYPES.Character, action: string)
 		side = CharService.GetCharacterCombatData(char).side,
 		action = action,
 		isProcessingAttack = processingAttack,
+		--
+		isFollowupAttack = isFollowupAttack ~= nil,
 	})
-
-	-- If there is no current extra action and the current turn's character has not used an attack yet, execute the extra action immediately
-	warn(
-		"Checking if extra action can be executed immediately for player:",
-		player.Name,
-		"Current extra action:",
-		playerData.currentExtraAction,
-		"Processing attack:",
-		processingAttack
-	)
-
+	
 	return extraActionId
 end
 

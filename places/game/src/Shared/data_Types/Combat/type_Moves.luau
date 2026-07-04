@@ -2,7 +2,7 @@ local AttackScalingsTypes = require(game.ReplicatedStorage.Shared.data_Types.Com
 
 --- @within data_TYPES
 --- @type MoveType = "BasicAttack" | "Skill" | "Ultimate" | "SkipTurn"
-export type MoveType = "BasicAttack" | "Skill" | "Ultimate" | "SkipTurn"
+export type MoveType = "BasicAttack" | "Skill" | "FollowUp" | "Ultimate" | "SkipTurn"
 
 --- @within data_TYPES
 --- @type MoveData = "Single" | "Blast" | "AoE"

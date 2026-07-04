@@ -27,6 +27,30 @@ local moves: { [string]: _TYPES.MoveData } = {
 			description = "A simple attack that deals damage to a single target.",
 		},
 	},
+	["ArcherysVision"] = {
+		moveType = "FollowUp",
+		--
+		targetSelectionType = "Single",
+		selectedSide = "NPC",
+		--
+		manaChange = -10,
+		--
+		attacks = {
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 60 / 100 },
+				},
+				energyGain = 10,
+				exposureDealt = 15,
+			},
+		},
+		--
+		info = {
+			name = "Archery's Vision",
+			description = "Trigger a follow-up attack after an ally's attack, dealing additional damage to a target.",
+		},
+	},
 	["LightningRain"] = {
 		moveType = "Skill",
 		--

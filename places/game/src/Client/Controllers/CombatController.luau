@@ -25,6 +25,18 @@ local CombatController = {}
 
 --- Called when the controller starts
 function CombatController.OnStart()
+	-- Listen to spawn successful event
+	Zap.SpawnSuccessfulForChar.On(function(spawnSuccessfulData)
+		local char = spawnSuccessfulData.char :: _TYPES.Character
+		local combatController = Utility.GetCharacterCombatController(char)
+		if not combatController then
+			warn("No combat controller found for character: " .. char.Name)
+			return
+		end
+
+		require(combatController).Init(char)
+	end)
+
 	-- Listens to sucessful move events
 	Zap.SuccessfulMove.On(function(successfulMoveData)
 		local char = successfulMoveData.origin :: _TYPES.Character
