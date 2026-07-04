@@ -393,20 +393,16 @@ function HUDController.OnStart()
 
 			-- Remove the corresponding turn card UI as well
 			if not turnCardContainer then
-				return
+				continue
 			end
 
 			-- Find the corresponding turn cards list for the character's turn and remove it
 			local turnCardsList = turnCardContainer:FindFirstChild("Turn_Cards_List_" .. turn.turnId, true)
 			if not turnCardsList then
-				return
+				continue
 			end
 
-			-- Remove the turn cards list from the UI
-			local mainTurnCard = turnCardContainer:FindFirstChild("MainTurn_Card")
-			if mainTurnCard then
-				mainTurnCard:Destroy()
-			end
+			turnCardsList:Destroy()
 		end
 
 		-- Re-sort the turn list after removal

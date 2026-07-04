@@ -130,6 +130,18 @@ function TurnService.OnStart()
 			TurnService.StartTurn(event.player)
 		end)
 	end)
+
+	-- Listens to death event to remove the dead character from the turn system
+	EventService.Events.Death:Connect(function(event)
+		local char = event.char
+		local player = PlayerService.GetPlayerFromCharacter(char)
+		if not player then
+			warn("Player not found for character:", char.Name)
+			return
+		end
+
+		TurnService.RemoveActiveCharacter(char, player)
+	end)
 end
 
 --- Add a character to the turn system
@@ -176,7 +188,15 @@ function TurnService.RemoveActiveCharacter(char: _TYPES.Character, player: _TYPE
 	local index = table.find(playerData.activeCharacters, char)
 
 	if index then
+		-- Remove the character from the active characters list
 		table.remove(playerData.activeCharacters, index)
+
+		-- Remove all turns associated with this character from the turn queue
+		for i = #playerData.turnQueue, 1, -1 do
+			if playerData.turnQueue[i].char :: any == char then
+				table.remove(playerData.turnQueue, i)
+			end
+		end
 
 		-- Notify the client about the turn removal
 		Zap.TurnRemovedForCharacter.Fire(player, {
@@ -279,10 +299,23 @@ function TurnService.MoveToNextTurn(player: _TYPES.RobloxPlayerType)
 		if table.find(playerData.activeCharacters, char) then
 			-- Add the new turn to the queue
 			playerData.currentTurnCount = playerData.currentTurnCount + 1
-			addTurnToQueue(char, calculateActionValue(char))
 
+			-- The action value for next turn would be next turn's AV + calculated AV
+			-- Find the next turn's action value for this character in the queue
+			for _, entry in pairs(playerData.turnQueue) do
+				if entry.char :: any ~= char then
+					continue
+				end
+
+				-- Add the new turn to the queue with the next turn's action value + calculated action value
+				addTurnToQueue(char, entry.actionValue + calculateActionValue(char))
+				break
+			end
+			
 			-- Re-sort the turn queue
 			playerData.turnQueue = Utility.SortTurnQueue(playerData.turnQueue)
+
+			warn("Turn queue after adding new turn for character:", char.Name, "Queue:", playerData.turnQueue)
 		end
 	end
 
