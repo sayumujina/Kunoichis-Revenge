@@ -11,8 +11,8 @@ local info = {
 		spd = 90,
 		shield = 0,
 		--
-		critRate = 0,
-		critDmg = 0,
+		critRate = 30,
+		critDmg = 100,
 		--
 		energy = 120,
 		ultimateGainEfficiency = 120,

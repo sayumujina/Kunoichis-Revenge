@@ -50,13 +50,24 @@ return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, targe
 	-- 2. Include DMG% Multiplier
 	local dmgPercentMult = originStats.realStats.dmgDealtMult / 100
 
-	-- 3. Include DEF Multiplier
+	-- 3. Decides if this hit should be a crit hit
+	local critRate = originStats.realStats.critRate / 100
+	local randomValue = math.random()
+	warn("Random value for crit check: " .. randomValue .. ", Crit Rate: " .. critRate)
+	local isCrit = randomValue < critRate
+	if isCrit then
+		local critDmgMult = originStats.realStats.critDmg / 100
+		baseDmg *= critDmgMult
+		LogService:Output("Critical hit! Damage multiplied by " .. critDmgMult)
+	end
+
+	-- 4. Include DEF Multiplier
 	local defMult = 1 -- Placeholder for future implementation
 
-	-- 4. Include DMG Taken Multiplier
+	-- 5. Include DMG Taken Multiplier
 	local dmgTakenMult = targetStats.realStats.dmgTakenMult / 100
 
-	-- Calculate final damage for each target
+	-- 6. Calculate final damage for each target
 	local finalDmg = baseDmg * dmgPercentMult * defMult * dmgTakenMult
 	LogService:Output(
 		"Calculated damage for move "
@@ -69,6 +80,8 @@ return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, targe
 			.. dmgPercentMult
 			.. ", DEF Mult: "
 			.. defMult
+			.. ", Crit DMG: "
+			.. (isCrit and originStats.realStats.critDmg / 100 or 1)
 			.. ", DMG Taken Mult: "
 			.. dmgTakenMult
 			.. ")"

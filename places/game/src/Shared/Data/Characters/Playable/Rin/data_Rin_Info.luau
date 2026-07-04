@@ -1,7 +1,7 @@
 local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
 
 local info = {
-	name = "Hayumi",
+	name = "Rin",
 	description = "",
 	-- Base stats
 	baseStats = {
@@ -11,8 +11,8 @@ local info = {
 		spd = 170,
 		shield = 0,
 		--
-		critRate = 0,
-		critDmg = 0,
+		critRate = -100,
+		critDmg = 100,
 		--
 		energy = 120,
 		ultimateGainEfficiency = 120,
