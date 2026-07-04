@@ -70,6 +70,15 @@ export type TurnAddedEvent = {
 	actionValue: number,
 }
 
+--- @type DeathEvent { char: _TYPES.Character, origin: _TYPES.Character }
+--- @within EventService
+--- Describes the event when a character dies.
+--- Contains the data of the character that died and the origin of the damage that caused the death.
+export type DeathEvent = {
+	char: _TYPES.Character,
+	origin: _TYPES.Character,
+}
+
 --- @type ExtraActionAddedEvent { currentTurnId: number, extraActionId: number, char: _TYPES.Character, side: _TYPES.Sides, action: string, isProcessingAttack: boolean }
 --- @within EventService
 --- Describes the event when an extra action is added to the turn order.
@@ -208,6 +217,7 @@ EventService.Events = {
 	TurnCompleted = Signal.new() :: Signal.Signal<TurnCompletedEvent>,
 	TurnStarted = Signal.new() :: Signal.Signal<TurnStartedEvent>,
 	TurnAdded = Signal.new() :: Signal.Signal<TurnAddedEvent>,
+	Death = Signal.new() :: Signal.Signal<DeathEvent>,
 	ExtraActionAdded = Signal.new() :: Signal.Signal<ExtraActionAddedEvent>,
 	ExtraActionRemoved = Signal.new() :: Signal.Signal<ExtraActionRemovedEvent>,
 	ExtraActionCompleted = Signal.new() :: Signal.Signal<ExtraActionCompletedEvent>,

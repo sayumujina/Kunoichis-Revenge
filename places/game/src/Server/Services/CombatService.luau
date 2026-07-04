@@ -4,6 +4,7 @@ local _TYPES = require(rep.Shared.data_Types)
 local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
 local AnimationService = require(Services.AnimationService)
+local PlayerService = require(Services.PlayerService)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
@@ -65,6 +66,26 @@ function CombatService.OnStart()
 		AnimationService.Play(char :: _TYPES.Character, defaultMove .. "_Idle")
 		-- Update the move preview for the player with the default move
 		CombatService.UpdateMovePreview(turnData.player, char :: _TYPES.Character, defaultMove)
+	end)
+
+	EventService.Events.Death:Connect(function(deathEvent)
+		-- Get the player who owns the dead character
+		local deadChar = deathEvent.char
+		local player = PlayerService.GetPlayerFromCharacter(deadChar)
+
+		if player then
+			-- Remove the character from the character list
+			local list = if deadChar:GetAttribute("Side") == "Playable" then CombatData[player].playables else CombatData[player].npcs
+			table.remove(list, table.find(list, deadChar))
+
+			-- Update the indexes of the remaining characters in the list
+			for i, char in pairs(list) do
+				char:SetAttribute("Index", i)
+			end
+
+			-- Reposition the remaining characters of the side
+			Utility.RepositionCharactersOfSide(deadChar:GetAttribute("Side") :: _TYPES.Sides)
+		end
 	end)
 
 	-- Clean up combat data for the player when they leave the game

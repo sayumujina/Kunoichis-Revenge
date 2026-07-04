@@ -12,7 +12,6 @@ return function(
 	char: _TYPES.Character,
 	attackData: _TYPES.AttackData
 )
-    CameraController.LookAtSide(char, attackData.targets[1])
 
 	return 2
 end

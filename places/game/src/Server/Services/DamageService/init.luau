@@ -4,6 +4,7 @@ local _TYPES = require(rep.Shared.data_Types)
 local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local StatusService = require(Services.StatusService)
+local EventService = require(Services.EventService)
 -- Helpers
 local Helpers = Services.DamageService.Helper
 local CollapseTarget = require(Helpers.CollapseTarget)
@@ -27,6 +28,12 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 	if newHP <= 0 then
 		-- Destroy the target character and handle death logic
 		target:Destroy()
+
+		-- Fire the death event with the target and origin characters
+		EventService.Events.Death:Fire({
+			char = target,
+			origin = origin,
+		})
 	else
 		-- Otherwise, subtract the damage from the target's current HP
 		CharService.UpdateCurrentCharacterStat(target, "hp", newHP)
