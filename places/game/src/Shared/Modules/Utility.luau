@@ -256,19 +256,26 @@ function Utility.SetupTimeout(timeout: number, callback: () -> ()?)
 	return timer
 end
 
+-- Constants for character spawn positioning
+local SPAWN_X_OFFSET_BETWEEN_CHARACTERS = 8
+local SPAWN_Z_ALTERNATE_OFFSET = 1
+local ENEMY_SPAWN_Z_OFFSET = 50
+local BASE_ENEMY_SPAWN_POSITION = Vector3.new(0, 0, 40)
+local ALLY_SPAWN_Z_OFFSET = 0
+local BASE_ALLY_SPAWN_POSITION = Vector3.new(0, 0, 0)
+
+--- Calculates the spawn position for a character based on its side, index, and total number of characters.
+--- @within Utility
+--- @param side -- The side the character belongs to (Playable or NPC).
+--- @param characterCount -- The total number of characters on that side.
+--- @param count -- The index of the character (1-based).
+--- @param charHeight -- The height of the character model.
 function Utility.CalculateCharacterSpawnPosition(
     side: _TYPES.Sides,
     characterCount: number,
     count: number,
     charHeight: number
 ): CFrame
-	local SPAWN_X_OFFSET_BETWEEN_CHARACTERS = 8
-	local SPAWN_Z_ALTERNATE_OFFSET = 1
-	local ENEMY_SPAWN_Z_OFFSET = 50
-	local BASE_ENEMY_SPAWN_POSITION = Vector3.new(0, 0, 40)
-	local ALLY_SPAWN_Z_OFFSET = 0
-	local BASE_ALLY_SPAWN_POSITION = Vector3.new(0, 0, 0)
-
     -- Calculate starting X position based on number of characters
     local startX
     if side == "Playable" then
@@ -301,7 +308,7 @@ function Utility.CalculateCharacterSpawnPosition(
 end
 
 --- Repositions all active characters of a side based on current alive count
---- @within Utility
+--- @within SpawnService
 --- @param side -- The side to reposition (Playable or NPC)
 function Utility.RepositionCharactersOfSide(side: _TYPES.Sides)
     local sideFolder = workspace.Characters:FindFirstChild(side)
