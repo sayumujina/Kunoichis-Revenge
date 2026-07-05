@@ -14,6 +14,7 @@ local CombatUtility = game.ReplicatedStorage.Shared.Modules.Attack.Utility
 local ProvideEnergy = require(CombatUtility.ProvideEnergy)
 local CalculateDamage = require(CombatUtility.CalculateDamage)
 local CalculateHealing = require(CombatUtility.CalculateHealing)
+local CalculateShield = require(CombatUtility.CalculateShield)
 local DetermineTargets = require(CombatUtility.DetermineTargets)
 local HandleMana = require(CombatUtility.HandleMana)
 -- Utility
@@ -64,7 +65,7 @@ local function ExecuteMove(
 	-- Determine targets on the server
 	-- The client has its own version of this for visual purposes, but the server will verify it to be safe
 	local targets = #attackData.targets > 0 and attackData.targets -- Use the provided targets if they exist
-	or DetermineTargets(char, fromSide, attackData.primaryTargetIndex, moveName) -- Determine targets if not provided
+		or DetermineTargets(char, attackData.primaryTargetIndex, moveName) -- Determine targets if not provided
 	-- Return false if no valid targets were found
 	if not targets or #targets == 0 then
 		warn("No valid targets found for attack: " .. moveName)
@@ -99,11 +100,12 @@ local function ExecuteMove(
 
 	local trove = CharService.GetCharacterCombatData(char).trove
 	local currentAttack = 1
+	local data
 
 	-- Apply damage on the hit marker
 	trove:Add(anim:GetMarkerReachedSignal("hit"):Connect(function()
 		-- Retrieve the attack data for the current attack
-		local data = attackData.attacks[currentAttack]
+		data = attackData.attacks[currentAttack]
 		-- Loop through each target and apply the appropriate effect based on the move category
 		for _, target in pairs(targets) do
 			if data.attackCategory == "Damage" then
@@ -120,6 +122,31 @@ local function ExecuteMove(
 			elseif data.attackCategory == "Heal" then
 				local healingAmount = CalculateHealing(data.scalings, char, target, moveName)
 				DamageService.Heal(char, target, healingAmount)
+			end
+		end
+
+		-- Provide energy gain for allies
+		if data.energyGain then
+			ProvideEnergy(char, data.energyGain, false)
+		end
+
+		-- Increment the current attack index for the next hit marker
+		currentAttack += 1
+	end))
+
+	-- Apply shield on the shield marker
+	trove:Add(anim:GetMarkerReachedSignal("shield"):Connect(function()
+		-- Retrieve the attack data for the current attack
+		data = attackData.attacks[currentAttack]
+		-- Loop through each target and apply the appropriate effect based on the move category
+		for _, target in pairs(targets) do
+			if data.attackCategory == "Shield" then
+				local shieldAmount = CalculateShield(data.scalings, char, target, moveName)
+
+				-- Get the current shield value of the target
+				local targetCombatData = CharService.GetCharacterCombatData(target)
+				local currentShield = targetCombatData.currentStats.shield
+				targetCombatData.currentStats.shield = currentShield + shieldAmount
 			end
 		end
 
@@ -149,7 +176,6 @@ local function ExecuteMove(
 
 		-- Get the timer for the player
 		-- Skip this step there is already an extra action queued
-
 		if turnData and not next(turnData.extraActionQueue) then
 			local combatData = CombatService.GetCombatData(player :: _TYPES.RobloxPlayerType)
 			combatData.startTurnTimeout.Tick:Once(function()

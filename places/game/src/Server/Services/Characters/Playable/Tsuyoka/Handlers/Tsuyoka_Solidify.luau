@@ -1,5 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
+local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local PlayerService = require(Services.PlayerService)
@@ -7,18 +8,16 @@ local CombatService = require(Services.CombatService)
 -- Modules
 local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 
-local moveName = "BasicAttack"
+local moveName = "Solidify"
 -- Info
-local moveInfo = require(rep.Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves)[moveName]
+local moveInfo = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_Moves)[moveName]
 
-return function(char: _TYPES.Character)
+return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
 
-	warn("MockEnemy is executing BasicAttack on target index: " .. primaryTargetIndex)
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
-		manaChange = moveInfo.manaChange,
 		targets = {},
 		attacks = moveInfo.attacks,
 		info = moveInfo.info,

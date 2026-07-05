@@ -63,6 +63,9 @@ local statsTemplate = {
 		--
 		healingProvidedMult = 100,
 		healingReceivedMult = 100,
+		--
+		shieldProvidedMult = 100,
+		shieldReceivedMult = 100,
 	},
 	-- Current stats
 	currentStats = {

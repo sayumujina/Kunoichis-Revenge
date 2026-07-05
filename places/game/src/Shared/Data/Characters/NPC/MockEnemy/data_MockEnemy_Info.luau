@@ -26,6 +26,9 @@ local info = {
 		--
 		healingProvidedMult = 100,
 		healingReceivedMult = 100,
+		--
+		shieldProvidedMult = 100,
+		shieldReceivedMult = 100,
 	},
 	-- Starting stats
 	startingStats = {

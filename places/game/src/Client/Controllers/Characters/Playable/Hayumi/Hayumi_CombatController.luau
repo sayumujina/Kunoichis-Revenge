@@ -17,7 +17,7 @@ local Handlers = {
 local AttackHandlers = {
 	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow_Handler),
 	LightningRain = require(script.Parent.Handlers.Hayumi_LightningRain_Handler),
-	ArcherysVision = require(script.Parent.Handlers.Hayumi_ArcherysVision),
+	ArcherysVision = require(script.Parent.Handlers.Hayumi_ArcherysVision_Handler),
 } :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
 
 -- Player
@@ -26,14 +26,21 @@ local player = game.Players.LocalPlayer
 local Hayumi_CombatController = {}
 
 function Hayumi_CombatController.Init(char: _TYPES.Character)
-	-- Initialize the character's combat data
-	Zap.SuccessfulMove.On(function(successfulMoveData)
-		local moveName = successfulMoveData.data.moveName
-		if moveName == "ArcherysVision" then
-			local target = successfulMoveData.data.attackData.targets[1]
-			CameraController.LookAtSide(char, target:GetAttribute("Index") :: number)
-		end
-	end)
+	-- -- Initialize the character's combat data
+	-- Zap.SuccessfulMove.On(function(successfulMoveData)
+	-- 	local moveName = successfulMoveData.data.moveName
+	-- 	local origin = successfulMoveData.origin
+
+	-- 	-- Check if the origin is valid and matches the character
+	-- 	if not origin or origin :: any ~= char then
+	-- 		return
+	-- 	end
+
+	-- 	-- Check if the move is "ArcherysVision" and update the camera accordingly
+	-- 	if moveName == "ArcherysVision" then
+	-- 		AttackHandlers.ArcherysVision(successfulMoveData.origin, successfulMoveData.data.attackData)
+	-- 	end
+	-- end)
 end
 
 --- Gets the attack handlers for Hayumi

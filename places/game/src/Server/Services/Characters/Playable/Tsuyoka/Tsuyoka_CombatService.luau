@@ -1,6 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
-local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Types)
+local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_Types)
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
@@ -10,40 +10,40 @@ local CombatService = require(Services.CombatService)
 local EventService = require(Services.EventService)
 -- Utility
 local IsAtFullEnergy = require(rep.Shared.Modules.Attack.Utility.IsAtFullEnergy)
---  Packages
+-- Packages
 local Trove = require(rep.Packages.Trove)
 
 -- Data
-local MoveInfo = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Moves)
+local MoveInfo = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_Moves)
 
 -- Attack handlers
 local Handlers = {
-	HiddenAssistance = require(script.Parent.Handlers.Rin_HiddenAssistance),
-	CleansingAura = require(script.Parent.Handlers.Rin_CleansingAura),
-	VanguardsCall = require(script.Parent.Handlers.Rin_VanguardsCall),
+	NoEscape = require(script.Parent.Handlers.Tsuyoka_NoEscape),
+	Solidify = require(script.Parent.Handlers.Tsuyoka_Solidify),
+	DestructiveCriticism = require(script.Parent.Handlers.Tsuyoka_DestructiveCriticism),
 } :: { [string]: (_TYPES.Character, _TYPES_CHAR.ServerCharData) -> boolean }
 
-local charName = "Rin"
+local charName = "Tsuyoka"
 
 -- Character data
 local Chars = {} :: { [_TYPES.Character]: _TYPES_CHAR.ServerCharData }
 
 -- Action to move mapping at the top of the file
 local ActionToMoveMap = {
-	BasicAttack = "HiddenAssistance",
-	Skill = "CleansingAura",
-	Ultimate = "VanguardsCall",
+	BasicAttack = "NoEscape",
+	Skill = "Solidify",
+	Ultimate = "DestructiveCriticism",
 }
-local Rin_CombatService = {}
+local Tsuyoka_CombatService = {}
 
-function Rin_CombatService.OnStart() end
+function Tsuyoka_CombatService.OnStart() end
 
-function Rin_CombatService.Init(char: _TYPES.Character)
+function Tsuyoka_CombatService.Init(char: _TYPES.Character)
 	-- Initialize the character's combat data if it doesn't exist
 	if not Chars[char] then
 		Chars[char] = {
 			Info = {
-				selectedMove = "HiddenAssistance",
+				selectedMove = "NoEscape",
 				queuedUltimateId = nil,
 			},
 			Trove = Trove.new(),
@@ -61,16 +61,16 @@ function Rin_CombatService.Init(char: _TYPES.Character)
 	-- Listens to the turn started event to reset the selected move to the default
 	EventService.Events.TurnStarted:Connect(function(turnData)
 		if turnData.data.char :: any == char then
-			Chars[char].Info.selectedMove = "HiddenAssistance"
+			Chars[char].Info.selectedMove = "NoEscape"
 			Chars[char].Info.queuedUltimateId = nil
 		end
 	end)
 end
 
---- Handle input for Rin's combat service
+--- Handle input for Tsuyoka's combat service
 --- @param char -- The character performing the action
 --- @param inputData -- The input data containing the action and target information
-function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES.InputData)
+function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES.InputData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local action = inputData.action
 	local combatData = CombatService.GetCombatData(player)
@@ -89,21 +89,21 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 	-- Handle ultimates differently
 	elseif action:find("Ultimate") then
 		-- If the selected move is the ultimate again, execute it
-		if charData.Info.selectedMove == "VanguardsCall" then
-			warn("Executing ultimate for Rin:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
-			Handlers.VanguardsCall(char, charData)
+		if charData.Info.selectedMove == "DestructiveCriticism" then
+			warn("Executing ultimate for Tsuyoka:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
+			Handlers.DestructiveCriticism(char, charData)
 
 			-- Reset the queued ultimate ID after executing the ultimate
 			charData.Info.queuedUltimateId = nil
 
 			-- Reset the selected move to the default after executing the ultimate
-			charData.Info.selectedMove = "HiddenAssistance"
+			charData.Info.selectedMove = "NoEscape"
 			return true
 		end
 
-		-- Check if Rin's energy is full
+		-- Check if Tsuyoka's energy is full
 		if not IsAtFullEnergy(char) then
-			warn("Rin's energy is not full. Cannot execute ultimate.")
+			warn("Tsuyoka's energy is not full. Cannot execute ultimate.")
 			return false
 		end
 
@@ -124,14 +124,14 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 		end
 
 		-- Set the selected move to the ultimate
-		charData.Info.selectedMove = "VanguardsCall"
+		charData.Info.selectedMove = "DestructiveCriticism"
 
 		-- Update the selection type reference for the new move
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		-- If ultimate is already selected, disallow switching to other moves
-		if charData.Info.selectedMove == "VanguardsCall" then
+		if charData.Info.selectedMove == "DestructiveCriticism" then
 			warn("Ultimate is already selected. Cannot switch to " .. action)
 			return false
 		end
@@ -150,19 +150,19 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 		end
 
 		-- Handle the input based on the action
-		if charData.Info.selectedMove == "HiddenAssistance" then
-			Handlers.HiddenAssistance(char, charData)
-		elseif charData.Info.selectedMove == "CleansingAura" then
-			Handlers.CleansingAura(char, charData)
+		if charData.Info.selectedMove == "NoEscape" then
+			Handlers.NoEscape(char, charData)
+		elseif charData.Info.selectedMove == "Solidify" then
+			Handlers.Solidify(char, charData)
 		end
 	end
 
 	return true
 end
 
---- Get the attack handlers for Rin's combat service
-function Rin_CombatService.GetAttackHandlers()
+--- Get the attack handlers for Tsuyoka's combat service
+function Tsuyoka_CombatService.GetAttackHandlers()
 	return Handlers
 end
 
-return Rin_CombatService
+return Tsuyoka_CombatService

@@ -3,13 +3,16 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
-local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
 local PlayerService = require(Services.PlayerService)
+local CombatService = require(Services.CombatService)
 -- Utilities
 local DeterminePrimaryTargetIndex = require(rep.Shared.Modules.Attack.Utility.DeterminePrimaryTargetIndex)
+
 -- Data
 local AttackPattern = require(rep.Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_AttackPattern)
+local MoveInfo = require(rep.Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves)
+
 -- Attack handlers
 local Handlers = {
 	BasicAttack = require(script.Parent.Handlers.MockEnemy_BasicAttack),
@@ -48,7 +51,7 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 	-- Check if the origin of the event data is the current character whose turn it is
 	if not currentTurn or char ~= currentTurn.char :: any then
 		return false
-	end 
+	end
 
 	-- Use the attack pattern module to determine which attack to execute based on the current action
 	local currentPatternIndex = Chars[char].currentPatternIndex
@@ -56,8 +59,11 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 		return false
 	end
 
+	-- Determine the primary target index for the attack
 	local attackToExecute = AttackPattern[currentPatternIndex]
-	local primaryTargetIndex = DeterminePrimaryTargetIndex()
+	local primaryTargetIndex = DeterminePrimaryTargetIndex() or 1
+	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
+	CombatService.SetPrimarySelectedTargetIndex(player, primaryTargetIndex, MoveInfo[attackToExecute].selectedSide)
 
 	-- If there's no valid attack or primary target index, skip the turn
 	if not attackToExecute or not primaryTargetIndex then

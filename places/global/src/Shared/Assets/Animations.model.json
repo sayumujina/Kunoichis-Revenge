@@ -180,6 +180,60 @@
         },
         {
           "ClassName": "Folder",
+          "Name": "Tsuyoka",
+          "Children": [
+            {
+              "ClassName": "Folder",
+              "Name": "Attacks",
+              "Children": [
+                {
+                  "ClassName": "Animation",
+                  "Name": "NoEscape_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://120027318083702"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "NoEscape_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://76199782295122"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "Solidify_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://126740540448677"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "Solidify_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://103941832070337"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "DestructiveCriticism_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://126740540448677"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "DestructiveCriticism_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://76199782295122"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ClassName": "Folder",
           "Name": "MockEnemy",
           "Children": [
             {

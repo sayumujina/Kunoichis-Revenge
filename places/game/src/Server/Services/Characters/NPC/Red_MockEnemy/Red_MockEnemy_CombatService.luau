@@ -7,12 +7,15 @@ local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
 local PlayerService = require(Services.PlayerService)
 local StatusService = require(Services.StatusService)
-local CharService = require(Services.CharService)
+local CombatService = require(Services.CombatService)
 -- Utilities
 local DeterminePrimaryTargetIndex = require(rep.Shared.Modules.Attack.Utility.DeterminePrimaryTargetIndex)
+
 -- Data
 local AttackPattern = require(rep.Shared.Data.Characters.NPC.Red_MockEnemy.data_Red_MockEnemy_AttackPattern)
 local CombatInfo = require(rep.Shared.Data.Characters.NPC.Red_MockEnemy.data_Red_MockEnemy_CombatInfo)
+local MoveInfo = require(rep.Shared.Data.Characters.NPC.Red_MockEnemy.data_Red_MockEnemy_Moves)
+
 -- Attack handlers
 local Handlers = {
 	BasicAttack = require(script.Parent.Handlers.Red_MockEnemy_BasicAttack),
@@ -71,29 +74,22 @@ local Red_MockEnemy_CombatService = {}
 function Red_MockEnemy_CombatService.OnStart()
 	-- Listens to spawn successful events to initialize combat data for the spawned characters
 	EventService.Events.SpawnSuccessfulForChar:Connect(function(spawnSuccessfulForCharEvent)
-		local char = spawnSuccessfulForCharEvent.data.char
+		local spawnChar = spawnSuccessfulForCharEvent.data.char
 
 		-- Skip if the character is not Red_MockEnemy
-		if char.Name ~= charName then
+		if spawnChar.Name ~= charName then
 			return
 		end
 
-		-- Initialize combat data for the character if it doesn't exist already
-		if not Chars[char] then
-			Chars[char] = {
-				currentPatternIndex = 1,
-			}
-		end
-
 		-- Add the toughened status to the character
-		StatusService.AddStatus(char, "Red_MockEnemy_Toughened", toughenedStatus)
+		StatusService.AddStatus(spawnChar, "Red_MockEnemy_Toughened", toughenedStatus)
 	end)
 
 	-- Listens to status added event
 	EventService.Events.StatusAdded:Connect(function(statusAddedEvent)
 		-- Skip if the character is not found in the Chars table (i.e., not Red_MockEnemy)
-		local char = statusAddedEvent.char
-		if not Chars[char] then
+		local statusOrigin = statusAddedEvent.char
+		if not Chars[statusOrigin] then
 			return
 		end
 
@@ -101,16 +97,16 @@ function Red_MockEnemy_CombatService.OnStart()
 
 		-- If the character collapsed, remove the toughened status and applied weakened status
 		if statusName == "Collapsed" then
-			StatusService.RemoveStatus(char, "Red_MockEnemy_Toughened")
-			StatusService.AddStatus(char, "Red_MockEnemy_Weakened", weakenedStatus)
+			StatusService.RemoveStatus(statusOrigin, "Red_MockEnemy_Toughened")
+			StatusService.AddStatus(statusOrigin, "Red_MockEnemy_Weakened", weakenedStatus)
 		end
 	end)
 
 	-- Listens to status removed event
 	EventService.Events.StatusRemoved:Connect(function(statusRemovedEvent)
 		-- Skip if the character is not found in the Chars table (i.e., not Red_MockEnemy)
-		local char = statusRemovedEvent.char
-		if not Chars[char] then
+		local statusOrigin = statusRemovedEvent.char
+		if not Chars[statusOrigin] then
 			return
 		end
 
@@ -118,13 +114,27 @@ function Red_MockEnemy_CombatService.OnStart()
 
 		-- If the character's collapsed status was removed, reapply the toughened status and remove weakened status
 		if statusName == "Collapsed" then
-			StatusService.AddStatus(char, "Red_MockEnemy_Toughened", toughenedStatus)
-			StatusService.RemoveStatus(char, "Red_MockEnemy_Weakened")
+			StatusService.AddStatus(statusOrigin, "Red_MockEnemy_Toughened", toughenedStatus)
+			StatusService.RemoveStatus(statusOrigin, "Red_MockEnemy_Weakened")
 		end
 	end)
 end
 
-function Red_MockEnemy_CombatService.Init(char: _TYPES.Character) end
+function Red_MockEnemy_CombatService.Init(char: _TYPES.Character)
+	-- Initialize combat data for the character if it doesn't exist already
+	if not Chars[char] then
+		Chars[char] = {
+			currentPatternIndex = 1,
+		}
+	end
+
+	-- Clean up when the character is destroyed
+	char.Destroying:Connect(function()
+		if Chars[char] then
+			Chars[char] = nil
+		end
+	end)
+end
 
 --- Handles the attack behaviour for the Red_MockEnemy character
 --- @param char - The character to handle the attack behaviour for
@@ -143,8 +153,11 @@ function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Characte
 		return false
 	end
 
+	-- Determine the primary target index for the attack
 	local attackToExecute = AttackPattern[currentPatternIndex]
-	local primaryTargetIndex = DeterminePrimaryTargetIndex()
+	local primaryTargetIndex = DeterminePrimaryTargetIndex() or 1
+	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
+	CombatService.SetPrimarySelectedTargetIndex(player, primaryTargetIndex, MoveInfo[attackToExecute].selectedSide)
 
 	-- If there's no valid attack or primary target index, skip the turn
 	if not attackToExecute or not primaryTargetIndex then

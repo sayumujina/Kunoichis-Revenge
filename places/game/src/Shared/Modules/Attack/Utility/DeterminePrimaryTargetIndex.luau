@@ -17,6 +17,7 @@ return function(): number?
 	end
 
 	local randomIndex = math.random(1, #playables)
+	warn("Randomly selected primary target index:", randomIndex)
 
 	return randomIndex
 end

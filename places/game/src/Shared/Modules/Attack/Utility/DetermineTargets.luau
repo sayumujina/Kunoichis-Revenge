@@ -3,9 +3,13 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 
-return function(char: _TYPES.Character, side: _TYPES.Sides, primaryTargetIndex: number, moveName: string)
+return function(char: _TYPES.Character, primaryTargetIndex: number, moveName: string)
 	local targets = {} :: { _TYPES.Character }
 	local targetsList
+
+	-- Get the selected side for the move
+	local moveData = Utility.GetCharacterMoveList(char)[moveName]
+	local side = moveData.selectedSide
 
 	-- Retrieve the folder containing the targets to look for
 	if side == "Playable" then
@@ -14,12 +18,12 @@ return function(char: _TYPES.Character, side: _TYPES.Sides, primaryTargetIndex: 
 		targetsList = workspace.Characters.NPC
 	end
 
-	local moveData = Utility.GetCharacterMoveList(char)[moveName]
 	local targetSelectionType = moveData.targetSelectionType
 	local findChar = Utility.FindCharacterWithIndex
 
 	-- Determine the indexes first
 	if targetSelectionType == "Single" then -- Select a single target.
+		warn("Primary target index:", primaryTargetIndex)
 		table.insert(targets, findChar(primaryTargetIndex, targetsList) :: _TYPES.Character)
 	elseif targetSelectionType == "Blast" then -- Select a main target and 2 targets around them (if they exist).
 		-- Insert the primary target first

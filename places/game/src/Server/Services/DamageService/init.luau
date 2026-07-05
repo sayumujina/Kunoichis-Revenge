@@ -20,11 +20,39 @@ function DamageService.OnStart() end
 --- @param target - The character receiving the damage
 --- @param damage - The amount of damage to deal
 function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character, damage: number)
-	-- Get the target's current HP
-	local targetCombatData = CharService.GetCurrentCharacterStat(target, "hp")
+	-- Get the target's current HP and shield
+	local targetHP = CharService.GetCurrentCharacterStat(target, "hp")
+	local targetShield = CharService.GetCurrentCharacterStat(target, "shield")
 
-	local newHP = targetCombatData - damage
+	warn(
+		"DamageService.Damage called with origin: "
+			.. tostring(origin)
+			.. ", target: "
+			.. tostring(target)
+			.. ", damage: "
+			.. tostring(damage)
+			.. ", targetHP: "
+			.. tostring(targetHP)
+			.. ", targetShield: "
+			.. tostring(targetShield)
+	)
+
+	-- Deduct the damage from the shield first, if any
+	local remainingDamage = damage
+	if targetShield > 0 then
+		if targetShield >= remainingDamage then
+			-- If the shield can absorb all the damage, just reduce the shield
+			CharService.UpdateCurrentCharacterStat(target, "shield", targetShield - remainingDamage)
+			remainingDamage = 0
+		else
+			-- If the shield can't absorb all the damage, reduce the shield to 0 and calculate remaining damage
+			remainingDamage -= targetShield
+			CharService.UpdateCurrentCharacterStat(target, "shield", 0)
+		end
+	end
+
 	-- If the target hp goes down to 0 or below, set it to 0 and handle the character's death
+	local newHP = targetHP - remainingDamage
 	if newHP <= 0 then
 		-- Destroy the target character and handle death logic
 		target:Destroy()

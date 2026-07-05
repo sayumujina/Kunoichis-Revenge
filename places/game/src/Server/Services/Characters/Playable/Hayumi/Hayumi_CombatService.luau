@@ -11,6 +11,9 @@ local CombatService = require(Services.CombatService)
 -- Packages
 local Trove = require(rep.Packages.Trove)
 
+-- Data
+local MoveInfo = require(rep.Shared.Data.Characters.Playable.Hayumi.data_Hayumi_Moves)
+
 -- Attack handlers
 local Handlers = {
 	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow),
@@ -85,18 +88,28 @@ function Hayumi_CombatService.Init(char: _TYPES.Character)
 		end
 
 		local charData = Chars[char]
-		warn("Casting Archery's Vision for " .. char.Name .. ". Remaining uses: " .. charData.Info.archerysVisionUseCount)
+		warn(
+			"Casting Archery's Vision for " .. char.Name .. ". Remaining uses: " .. charData.Info.archerysVisionUseCount
+		)
 		if charData and charData.Info.archerysVisionUseCount > 0 then
 			charData.Info.archerysVisionTarget = target
 			TurnService.AddExtraAction(char, "ArcherysVision", true)
 		end
 	end))
-	
+
 	-- Clean up when the character is destroyed
 	char.Destroying:Connect(function()
 		if Chars[char] then
 			Chars[char].Trove:Destroy()
 			Chars[char] = nil
+		end
+	end)
+
+	-- Listens to the turn started event to reset the selected move to the default
+	EventService.Events.TurnStarted:Connect(function(turnData)
+		if turnData.data.char :: any == char then
+			Chars[char].Info.selectedMove = "LightningArrow"
+			-- Chars[char].Info.queuedUltimateId = nil
 		end
 	end)
 end
@@ -111,11 +124,11 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 	local charData = Chars[char]
 	-- Handle target selection actions
 	if action == "PreviousTarget" then
-		CombatService.SwitchToPreviousTarget(player)
+		CombatService.SwitchToPreviousTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 		return true
 	elseif action == "NextTarget" then
-		CombatService.SwitchToNextTarget(player)
+		CombatService.SwitchToNextTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 		return true
 	-- Handle move selection actions

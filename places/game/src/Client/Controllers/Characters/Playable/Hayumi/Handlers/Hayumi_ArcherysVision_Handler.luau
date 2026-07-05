@@ -12,6 +12,8 @@ return function(
 	char: _TYPES.Character,
 	attackData: _TYPES.AttackData
 )
+	local target = attackData.targets[1]
+	CameraController.LookAtSide(char, target:GetAttribute("Index") :: number)
 
-	return 2
+	return 1
 end

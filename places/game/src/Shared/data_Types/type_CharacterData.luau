@@ -24,6 +24,9 @@ export type CharacterStats = {
 	--
 	healingProvidedMult: number,
 	healingReceivedMult: number,
+	--
+	shieldProvidedMult: number,
+	shieldReceivedMult: number,
 }
 
 export type CharacterInfo = {

@@ -271,74 +271,75 @@ local BASE_ALLY_SPAWN_POSITION = Vector3.new(0, 0, 0)
 --- @param count -- The index of the character (1-based).
 --- @param charHeight -- The height of the character model.
 function Utility.CalculateCharacterSpawnPosition(
-    side: _TYPES.Sides,
-    characterCount: number,
-    count: number,
-    charHeight: number
+	side: _TYPES.Sides,
+	characterCount: number,
+	count: number,
+	charHeight: number
 ): CFrame
-    -- Calculate starting X position based on number of characters
-    local startX
-    if side == "Playable" then
-        startX = BASE_ALLY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_X_OFFSET_BETWEEN_CHARACTERS) / 2
-    else
-        startX = BASE_ENEMY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_X_OFFSET_BETWEEN_CHARACTERS) / 2
-    end
+	-- Calculate starting X position based on number of characters
+	local startX
+	if side == "Playable" then
+		startX = BASE_ALLY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_X_OFFSET_BETWEEN_CHARACTERS) / 2
+	else
+		startX = BASE_ENEMY_SPAWN_POSITION.X + ((characterCount - 1) * SPAWN_X_OFFSET_BETWEEN_CHARACTERS) / 2
+	end
 
-    -- Calculate X position for this character
-    local spawnX = startX - (count * SPAWN_X_OFFSET_BETWEEN_CHARACTERS)
+	-- Calculate X position for this character
+	local spawnX = startX - (count * SPAWN_X_OFFSET_BETWEEN_CHARACTERS)
 
-    -- Calculate Z offset with alternation
-    local baseZOffset = side == "Playable" and ALLY_SPAWN_Z_OFFSET or ENEMY_SPAWN_Z_OFFSET
-    local spawnZ
-    if side == "Playable" then
-        spawnZ = baseZOffset - ((count % 2 == 0) and SPAWN_Z_ALTERNATE_OFFSET or -SPAWN_Z_ALTERNATE_OFFSET)
-    else
-        spawnZ = baseZOffset + ((count % 2 == 0) and SPAWN_Z_ALTERNATE_OFFSET or -SPAWN_Z_ALTERNATE_OFFSET)
-    end
+	-- Calculate Z offset with alternation
+	local baseZOffset = side == "Playable" and ALLY_SPAWN_Z_OFFSET or ENEMY_SPAWN_Z_OFFSET
+	local spawnZ
+	if side == "Playable" then
+		spawnZ = baseZOffset - ((count % 2 == 0) and SPAWN_Z_ALTERNATE_OFFSET or -SPAWN_Z_ALTERNATE_OFFSET)
+	else
+		spawnZ = baseZOffset + ((count % 2 == 0) and SPAWN_Z_ALTERNATE_OFFSET or -SPAWN_Z_ALTERNATE_OFFSET)
+	end
 
-    -- Create the final CFrame with rotation for allies
-    local position
-    if side == "Playable" then
-        position = CFrame.new(spawnX, charHeight / 2, spawnZ) * CFrame.Angles(0, math.rad(180), 0)
-    else
-        position = CFrame.new(spawnX, charHeight / 2, spawnZ)
-    end
+	-- Create the final CFrame with rotation for allies
+	local position
+	if side == "Playable" then
+		position = CFrame.new(spawnX, charHeight / 2, spawnZ) * CFrame.Angles(0, math.rad(180), 0)
+	else
+		position = CFrame.new(spawnX, charHeight / 2, spawnZ)
+	end
 
-    return position
+	return position
 end
 
 --- Repositions all active characters of a side based on current alive count
 --- @within SpawnService
 --- @param side -- The side to reposition (Playable or NPC)
 function Utility.RepositionCharactersOfSide(side: _TYPES.Sides)
-    local sideFolder = workspace.Characters:FindFirstChild(side)
-    if not sideFolder then
-        warn("Side folder not found for", side)
-        return
-    end
-    
-    -- Get all alive characters and sort by index
-    local characters = {}
-    for _, char in pairs(sideFolder:GetChildren()) do
-        if char:IsA("Model") and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0 then
-            table.insert(characters, char)
-        end
-    end
-    
-    table.sort(characters, function(a, b)
-        return (a:GetAttribute("Index") or 0) < (b:GetAttribute("Index") or 0)
-    end)
-    
-    local characterCount = #characters
-    if characterCount == 0 then
-        return
-    end
-    
-    -- Reposition each character using the same helper function
-    for count, char in pairs(characters) do
-        local newPosition = Utility.CalculateCharacterSpawnPosition(side, characterCount, count, char:GetExtentsSize().Y)
-        char:PivotTo(newPosition)
-    end
+	local sideFolder = workspace.Characters:FindFirstChild(side)
+	if not sideFolder then
+		warn("Side folder not found for", side)
+		return
+	end
+
+	-- Get all alive characters and sort by index
+	local characters = {}
+	for _, char in pairs(sideFolder:GetChildren()) do
+		if char:IsA("Model") and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0 then
+			table.insert(characters, char)
+		end
+	end
+
+	table.sort(characters, function(a, b)
+		return (a:GetAttribute("Index") or 0) < (b:GetAttribute("Index") or 0)
+	end)
+
+	local characterCount = #characters
+	if characterCount == 0 then
+		return
+	end
+
+	-- Reposition each character using the same helper function
+	for count, char in pairs(characters) do
+		local newPosition =
+			Utility.CalculateCharacterSpawnPosition(side, characterCount, count, char:GetExtentsSize().Y)
+		char:PivotTo(newPosition)
+	end
 end
 
 return Utility

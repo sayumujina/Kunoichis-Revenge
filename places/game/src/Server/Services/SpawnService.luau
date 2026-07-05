@@ -5,11 +5,11 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
 local CharService = require(Services.CharService)
+local AnimationService = require(Services.AnimationService)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
 local Zap = require(Services.Parent.zap)
-
 
 --- @class SpawnService
 --- @server
@@ -20,7 +20,9 @@ local SpawnService = {}
 local function getCharacterCombatService(char: _TYPES.Character): any
 	local combatServiceModuleName = char.Name .. "_CombatService"
 	local combatServiceModule =
-		Services.Characters[char:GetAttribute("Side") :: _TYPES.Sides][char.Name]:FindFirstChild(combatServiceModuleName)
+		Services.Characters[char:GetAttribute("Side") :: _TYPES.Sides][char.Name]:FindFirstChild(
+			combatServiceModuleName
+		)
 	if not combatServiceModule then
 		warn("CombatService module", combatServiceModuleName, "not found for character", char.Name)
 		return nil
@@ -33,7 +35,7 @@ end
 function SpawnService.OnStart()
 	-- Listens to spawn request from clients
 	Zap.RequestSpawn.On(function(player)
-		local playables = { "Setsuna", "Hayumi", "Rin" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+		local playables = { "Tsuyoka" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 		local npcs = { "MockEnemy", "Red_MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 
 		-- Initialise the player entry in the turn system
@@ -41,12 +43,8 @@ function SpawnService.OnStart()
 			TurnService.InitialisePlayerEntry(player :: _TYPES.RobloxPlayerType)
 		end
 
-		-- Spawn charactersfor both sides, for now
-		SpawnService.SpawnAllCharactersOfSide(
-			player :: _TYPES.RobloxPlayerType,
-			"Playable",
-			playables
-		)
+		-- Spawn characters for both sides, for now
+		SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "Playable", playables)
 		SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "NPC", npcs)
 
 		-- Create an active character object value for the player
@@ -135,6 +133,14 @@ function SpawnService.SpawnCharacter(
 	if combatService then
 		require(combatService).Init(char)
 	end
+
+	local defaultMove = Utility.GetCharacterDefaultMove(char :: _TYPES.Character)
+	if not defaultMove then
+		return
+	end
+
+	-- Play the idle animation of the default move
+	AnimationService.Play(char :: _TYPES.Character, defaultMove .. "_Idle")
 end
 
 --- Spawn all characters of a side
@@ -148,30 +154,31 @@ function SpawnService.SpawnAllCharactersOfSide(
 	side: _TYPES.Sides,
 	charactersToSpawn: { string }
 )
-    local characterCount = #charactersToSpawn
-    local charModelPath = rep.Shared.Assets.Models[side]
+	local characterCount = #charactersToSpawn
+	local charModelPath = rep.Shared.Assets.Models[side]
 
-    for count, charName in pairs(charactersToSpawn) do
-        local char = charModelPath:FindFirstChild(charName):Clone() :: _TYPES.Character
-        
-        -- Calculate spawn position using helper function
-        local spawnPosition = Utility.CalculateCharacterSpawnPosition(side, characterCount, count, char:GetExtentsSize().Y)
+	for count, charName in pairs(charactersToSpawn) do
+		local char = charModelPath:FindFirstChild(charName):Clone() :: _TYPES.Character
 
-        -- Determine index based on side
-        local index
-        if side == "Playable" then
-            index = characterCount - count + 1
-            char.Parent = workspace.Characters.Playable
-        else
-            index = count
-            char.Parent = workspace.Characters.NPC
-            if not char:GetAttribute("Index") then
-                char:SetAttribute("Index", index)
-            end
-        end
+		-- Calculate spawn position using helper function
+		local spawnPosition =
+			Utility.CalculateCharacterSpawnPosition(side, characterCount, count, char:GetExtentsSize().Y)
 
-        SpawnService.SpawnCharacter(player, side, char, spawnPosition, index)
-    end
+		-- Determine index based on side
+		local index
+		if side == "Playable" then
+			index = characterCount - count + 1
+			char.Parent = workspace.Characters.Playable
+		else
+			index = count
+			char.Parent = workspace.Characters.NPC
+			if not char:GetAttribute("Index") then
+				char:SetAttribute("Index", index)
+			end
+		end
+
+		SpawnService.SpawnCharacter(player, side, char, spawnPosition, index)
+	end
 end
 
 return SpawnService

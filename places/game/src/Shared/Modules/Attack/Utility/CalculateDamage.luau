@@ -53,7 +53,6 @@ return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, targe
 	-- 3. Decides if this hit should be a crit hit
 	local critRate = originStats.realStats.critRate / 100
 	local randomValue = math.random()
-	warn("Random value for crit check: " .. randomValue .. ", Crit Rate: " .. critRate)
 	local isCrit = randomValue < critRate
 	if isCrit then
 		local critDmgMult = originStats.realStats.critDmg / 100

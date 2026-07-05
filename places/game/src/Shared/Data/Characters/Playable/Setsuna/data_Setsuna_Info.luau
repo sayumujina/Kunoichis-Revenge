@@ -19,11 +19,14 @@ local info = {
 		--
 		manaGainEfficiency = 100,
 		--
-		dmgTakenMult = 100,
+		dmgTakenMult = 110,
 		dmgDealtMult = 140,
 		--
 		healingProvidedMult = 100,
 		healingReceivedMult = 100,
+		--
+		shieldProvidedMult = 100,
+		shieldReceivedMult = 100,
 	},
 	-- Starting stats
 	startingStats = {

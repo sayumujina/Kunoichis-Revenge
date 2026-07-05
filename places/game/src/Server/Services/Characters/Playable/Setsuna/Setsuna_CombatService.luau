@@ -11,6 +11,9 @@ local EventService = require(Services.EventService)
 -- Packages
 local Trove = require(rep.Packages.Trove)
 
+-- Data
+local MoveInfo = require(rep.Shared.Data.Characters.Playable.Setsuna.data_Setsuna_Moves)
+
 -- Attack handlers
 local Handlers = {
 	WeavingBlade = require(script.Parent.Handlers.Setsuna_WeavingBlade),
@@ -48,6 +51,14 @@ function Setsuna_CombatService.Init(char: _TYPES.Character)
 			Chars[char] = nil
 		end
 	end)
+
+	-- Listens to the turn started event to reset the selected move to the default
+	EventService.Events.TurnStarted:Connect(function(turnData)
+		if turnData.data.char :: any == char then
+			Chars[char].Info.selectedMove = "NoEscape"
+			Chars[char].Info.queuedUltimateId = nil
+		end
+	end)
 end
 
 --- Handle input for Setsuna's combat service
@@ -68,11 +79,11 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 
 	-- Handle target selection actions
 	if action == "PreviousTarget" then
-		CombatService.SwitchToPreviousTarget(player)
+		CombatService.SwitchToPreviousTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 		return true
 	elseif action == "NextTarget" then
-		CombatService.SwitchToNextTarget(player)
+		CombatService.SwitchToNextTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 		return true
 	-- Handle move selection actions

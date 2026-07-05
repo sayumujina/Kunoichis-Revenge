@@ -3,7 +3,8 @@ local _TYPES = require(ReplicatedStorage.Shared.data_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
-
+-- Utility
+local Utility = require(ReplicatedStorage.Shared.Modules.Utility)
 local AnimationService = {}
 
 local Chars: {
@@ -91,6 +92,18 @@ function AnimationService.Play(char: _TYPES.Character, animName: string, fadeTim
 	end
 
 	return charData.tracks[animName]
+end
+
+--- Plays the default idle animation for a character
+--- @within AnimationService
+--- @param char -- The character to play the default idle animation on
+function AnimationService.PlayDefaultIdleAnimation(char: _TYPES.Character)
+	local defaultMove = Utility.GetCharacterDefaultMove(char :: _TYPES.Character)
+	if not defaultMove then
+		return
+	end
+	-- Play the idle animation of the default move
+	AnimationService.Play(char :: _TYPES.Character, defaultMove .. "_Idle")
 end
 
 return AnimationService

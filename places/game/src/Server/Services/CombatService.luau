@@ -58,16 +58,15 @@ function CombatService.OnStart()
 			return
 		end
 
-		local defaultMove = Utility.GetCharacterDefaultMove(char :: _TYPES.Character)
-		if not defaultMove then
-			return
-		end
-		-- Play the idle animation of the default move
-		AnimationService.Play(char :: _TYPES.Character, defaultMove .. "_Idle")
+		-- Play the default idle animation for the character at the start of their turn
+		AnimationService.PlayDefaultIdleAnimation(char :: _TYPES.Character)
+
 		-- Update the move preview for the player with the default move
+		local defaultMove = Utility.GetCharacterDefaultMove(char :: _TYPES.Character)
 		CombatService.UpdateMovePreview(turnData.player, char :: _TYPES.Character, defaultMove)
 	end)
 
+	-- Listens to death event to remove the dead character from the combat data
 	EventService.Events.Death:Connect(function(deathEvent)
 		-- Get the player who owns the dead character
 		local deadChar = deathEvent.char
@@ -75,7 +74,9 @@ function CombatService.OnStart()
 
 		if player then
 			-- Remove the character from the character list
-			local list = if deadChar:GetAttribute("Side") == "Playable" then CombatData[player].playables else CombatData[player].npcs
+			local list = if deadChar:GetAttribute("Side") == "Playable"
+				then CombatData[player].playables
+				else CombatData[player].npcs
 			table.remove(list, table.find(list, deadChar))
 
 			-- Update the indexes of the remaining characters in the list
@@ -99,58 +100,55 @@ end
 
 --- Switches to the next target in the combat data for the player
 --- @param player - The player whose target to switch
-function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType)
+--- @param side - The side to switch targets on ("Playable" or "NPC")
+function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType, side: _TYPES.Sides)
 	local combatData = CombatData[player]
 	if not combatData then
 		return
 	end
 
-	local npcCount = #combatData.npcs
-	if npcCount == 0 then
+	local charsCount = if side == "Playable" then #combatData.playables else #combatData.npcs
+	warn("Switching to previous target for player:", player.Name, "on side:", side, #combatData.playables)
+	if charsCount == 0 then
 		return
 	end
 
-	-- If the primary selected target index is 1, don't change the index
-	if combatData.primarySelectedTargetIndex == 1 then
-		return
-	end
-	combatData.primarySelectedTargetIndex -= 1
+	combatData.primarySelectedTargetIndex = math.clamp(combatData.primarySelectedTargetIndex - 1, 1, charsCount)
 end
 
 --- Switches to the next target in the combat data for the player
 --- @param player - The player whose target to switch
-function CombatService.SwitchToNextTarget(player: _TYPES.RobloxPlayerType)
+--- @param side - The side to switch targets on ("Playable" or "NPC")
+function CombatService.SwitchToNextTarget(player: _TYPES.RobloxPlayerType, side: _TYPES.Sides)
 	local combatData = CombatData[player]
 	if not combatData then
 		return
 	end
 
-	local npcCount = #combatData.npcs
-	if npcCount == 0 then
+	local charsCount = if side == "Playable" then #combatData.playables else #combatData.npcs
+	if charsCount == 0 then
 		return
 	end
 
-	-- If the primary selected target index is equal to the number of NPCs, don't change the index
-	if combatData.primarySelectedTargetIndex == npcCount then
-		return
-	end
-	combatData.primarySelectedTargetIndex += 1
+	combatData.primarySelectedTargetIndex = math.clamp(combatData.primarySelectedTargetIndex + 1, 1, charsCount)
 end
 
 --- Sets the primary selected target index for the player
 --- @param player - The player whose target to set
-function CombatService.SetPrimarySelectedTargetIndex(player: _TYPES.RobloxPlayerType, index: number)
+--- @param index - The index to set as the primary selected target
+--- @param side - The side to set the target on ("Playable" or "NPC")
+function CombatService.SetPrimarySelectedTargetIndex(player: _TYPES.RobloxPlayerType, index: number, side: _TYPES.Sides)
 	local combatData = CombatData[player]
 	if not combatData then
 		return
 	end
 
-	local npcCount = #combatData.npcs
-	if npcCount == 0 then
+	local charsCount = if side == "Playable" then #combatData.playables else #combatData.npcs
+	if charsCount == 0 then
 		return
 	end
 
-	if index < 1 or index > npcCount then
+	if index < 1 or index > charsCount then
 		return
 	end
 
@@ -170,6 +168,13 @@ function CombatService.UpdateMovePreview(player: _TYPES.RobloxPlayerType, char: 
 	local moveData = moveList[moveName]
 	if not moveData then
 		return
+	end
+
+	-- Ensure the primary selected target index is valid
+	local primaryTargetIndex = combatData.primarySelectedTargetIndex
+	local charsCount = if moveData.selectedSide == "Playable" then #combatData.playables else #combatData.npcs
+	if primaryTargetIndex < 1 or primaryTargetIndex > charsCount then
+		combatData.primarySelectedTargetIndex = 1
 	end
 
 	Zap.UpdateMovePreview.Fire(player, {

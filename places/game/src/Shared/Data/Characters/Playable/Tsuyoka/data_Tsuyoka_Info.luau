@@ -1,18 +1,18 @@
 local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
 
 local info = {
-	name = "Rin",
+	name = "Tsuyoka",
 	description = "",
 	-- Base stats
 	baseStats = {
 		atk = 200,
-		def = 140,
-		hp = 5000,
+		def = 1600,
+		hp = 3000,
 		spd = 170,
 		shield = 0,
 		--
-		critRate = -100,
-		critDmg = 100,
+		critRate = 0,
+		critDmg = 0,
 		--
 		energy = 120,
 		ultimateGainEfficiency = 120,
@@ -25,7 +25,7 @@ local info = {
 		healingProvidedMult = 140,
 		healingReceivedMult = 100,
 		--
-		shieldProvidedMult = 100,
+		shieldProvidedMult = 140,
 		shieldReceivedMult = 100,
 	},
 	-- Starting stats

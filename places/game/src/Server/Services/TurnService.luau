@@ -114,7 +114,6 @@ function TurnService.OnStart()
 			TurnService.InitialisePlayerEntry(event.player)
 		end
 
-		warn("Spawn finished event received for player:", event.player.Name)
 		local playerData = Players[event.player]
 		if not playerData then
 			warn("Player data not found for player:", event.player.Name)
@@ -123,7 +122,6 @@ function TurnService.OnStart()
 
 		-- Normalise the turn queue
 		playerData.turnQueue = Utility.NormaliseTurnQueue(playerData.turnQueue)
-		warn("Turn queue normalised for player:", event.player.Name, "Queue:", playerData.turnQueue)
 
 		-- Do this at the end of the thread to make sure spawn finished reaches the client first
 		task.defer(function()
@@ -275,7 +273,6 @@ function TurnService.CompleteTurn(player: _TYPES.RobloxPlayerType)
 	playerData.turnQueue = Utility.NormaliseTurnQueue(playerData.turnQueue)
 
 	-- Check if there is any extra action to execute
-	warn(next(playerData.extraActionQueue), "Extra action queue for player:", player.Name)
 	if playerData and next(playerData.extraActionQueue) then
 		TurnService.ExecuteNextExtraAction(player :: _TYPES.RobloxPlayerType)
 	end
@@ -311,11 +308,9 @@ function TurnService.MoveToNextTurn(player: _TYPES.RobloxPlayerType)
 				addTurnToQueue(char, entry.actionValue + calculateActionValue(char))
 				break
 			end
-			
+
 			-- Re-sort the turn queue
 			playerData.turnQueue = Utility.SortTurnQueue(playerData.turnQueue)
-
-			warn("Turn queue after adding new turn for character:", char.Name, "Queue:", playerData.turnQueue)
 		end
 	end
 
@@ -353,7 +348,7 @@ function TurnService.StartTurn(player: _TYPES.RobloxPlayerType)
 
 	-- If the next character is an npc, execute its' attack after a short delay
 	if playerData.turnQueue[1].side == "NPC" then
-		task.wait(1) -- This is a placeholder, we will implement NPC attack delay and behaviour later
+		task.wait(2) -- This is a placeholder, we will implement NPC attack delay and behaviour later
 		-- Call the NPC's combat service to execute its' attack
 		local npcCombatService = getCharacterCombatService(playerData.turnQueue[1].char)
 		if npcCombatService then
@@ -445,47 +440,47 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 		return
 	end
 
-	task.wait(1.5)
-
-	-- Stop the start turn timeout for the player to avoid moving to the next turn
-	local combatData = CombatService.GetCombatData(player)
-	if combatData and combatData.startTurnTimeout and combatData.startTurnTimeout.IsRunning then
-		warn("Stopping start turn timeout for player:", player.Name)
-		combatData.startTurnTimeout:Stop()
-	end
-
-	local extraAction = playerData.extraActionQueue[1]
-	playerData.currentExtraAction = extraAction
-
-	local char = extraAction.char
-	local action = extraAction.action
-	local isFollowupAttack = extraAction.isFollowupAttack
-
-	-- Get the combat service for the character
-	if not getCharacterCombatService(char) then
-		warn("No combat service found for character:", char.Name)
-		return
-	end
-	
-	local charCombatService = require(getCharacterCombatService(char))
-
-	-- Set the char as the active character for the player
-	player.ActiveCharacter.Value = char
-
-	-- If the attack is a follow-up, call the attack handler directly
-	if isFollowupAttack then
-		local charCombatData = charCombatService.GetCharData(char)
-		if not charCombatService.GetAttackHandlers()[action](char, charCombatData) then
-			warn("Failed to execute follow-up attack for character:", char.Name, "with action:", action)
-			TurnService.EndCurrentExtraAction(player)
+	task.delay(2, function()
+		-- Stop the start turn timeout for the player to avoid moving to the next turn
+		local combatData = CombatService.GetCombatData(player)
+		if combatData and combatData.startTurnTimeout and combatData.startTurnTimeout.IsRunning then
+			warn("Stopping start turn timeout for player:", player.Name)
+			combatData.startTurnTimeout:Stop()
 		end
-	-- Otherwise, call the input handler for the character's combat service
-	else
-		if not charCombatService.HandleInput(char, { action = action }) then
-			warn("Failed to execute extra action for character:", char.Name, "with action:", action)
-			TurnService.EndCurrentExtraAction(player)
+
+		local extraAction = playerData.extraActionQueue[1]
+		playerData.currentExtraAction = extraAction
+
+		local char = extraAction.char
+		local action = extraAction.action
+		local isFollowupAttack = extraAction.isFollowupAttack
+
+		-- Get the combat service for the character
+		if not getCharacterCombatService(char) then
+			warn("No combat service found for character:", char.Name)
+			return
 		end
-	end
+
+		local charCombatService = require(getCharacterCombatService(char))
+
+		-- Set the char as the active character for the player
+		player.ActiveCharacter.Value = char
+
+		-- If the attack is a follow-up, call the attack handler directly
+		if isFollowupAttack then
+			local charCombatData = charCombatService.GetCharData(char)
+			if not charCombatService.GetAttackHandlers()[action](char, charCombatData) then
+				warn("Failed to execute follow-up attack for character:", char.Name, "with action:", action)
+				TurnService.EndCurrentExtraAction(player)
+			end
+		-- Otherwise, call the input handler for the character's combat service
+		else
+			if not charCombatService.HandleInput(char, { action = action }) then
+				warn("Failed to execute extra action for character:", char.Name, "with action:", action)
+				TurnService.EndCurrentExtraAction(player)
+			end
+		end
+	end)
 end
 
 --- Add an extra action for a character
@@ -517,7 +512,7 @@ function TurnService.AddExtraAction(char: _TYPES.Character, action: string, isFo
 	elseif playerData.turnQueue[1] then
 		currentTurnId = playerData.turnQueue[1].turnId
 	end
-	
+
 	-- Add the extra action to the queue
 	table.insert(playerData.extraActionQueue, {
 		currentTurnId = currentTurnId,
@@ -542,7 +537,7 @@ function TurnService.AddExtraAction(char: _TYPES.Character, action: string, isFo
 		--
 		isFollowupAttack = isFollowupAttack ~= nil,
 	})
-	
+
 	return extraActionId
 end
 
@@ -594,13 +589,10 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 	player.ActiveCharacter.Value = currentTurnChar
 
 	-- PLay the move preview again for the current turn's character
-	local defaultMove = Utility.GetCharacterDefaultMove(currentTurnChar :: _TYPES.Character)
-	if not defaultMove then
-		return
-	end
-	-- Play the idle animation of the default move
-	AnimationService.Play(currentTurnChar :: _TYPES.Character, defaultMove .. "_Idle")
+	AnimationService.PlayDefaultIdleAnimation(currentTurnChar :: _TYPES.Character)
+
 	-- Update the move preview for the player with the default move
+	local defaultMove = Utility.GetCharacterDefaultMove(currentTurnChar :: _TYPES.Character)
 	CombatService.UpdateMovePreview(player, currentTurnChar :: _TYPES.Character, defaultMove)
 end
 
