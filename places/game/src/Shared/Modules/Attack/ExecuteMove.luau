@@ -143,10 +143,9 @@ local function ExecuteMove(
 			if data.attackCategory == "Shield" then
 				local shieldAmount = CalculateShield(data.scalings, char, target, moveName)
 
-				-- Get the current shield value of the target
-				local targetCombatData = CharService.GetCharacterCombatData(target)
-				local currentShield = targetCombatData.currentStats.shield
-				targetCombatData.currentStats.shield = currentShield + shieldAmount
+				local currentShieldValue = CharService.GetCharacterStat(target, "currentStats", "shield")
+				local newShieldValue = currentShieldValue + shieldAmount
+				CharService.UpdateCurrentCharacterStat(target, "shield", newShieldValue)
 			end
 		end
 

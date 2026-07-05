@@ -6,83 +6,82 @@ local function getEnergyScale(current: number, max: number): number
 end
 
 return function()
-	local characterInfoEnergyFrame = Instance.new("Frame")
-	characterInfoEnergyFrame.Name = "CharacterInfo_Energy"
-	characterInfoEnergyFrame.BackgroundTransparency = 1
-	characterInfoEnergyFrame.Position = UDim2.fromScale(0.51, 0)
-	characterInfoEnergyFrame.Size = UDim2.fromScale(0.63, 0.63)
+	local energyFrame = Instance.new("Frame")
+	energyFrame.Name = "CharacterInfo_Energy"
+	energyFrame.BackgroundTransparency = 1
+	energyFrame.Position = UDim2.fromScale(0.51, 0)
+	energyFrame.Size = UDim2.fromScale(0.63, 0.63)
 
-	local characterCurrentEnergyValue = Instance.new("NumberValue")
-	characterCurrentEnergyValue.Name = "CharacterCurrentEnergyValue"
-	characterCurrentEnergyValue.Parent = characterInfoEnergyFrame
+	local currentEnergyValue = Instance.new("NumberValue")
+	currentEnergyValue.Name = "CharacterCurrentEnergyValue"
+	currentEnergyValue.Parent = energyFrame
 
-	local characterMaxEnergyValue = Instance.new("NumberValue")
-	characterMaxEnergyValue.Name = "CharacterMaxEnergyValue"
-	characterMaxEnergyValue.Parent = characterInfoEnergyFrame
+	local maxEnergyValue = Instance.new("NumberValue")
+	maxEnergyValue.Name = "CharacterMaxEnergyValue"
+	maxEnergyValue.Parent = energyFrame
 
-	local characterInfoEnergyAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
-	characterInfoEnergyAspectRatioConstraint.Name = "UIAspectRatioConstraint"
-	characterInfoEnergyAspectRatioConstraint.Parent = characterInfoEnergyFrame
+	local energyAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+	energyAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+	energyAspectRatioConstraint.Parent = energyFrame
 
-	local characterInfoEnergyBackground = Instance.new("Frame")
-	characterInfoEnergyBackground.Name = "CharacterInfo_EnergyBackground"
-	characterInfoEnergyBackground.BackgroundTransparency = 1
-	characterInfoEnergyBackground.ClipsDescendants = true
-	characterInfoEnergyBackground.Size =
-		UDim2.fromScale(1, 1 - getEnergyScale(characterCurrentEnergyValue.Value, characterMaxEnergyValue.Value))
-	characterInfoEnergyBackground.ZIndex = 2 -- Place it on top of the energy fill
+	local energyBackground = Instance.new("Frame")
+	energyBackground.Name = "CharacterInfo_EnergyBackground"
+	energyBackground.BackgroundTransparency = 1
+	energyBackground.ClipsDescendants = true
+	energyBackground.Size = UDim2.fromScale(1, 1 - getEnergyScale(currentEnergyValue.Value, maxEnergyValue.Value))
+	energyBackground.ZIndex = 2 -- Place it on top of the energy fill
 
-	local characterInfoEnergyBackgroundImageLabel = Instance.new("ImageLabel")
-	characterInfoEnergyBackgroundImageLabel.Name = "CharacterInfo_EnergyBackground_BG"
-	characterInfoEnergyBackgroundImageLabel.BackgroundTransparency = 1
-	characterInfoEnergyBackgroundImageLabel.Image = "rbxassetid://75345050398965"
-	characterInfoEnergyBackgroundImageLabel.Size = UDim2.new(1, 0, 0, characterInfoEnergyFrame.AbsoluteSize.Y)
-	characterInfoEnergyBackgroundImageLabel.ZIndex = 2 -- Place it on top of the energy fill
+	local energyBackgroundImageLabel = Instance.new("ImageLabel")
+	energyBackgroundImageLabel.Name = "CharacterInfo_EnergyBackground_BG"
+	energyBackgroundImageLabel.BackgroundTransparency = 1
+	energyBackgroundImageLabel.Image = "rbxassetid://75345050398965"
+	energyBackgroundImageLabel.Size = UDim2.new(1, 0, 0, energyFrame.AbsoluteSize.Y)
+	energyBackgroundImageLabel.ZIndex = 2 -- Place it on top of the energy fill
 
 	-- Update the energy background size when the absolute size of the energy frame changes (e.g. due to screen resizing)
-	characterInfoEnergyFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		characterInfoEnergyBackgroundImageLabel.Size = UDim2.new(1, 0, 0, characterInfoEnergyFrame.AbsoluteSize.Y)
+	energyFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		energyBackgroundImageLabel.Size = UDim2.new(1, 0, 0, energyFrame.AbsoluteSize.Y)
 	end)
 
-	local characterInfoEnergyGradient = Instance.new("UIGradient")
-	characterInfoEnergyGradient.Name = "UIGradient"
-	characterInfoEnergyGradient.Parent = characterInfoEnergyBackgroundImageLabel
+	local energyGradient = Instance.new("UIGradient")
+	energyGradient.Name = "UIGradient"
+	energyGradient.Parent = energyBackgroundImageLabel
 
-	characterInfoEnergyBackgroundImageLabel.Parent = characterInfoEnergyBackground
+	energyBackgroundImageLabel.Parent = energyBackground
 
-	characterInfoEnergyBackground.Parent = characterInfoEnergyFrame
+	energyBackground.Parent = energyFrame
 
-	local characterInfoEnergyFill = Instance.new("Frame")
-	characterInfoEnergyFill.Name = "CharacterInfo_EnergyFill"
-	characterInfoEnergyFill.AnchorPoint = Vector2.new(0.5, 1)
-	characterInfoEnergyFill.BackgroundTransparency = 1
-	characterInfoEnergyFill.Position = UDim2.fromScale(0.5, 1)
-	characterInfoEnergyFill.Size = UDim2.fromScale(1, 1)
+	local energyFill = Instance.new("Frame")
+	energyFill.Name = "CharacterInfo_EnergyFill"
+	energyFill.AnchorPoint = Vector2.new(0.5, 1)
+	energyFill.BackgroundTransparency = 1
+	energyFill.Position = UDim2.fromScale(0.5, 1)
+	energyFill.Size = UDim2.fromScale(1, 1)
 
 	-- Listens to energy changed events to update the energy fill
 	-- Since roblox scales frames downwards for some reason, resize the background instead to achieve the similar effect of the energy bar
 	-- increasing in size
-	characterCurrentEnergyValue.Changed:Connect(function()
+	currentEnergyValue.Changed:Connect(function()
 		-- Recalculate the energy fill size based on the new energy value
-		local energyScale = getEnergyScale(characterCurrentEnergyValue.Value, characterMaxEnergyValue.Value)
+		local energyScale = getEnergyScale(currentEnergyValue.Value, maxEnergyValue.Value)
 		-- Reverse the energy scale since we are resizing the background instead of the fill
-		characterInfoEnergyBackground.Size = UDim2.fromScale(1, 1 - energyScale)
+		energyBackground.Size = UDim2.fromScale(1, 1 - energyScale)
 	end)
 
-	local characterInfoEnergyFillImageLabel = Instance.new("ImageLabel")
-	characterInfoEnergyFillImageLabel.Name = "CharacterInfo_EnergyFill_BG"
-	characterInfoEnergyFillImageLabel.BackgroundTransparency = 1
-	characterInfoEnergyFillImageLabel.Image = "rbxassetid://119247488685815"
-	characterInfoEnergyFillImageLabel.Size = UDim2.fromScale(1, 1)
-	characterInfoEnergyFillImageLabel.ZIndex = 1 -- Place it below the energy background
+	local energyFillImageLabel = Instance.new("ImageLabel")
+	energyFillImageLabel.Name = "CharacterInfo_EnergyFill_BG"
+	energyFillImageLabel.BackgroundTransparency = 1
+	energyFillImageLabel.Image = "rbxassetid://119247488685815"
+	energyFillImageLabel.Size = UDim2.fromScale(1, 1)
+	energyFillImageLabel.ZIndex = 1 -- Place it below the energy background
 
-	local characterInfoEnergyFillUIGradient = Instance.new("UIGradient")
-	characterInfoEnergyFillUIGradient.Name = "UIGradient"
-	characterInfoEnergyFillUIGradient.Parent = characterInfoEnergyFillImageLabel
+	local energyFillUIGradient = Instance.new("UIGradient")
+	energyFillUIGradient.Name = "UIGradient"
+	energyFillUIGradient.Parent = energyFillImageLabel
 
-	characterInfoEnergyFillImageLabel.Parent = characterInfoEnergyFill
+	energyFillImageLabel.Parent = energyFill
 
-	characterInfoEnergyFill.Parent = characterInfoEnergyFrame
+	energyFill.Parent = energyFrame
 
-	return characterInfoEnergyFrame
+	return energyFrame
 end

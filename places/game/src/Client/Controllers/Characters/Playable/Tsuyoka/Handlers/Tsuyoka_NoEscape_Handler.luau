@@ -47,5 +47,5 @@ return function(
 		char:PivotTo(originalCFrame)
 	end)
 
-	return 0
+	return 1
 end

@@ -55,7 +55,7 @@ function Setsuna_CombatService.Init(char: _TYPES.Character)
 	-- Listens to the turn started event to reset the selected move to the default
 	EventService.Events.TurnStarted:Connect(function(turnData)
 		if turnData.data.char :: any == char then
-			Chars[char].Info.selectedMove = "NoEscape"
+			Chars[char].Info.selectedMove = "WeavingBlade"
 			Chars[char].Info.queuedUltimateId = nil
 		end
 	end)

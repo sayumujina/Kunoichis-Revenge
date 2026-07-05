@@ -4,7 +4,7 @@ local matchingCurrentStatsName = {
 	["energy"] = "CurrentEnergy",
 	["hp"] = "CurrentHP",
 	["exposure"] = "CurrentExposure",
-	-- ["shield"] = "CurrentShield",
+	["shield"] = "CurrentShield",
 }
 
 local matchingRealStatsName = {

@@ -54,7 +54,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 			{
 				attackCategory = "Shield",
 				scalings = {
-					realStats = { def = 10 / 100 },
+					realStats = { def = 60 / 100 },
 				},
 				energyGain = 40,
 				exposureDealt = 0,
