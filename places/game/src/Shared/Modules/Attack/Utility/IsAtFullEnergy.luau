@@ -1,16 +1,29 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
 --
-local CharService = require(game:GetService("ServerScriptService").Server.Services.CharService)
+local Services = game:GetService("ServerScriptService").Server.Services
+local CharService = require(Services.CharService)
+local PlayerService = require(Services.PlayerService)
+--
+local Zap = require(Services.Parent.zap)
 
 return function(char: _TYPES.Character)
 	-- Get the character's combat data
 	local combatData = CharService.GetCharacterCombatData(char)
+	local hasEnoughEnergy = false
 
 	-- Check if the character has full energy
 	if combatData and combatData.baseStats.energy and combatData.currentStats.energy then
-		return combatData.currentStats.energy >= combatData.baseStats.energy
+		hasEnoughEnergy = combatData.currentStats.energy >= combatData.baseStats.energy
 	end
 
-	return false
+	-- Fire a warning to the player if they don't have enough energy
+	if not hasEnoughEnergy then
+		local player = PlayerService.GetPlayerFromCharacter(char)
+		Zap.Warning.Fire(player :: _TYPES.RobloxPlayerType, {
+			message = "Insufficient energy",
+		})
+	end
+
+	return hasEnoughEnergy
 end

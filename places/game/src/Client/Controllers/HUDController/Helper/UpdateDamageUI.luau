@@ -119,7 +119,6 @@ local function createDamagePopup(playerGui: PlayerGui, damageData: _TYPES.Damage
 
 	-- Wait for one second before fading out the damage popup
 	task.delay(DAMAGE_POPUP_LIFETIME, function()
-		warn("Fading out damage popup for target: " .. damageData.target.Name .. ", Damage: " .. damageData.damage)
 		-- Tween the damage label to fade out
 		TweenService:Create(damageLabel, TweenInfo.new(0.2), { TextTransparency = 1, TextStrokeTransparency = 1 })
 			:Play()

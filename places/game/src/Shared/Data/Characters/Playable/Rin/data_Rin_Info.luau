@@ -31,7 +31,7 @@ local info = {
 	-- Starting stats
 	startingStats = {
 		hp = 2000,
-		energy = 120,
+		energy = 10,
 		shield = 0,
 	},
 } :: _TYPES.CharacterInfo

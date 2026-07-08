@@ -19,6 +19,8 @@ local HandleMana = require(CombatUtility.HandleMana)
 local ProvideShield = require(CombatUtility.ProvideShield)
 -- Utility
 local Utility = require(game.ReplicatedStorage.Shared.Modules.Utility)
+-- Packages
+local Zap = require(Services.Parent.zap)
 
 -- Helper function to reset the attacking state for a player after an attack animation is complete
 local function resetAttackingState(player: _TYPES.RobloxPlayerType)
@@ -57,7 +59,9 @@ local function ExecuteMove(
 	-- If after the move, the playable character's mana would be less than 0, then the move cannot be performed
 	-- Only playable characters have mana change in the move data,  hence the "if attackData.manaChange" condition
 	if attackData.manaChange and not HandleMana.HasEnoughMana(player, attackData.manaChange) then
-		warn("Not enough mana to perform the move: " .. moveName)
+		Zap.Warning.Fire(player, {
+			message = "Insufficient mana",
+		})
 		resetAttackingState(player :: _TYPES.RobloxPlayerType)
 		return false
 	end
@@ -95,6 +99,7 @@ local function ExecuteMove(
 
 	-- Update the player's mana after performing the move
 	if attackData.manaChange then
+		warn("Updating player mana for " .. player.Name .. " by " .. attackData.manaChange)
 		HandleMana.UpdatePlayerMana(player, attackData.manaChange)
 	end
 

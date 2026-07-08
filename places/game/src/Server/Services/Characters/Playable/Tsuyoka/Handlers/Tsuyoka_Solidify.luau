@@ -18,6 +18,7 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
+		manaChange = moveInfo.manaChange,
 		targets = {},
 		attacks = moveInfo.attacks,
 		info = moveInfo.info,

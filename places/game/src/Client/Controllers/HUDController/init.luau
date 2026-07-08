@@ -11,6 +11,7 @@ local Helpers = {
 	UpdateCharacterStatValue = require(script.Helper.UpdateCharacterStatValue),
 	UpdateCurrentManaValue = require(script.Helper.UpdateCurrentManaValue),
 	UpdateDamageUI = require(script.Helper.UpdateDamageUI),
+	DisplayWarning = require(script.Helper.DisplayWarning),
 }
 
 -- Components
@@ -486,6 +487,11 @@ function HUDController.OnStart()
 
 		-- Update the turn queue UI after re-sorting
 		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+	end)
+
+	-- Listens to warning events
+	Zap.Warning.On(function(warningEvent)
+		Helpers.DisplayWarning(playerGui, warningEvent.message)
 	end)
 end
 
