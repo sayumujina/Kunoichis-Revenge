@@ -132,6 +132,17 @@ function DamageService.Heal(origin: _TYPES.Character, target: _TYPES.Character, 
 		-- Otherwise, add the heal amount to the target's current HP
 		CharService.UpdateCurrentCharacterStat(target, "hp", newHP)
 	end
+
+	-- Fire the damage event with the target, origin, and heal amount
+	-- WITH NEGATIVE DAMAGE
+	EventService.Events.Damage:Fire({
+		origin = origin,
+		data = {
+			target = target,
+			damage = -healAmount,
+			isCrit = false,
+		},
+	})
 end
 
 return DamageService

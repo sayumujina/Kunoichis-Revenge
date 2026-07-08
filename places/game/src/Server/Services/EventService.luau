@@ -228,6 +228,18 @@ export type DamageEvent = {
 	data: _TYPES.Damage,
 }
 
+--- @type ShieldProvidedEvent { origin: _TYPES.Character, data: { target: _TYPES.Character, shieldAmount: number } }
+--- @within EventService
+--- Describes the event for when a character provides a shield to another character.
+--- Contains the origin of the shield, the target character, and the amount of shield provided.
+export type ShieldProvidedEvent = {
+	origin: _TYPES.Character,
+	data: {
+		target: _TYPES.Character,
+		shieldAmount: number,
+	},
+}
+
 --- @type Events { [string]: Signal.Signal<any> }
 --- @within EventService
 --- A collection of events that can be fired and listened to. Refer to the specific event types for more information.
@@ -252,6 +264,7 @@ EventService.Events = {
 	ActionAdvance = Signal.new() :: Signal.Signal<ActionAdvanceEvent>,
 	MoveEnd = Signal.new() :: Signal.Signal<MoveEndEvent>,
 	Damage = Signal.new() :: Signal.Signal<DamageEvent>,
+	ShieldProvided = Signal.new() :: Signal.Signal<ShieldProvidedEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService

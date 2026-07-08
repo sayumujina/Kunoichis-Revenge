@@ -3,6 +3,9 @@ local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 -- Popup sizes
 local NORMAL_POPUP_SIZE = UDim2.fromScale(4, 2)
 local CRIT_POPUP_SIZE = UDim2.fromScale(7, 3.75)
+local DAMAGE_TEXT_COLOR = Color3.new(1, 1, 1)
+local HEAL_TEXT_COLOR = Color3.fromRGB(85, 255, 0)
+local SHIELD_TEXT_COLOR = Color3.fromRGB(255, 170, 0)
 
 local RANDOM_OFFSET_MIN_DISTANCE = 0.2
 local rng = Random.new()
@@ -17,7 +20,7 @@ local function randomiseOffset()
 	return Vector3.new(xOffset, yOffset, -3)
 end
 
-return function(target: _TYPES.Character, isCrit: boolean, damage: number)
+return function(target: _TYPES.Character, isCrit: boolean, damage: number, isShield: boolean)
 	local billboardGui = Instance.new("BillboardGui")
 	billboardGui.Name = "BillboardGui"
 	billboardGui.Active = true
@@ -42,7 +45,6 @@ return function(target: _TYPES.Character, isCrit: boolean, damage: number)
 	critLabel.Size = UDim2.fromScale(0.35, 0.35)
 	critLabel.Text = "CRIT"
 	critLabel.TextColor3 = Color3.new(1, 1, 1)
-	critLabel.TextDirection = Enum.TextDirection.RightToLeft
 	critLabel.TextScaled = true
 	critLabel.TextStrokeTransparency = 0
 	critLabel.TextTransparency = 1
@@ -56,9 +58,14 @@ return function(target: _TYPES.Character, isCrit: boolean, damage: number)
 		Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	damagePopupLabel.Position = UDim2.fromScale(0.2, 0.2)
 	damagePopupLabel.Size = UDim2.fromScale(0.6, 0.6)
-	damagePopupLabel.Text = tostring(math.round(damage))
-	damagePopupLabel.TextColor3 = Color3.new(1, 1, 1)
-	damagePopupLabel.TextDirection = Enum.TextDirection.RightToLeft
+	-- Add a "+" sign for healing
+	damagePopupLabel.Text = if damage < 0 or isShield
+		then "+" .. tostring(math.round(math.abs(damage)))
+		else tostring(math.round(damage))
+	damagePopupLabel.TextColor3 = if damage < 0
+		then HEAL_TEXT_COLOR
+		elseif isShield then SHIELD_TEXT_COLOR
+		else DAMAGE_TEXT_COLOR
 	damagePopupLabel.TextScaled = true
 	damagePopupLabel.TextStrokeTransparency = 0
 	damagePopupLabel.TextTransparency = 1

@@ -231,8 +231,21 @@ function HUDController.OnStart()
 			return
 		end
 
+		-- Only toggle visibility if the damage is positive (i.e., actual damage dealt)
+		if damageEvent.data.damage < 0 then
+			return
+		end
+
 		Helpers.UpdateDamageUI.ToggleDamageUIVisibility(playerGui, true)
 		Helpers.UpdateDamageUI.UpdateTotalDamageUI(playerGui, damageEvent.data.damage)
+	end)
+
+	-- Listens to shield provided events to update the shield value on the character info cards
+	Zap.ShieldProvided.On(function(shieldProvidedEvent)
+		Helpers.UpdateDamageUI.CreateShieldPopup(playerGui, {
+			target = shieldProvidedEvent.data.target :: _TYPES.Character,
+			shieldAmount = shieldProvidedEvent.data.shieldAmount,
+		})
 	end)
 
 	-- Listens to move end events to reset the total damage UI

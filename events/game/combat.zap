@@ -105,3 +105,16 @@ event Damage = {
 		},
 	},
 }
+
+event ShieldProvided = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		origin: Instance.Model, 
+		data: struct {
+			target: Instance.Model,
+			shieldAmount: f32,
+		},
+	},
+}

@@ -14,9 +14,9 @@ local CombatUtility = game.ReplicatedStorage.Shared.Modules.Attack.Utility
 local ProvideEnergy = require(CombatUtility.ProvideEnergy)
 local CalculateDamage = require(CombatUtility.CalculateDamage)
 local CalculateHealing = require(CombatUtility.CalculateHealing)
-local CalculateShield = require(CombatUtility.CalculateShield)
 local DetermineTargets = require(CombatUtility.DetermineTargets)
 local HandleMana = require(CombatUtility.HandleMana)
+local ProvideShield = require(CombatUtility.ProvideShield)
 -- Utility
 local Utility = require(game.ReplicatedStorage.Shared.Modules.Utility)
 
@@ -141,11 +141,7 @@ local function ExecuteMove(
 		-- Loop through each target and apply the appropriate effect based on the move category
 		for _, target in pairs(targets) do
 			if data.attackCategory == "Shield" then
-				local shieldAmount = CalculateShield(data.scalings, char, target, moveName)
-
-				local currentShieldValue = CharService.GetCharacterStat(target, "currentStats", "shield")
-				local newShieldValue = currentShieldValue + shieldAmount
-				CharService.UpdateCurrentCharacterStat(target, "shield", newShieldValue)
+				ProvideShield(data, char, target, moveName)
 			end
 		end
 
@@ -160,9 +156,6 @@ local function ExecuteMove(
 
 	-- Move to the next turn after the attack animation is complete
 	trove:Add(anim.Stopped:Connect(function()
-		-- Reset the attacking state for the player after the attack animation is complete
-		resetAttackingState(player :: _TYPES.RobloxPlayerType)
-
 		local turnData = TurnService.GetTurnData(player :: _TYPES.RobloxPlayerType)
 
 		-- Move to the next turn if specified
@@ -190,6 +183,12 @@ local function ExecuteMove(
 		-- Clean up the trove after the animation is complete
 		trove:Clean()
 	end))
+
+	-- Reset the attacking state upon trove end
+	trove:Add(function()
+		-- Reset the attacking state for the player after the attack animation is complete
+		resetAttackingState(player :: _TYPES.RobloxPlayerType)
+	end)
 
 	return true
 end

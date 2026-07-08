@@ -28,10 +28,4 @@ return function(energyReceiver: _TYPES.Character, amount: number, fixedGain: boo
 
 	-- Update the character's energy
 	CharService.UpdateCurrentCharacterStat(energyReceiver, "energy", finalisedEnergy)
-
-	-- Fire the energy changed event
-	Zap.CurrentStatsChanged.FireAll({
-		char = energyReceiver,
-		data = { ["energy"] = finalisedEnergy },
-	})
 end

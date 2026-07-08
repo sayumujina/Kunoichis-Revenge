@@ -4,7 +4,6 @@ local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
 --
 local totalDamage = 0
 local damageTweens: { Tween } = {}
-local DAMAGE_POPUP_TWEEN_INFO = TweenInfo.new(0.1)
 local DAMAGE_POPUP_LIFETIME = 1
 
 -- Helper function to get the damage card
@@ -66,6 +65,11 @@ end
 
 -- Helper function to update the total damage UI on the damage card
 local function updateTotalDamageUI(playerGui: PlayerGui, damage: number)
+	-- Only update the total damage if the damage is positive (i.e., actual damage dealt)
+	if damage < 0 then
+		return
+	end
+
 	local damageCard = getDamageCard(playerGui)
 	if not damageCard then
 		return
@@ -87,17 +91,6 @@ local function updateTotalDamageUI(playerGui: PlayerGui, damage: number)
 end
 
 -- Helper function to create a damage popup above the target's head
-local function tweenPopupLabel(label: TextLabel, transparency: number)
-	local tween = TweenService:Create(label, DAMAGE_POPUP_TWEEN_INFO, {
-		TextTransparency = transparency,
-		TextStrokeTransparency = transparency,
-	})
-	tween:Play()
-
-	return tween
-end
-
--- Helper function to create a damage popup above the target's head
 local function createDamagePopup(playerGui: PlayerGui, damageData: _TYPES.Damage)
 	local billboardGuiFolder = playerGui:FindFirstChild("UI_BillboardGui_Folder", true)
 	if not billboardGuiFolder then
@@ -106,7 +99,7 @@ local function createDamagePopup(playerGui: PlayerGui, damageData: _TYPES.Damage
 
 	-- If the damage is a critical hit, make the damage popup larger to emphasize the critical hit
 	local damagePopupBillboard =
-		createDamagePopupBillboard(damageData.target :: _TYPES.Character, damageData.isCrit, damageData.damage)
+		createDamagePopupBillboard(damageData.target :: _TYPES.Character, damageData.isCrit, damageData.damage, false)
 	damagePopupBillboard.Parent = billboardGuiFolder
 	local damagePopupFrame = damagePopupBillboard:FindFirstChild("Damage_Popup", true)
 	if not damagePopupFrame then
@@ -116,31 +109,69 @@ local function createDamagePopup(playerGui: PlayerGui, damageData: _TYPES.Damage
 	local critLabel = nil
 	local damageLabel = damagePopupFrame:FindFirstChild("DamagePopup_Label", true)
 
-	warn("Creating damage popup for target: " .. damageData.target.Name .. ", Damage: " .. damageData.damage)
 	-- If is crit, also twen the "CRIT" label to fade in and out
 	if damageData.isCrit then
 		critLabel = damagePopupFrame:FindFirstChild("Crit_Label", true)
-		TweenService:Create(critLabel, TweenInfo.new(0.1), { TextTransparency = 0, TextStrokeTransparency = 0 }):Play()
+		TweenService:Create(critLabel, TweenInfo.new(0.2), { TextTransparency = 0, TextStrokeTransparency = 0 }):Play()
 	end
 
-	warn(damagePopupFrame:FindFirstChild("DamagePopup_Label", true))
-	TweenService:Create(damageLabel, TweenInfo.new(0.1), { TextTransparency = 0, TextStrokeTransparency = 0 }):Play()
+	TweenService:Create(damageLabel, TweenInfo.new(0.2), { TextTransparency = 0, TextStrokeTransparency = 0 }):Play()
 
 	-- Wait for one second before fading out the damage popup
 	task.delay(DAMAGE_POPUP_LIFETIME, function()
 		warn("Fading out damage popup for target: " .. damageData.target.Name .. ", Damage: " .. damageData.damage)
 		-- Tween the damage label to fade out
-		TweenService:Create(damageLabel, TweenInfo.new(0.1), { TextTransparency = 1, TextStrokeTransparency = 1 })
+		TweenService:Create(damageLabel, TweenInfo.new(0.2), { TextTransparency = 1, TextStrokeTransparency = 1 })
 			:Play()
 		-- Tween the "CRIT" label to fade out if it exists
 		if critLabel then
-			TweenService:Create(critLabel, TweenInfo.new(0.1), { TextTransparency = 1, TextStrokeTransparency = 1 })
+			TweenService:Create(critLabel, TweenInfo.new(0.2), { TextTransparency = 1, TextStrokeTransparency = 1 })
 				:Play()
 		end
 
 		-- Destroy the damage popup billboard after the fade-out animation completes
-		task.delay(0.1, function()
+		task.delay(0.2, function()
 			damagePopupBillboard:Destroy()
+		end)
+	end)
+end
+
+-- Helper function to create a shield popup above the target's head
+local function createShieldPopup(playerGui: PlayerGui, shieldData: { target: _TYPES.Character, shieldAmount: number })
+	local billboardGuiFolder = playerGui:FindFirstChild("UI_BillboardGui_Folder", true)
+	if not billboardGuiFolder then
+		return
+	end
+
+	-- Create a shield popup above the target's head
+	local shieldPopupBillboard =
+		createDamagePopupBillboard(shieldData.target :: _TYPES.Character, false, shieldData.shieldAmount, true)
+	shieldPopupBillboard.Parent = billboardGuiFolder
+	local shieldPopupFrame = shieldPopupBillboard:FindFirstChild("Damage_Popup", true)
+	if not shieldPopupFrame then
+		return
+	end
+
+	local shieldLabel = shieldPopupFrame:FindFirstChild("DamagePopup_Label", true)
+
+	-- Tween the shield label to fade in
+	TweenService:Create(shieldLabel, TweenInfo.new(0.2), { TextTransparency = 0, TextStrokeTransparency = 0 }):Play()
+
+	-- Wait for one second before fading out the shield popup
+	task.delay(DAMAGE_POPUP_LIFETIME, function()
+		warn(
+			"Fading out shield popup for target: "
+				.. shieldData.target.Name
+				.. ", Shield Amount: "
+				.. shieldData.shieldAmount
+		)
+		-- Tween the shield label to fade out
+		TweenService:Create(shieldLabel, TweenInfo.new(0.2), { TextTransparency = 1, TextStrokeTransparency = 1 })
+			:Play()
+
+		-- Destroy the shield popup billboard after the fade-out animation completes
+		task.delay(0.2, function()
+			shieldPopupBillboard:Destroy()
 		end)
 	end)
 end
@@ -150,4 +181,5 @@ return {
 	UpdateTotalDamageUI = updateTotalDamageUI,
 	ResetTotalDamage = resetTotalDamage,
 	CreateDamagePopup = createDamagePopup,
+	CreateShieldPopup = createShieldPopup,
 }
