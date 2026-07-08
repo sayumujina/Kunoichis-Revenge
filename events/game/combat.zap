@@ -79,3 +79,29 @@ event UpdateMovePreview = {
 		},
 	},
 }
+
+event MoveEnd = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		origin: Instance.Model, 
+		data: struct {
+			moveName: string.binary,
+		},
+	},
+}
+
+event Damage = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		origin: Instance.Model, 
+		data: struct {
+			target: Instance.Model,
+			damage: f32,
+			isCrit: boolean,
+		},
+	},
+}

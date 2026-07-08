@@ -17,7 +17,6 @@ return function(
 	local cframeToLerpTo = attackData.targets[1].HumanoidRootPart.CFrame
 		* CFrame.new(0, 0, -6)
 		* CFrame.Angles(0, math.rad(180), 0)
-	warn("CFrame to lerp to: ", cframeToLerpTo)
 
 	-- Create a tween to move the character to the position in front of the target
 	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
@@ -29,7 +28,6 @@ return function(
 
 	-- Return to the original position after reaching the "return" marker
 	trove:Add(animationTrack:GetMarkerReachedSignal("return"):Connect(function()
-		warn("Return marker reached, returning to original position")
 		TweenService:Create(cframeValue, tweenInfo, { Value = originalCFrame }):Play()
 	end))
 

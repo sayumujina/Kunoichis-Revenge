@@ -61,7 +61,7 @@ function CombatController.OnStart()
 			-- If it matches, call the corresponding attack handler
 			local controller = Utility.GetCharacterCombatController(char)
 			local attackHandlers = controller and require(controller).GetAttackHandlers()
-			local cleanupDuration = attackHandlers[moveName](
+			attackHandlers[moveName](
 				trove,
 				animationTrack,
 				successfulMoveData.origin :: _TYPES.Character,
@@ -70,10 +70,9 @@ function CombatController.OnStart()
 
 			-- Clean up the trove for the current character after the animation is done
 			trove:Add(animationTrack.Stopped:Connect(function()
-				task.delay(cleanupDuration, function()
-					warn("Cleaning up trove for character: " .. char.Name)
-					trove:Clean()
-				end)
+				-- task.delay(cleanupDuration, function()
+				trove:Clean()
+				-- end)
 			end))
 
 			break

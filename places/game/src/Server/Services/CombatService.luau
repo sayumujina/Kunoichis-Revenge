@@ -9,8 +9,6 @@ local PlayerService = require(Services.PlayerService)
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
 local Zap = require(Services.Parent.zap)
--- Constants
-local START_TURN_TIMEOUT = 2 -- second(s)
 
 local CombatService = {}
 
@@ -21,7 +19,6 @@ local CombatData: {
 		primarySelectedTargetIndex: number, -- The main enemy index (for blast attacks)
 		--
 		isProcessingAttack: boolean, -- Whether the player is currently processing an attack
-		startTurnTimeout: any, -- Timeout before starting the next turn
 	},
 } =
 	{}
@@ -42,7 +39,6 @@ function CombatService.OnStart()
 			primarySelectedTargetIndex = 0,
 			--
 			isProcessingAttack = false,
-			startTurnTimeout = Utility.SetupTimeout(START_TURN_TIMEOUT),
 		}
 
 		-- Count the number of enemies and set the primary selected enemy index to the middle one
@@ -91,9 +87,6 @@ function CombatService.OnStart()
 
 	-- Clean up combat data for the player when they leave the game
 	game.Players.PlayerRemoving:Connect(function(player)
-		if CombatData[player].startTurnTimeout then
-			CombatData[player].startTurnTimeout:Destroy()
-		end
 		CombatData[player] = nil
 	end)
 end

@@ -5,6 +5,13 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local LogService = game:GetService("LogService")
 
+--- Calculates the final shield dealt by an attack based on the provided scalings, origin character, and target character.
+--- @within Modules
+--- @param scalings - The attack scalings to use for the shield calculation
+--- @param origin - The character providing the shield
+--- @param target - The character receiving the shield
+--- @param moveName - The name of the move being executed (for logging purposes)
+--- @return number - The final shield dealt
 return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, target: _TYPES.Character, moveName: string)
 	-- Outgoing Shield =
 	-- Base shield -- Character's scaled stats * skill scalings

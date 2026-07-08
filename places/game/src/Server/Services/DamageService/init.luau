@@ -19,7 +19,8 @@ function DamageService.OnStart() end
 --- @param origin - The character dealing the damage
 --- @param target - The character receiving the damage
 --- @param damage - The amount of damage to deal
-function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character, damage: number)
+--- @param isCrit - Whether the damage is a critical hit
+function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character, damage: number, isCrit: boolean)
 	-- Get the target's current HP and shield
 	local targetHP = CharService.GetCurrentCharacterStat(target, "hp")
 	local targetShield = CharService.GetCurrentCharacterStat(target, "shield")
@@ -66,6 +67,16 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 		-- Otherwise, subtract the damage from the target's current HP
 		CharService.UpdateCurrentCharacterStat(target, "hp", newHP)
 	end
+
+	-- Fire the damage event with the target, origin, and damage amount
+	EventService.Events.Damage:Fire({
+		origin = origin,
+		data = {
+			target = target,
+			damage = damage,
+			isCrit = isCrit,
+		},
+	})
 end
 
 --- Deals exposure damage to a target character based on the origin character and the exposure amount

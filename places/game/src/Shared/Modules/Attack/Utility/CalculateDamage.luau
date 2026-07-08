@@ -5,6 +5,13 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local LogService = game:GetService("LogService")
 
+--- Calculates the final damage dealt by an attack based on the provided scalings, origin character, and target character.
+--- @within Modules
+--- @param scalings - The attack scalings to use for the damage calculation
+--- @param origin - The character dealing the damage
+--- @param target - The character receiving the damage
+--- @param moveName - The name of the move being executed (for logging purposes)
+--- @return number, boolean - The final damage dealt and whether the hit was a critical hit
 return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, target: _TYPES.Character, moveName: string)
 	-- Outgoing DMG =
 	-- Base DMG -- Character's scaled stats * skill scalings
@@ -85,5 +92,6 @@ return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, targe
 			.. dmgTakenMult
 			.. ")"
 	)
-	return finalDmg
+
+	return finalDmg, isCrit
 end

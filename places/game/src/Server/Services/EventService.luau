@@ -208,6 +208,26 @@ export type ActionAdvanceEvent = {
 	advancedBy: number,
 }
 
+--- @type AttackEndEvent { origin: _TYPES.Character, data: { moveName: string } }
+--- @within EventService
+--- Describes the event for when a character's attack has ended.
+--- Contains the origin of the attack and the name of the move that has ended.
+export type MoveEndEvent = {
+	origin: _TYPES.Character,
+	data: {
+		moveName: string,
+	},
+}
+
+--- @type DamageEvent { origin: _TYPES.Character, data: { target: _TYPES.Character, damage: number, isCrit: boolean } }
+--- @within EventService
+--- Describes the event for when a character deals damage to another character.
+--- Contains the origin of the damage, the target character, and the amount of damage dealt.
+export type DamageEvent = {
+	origin: _TYPES.Character,
+	data: _TYPES.Damage,
+}
+
 --- @type Events { [string]: Signal.Signal<any> }
 --- @within EventService
 --- A collection of events that can be fired and listened to. Refer to the specific event types for more information.
@@ -230,6 +250,8 @@ EventService.Events = {
 	StatusAdded = Signal.new() :: Signal.Signal<StatusAddedEvent>,
 	StatusRemoved = Signal.new() :: Signal.Signal<StatusRemovedEvent>,
 	ActionAdvance = Signal.new() :: Signal.Signal<ActionAdvanceEvent>,
+	MoveEnd = Signal.new() :: Signal.Signal<MoveEndEvent>,
+	Damage = Signal.new() :: Signal.Signal<DamageEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService

@@ -13,6 +13,7 @@ local ConsumablesTypes = require(script.Combat.type_Consumables)
 local AttackScalingsTypes = require(script.Combat.type_AttackScalings)
 local KnockbackTypes = require(script.Combat.type_Knockback)
 local InputDataTypes = require(script.Combat.type_InputData)
+local DamageTypes = require(script.Combat.type_Damage)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
@@ -50,6 +51,9 @@ export type AttackScalings = AttackScalingsTypes.AttackScalings
 export type StatusTypes = StatusTypes.StatusTypes
 export type StatChangeTypes = StatusTypes.StatChangeTypes
 export type Status = StatusTypes.Status
+
+-- Damage
+export type Damage = DamageTypes.Damage
 
 -- Consumables
 export type ConsumableType = ConsumablesTypes.ConsumableType

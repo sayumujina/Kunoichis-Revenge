@@ -5,6 +5,13 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local LogService = game:GetService("LogService")
 
+--- Calculates the final healing dealt by an attack based on the provided scalings, origin character, and target character.
+--- @within Modules
+--- @param scalings - The attack scalings to use for the healing calculation
+--- @param origin - The character providing the healing
+--- @param target - The character receiving the healing
+--- @param moveName - The name of the move being executed (for logging purposes)
+--- @return number - The final healing dealt
 return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, target: _TYPES.Character, moveName: string)
 	-- Outgoing Healing =
 	-- Base healing -- Character's scaled stats * skill scalings

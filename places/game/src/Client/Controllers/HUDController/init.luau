@@ -10,6 +10,7 @@ local Helpers = {
 	QueueUIUtility = require(script.Helper.QueueUIUtility),
 	UpdateCharacterStatValue = require(script.Helper.UpdateCharacterStatValue),
 	UpdateCurrentManaValue = require(script.Helper.UpdateCurrentManaValue),
+	UpdateDamageUI = require(script.Helper.UpdateDamageUI),
 }
 
 -- Components
@@ -37,11 +38,15 @@ local Components = {
 			createMainTurnCard = require(ComponentsPath.Combat.Turns.MainTurn_Card),
 			createTurnCardsList = require(ComponentsPath.Combat.Turns.Turn_Cards_List),
 		},
+		Damage = {
+			createDamageCard = require(ComponentsPath.Combat.Damage.Damage_Card),
+		},
 	},
 }
 
---
+-- Local turn queue to keep track of the order of turns in the battle
 local turnQueue = {} :: { _TYPES.TurnEntry }
+
 -- Tracks whether each extra action should render before or after its owning turn card.
 local extraActionLayoutInfoByTurnId = {} :: { [number]: { layoutGroup: string, turnId: number } }
 local MAIN_TURN_LAYOUT_ORDER = 1
@@ -215,6 +220,25 @@ function HUDController.OnStart()
 				Helpers.UpdateCurrentManaValue(playerGui, newValue)
 			end
 		end
+	end)
+
+	-- Listens to damage events to update the total damage UI
+	Zap.Damage.On(function(damageEvent)
+		Helpers.UpdateDamageUI.CreateDamagePopup(playerGui, damageEvent.data :: _TYPES.Damage)
+
+		-- Only shows damage for playable characters
+		if damageEvent.origin:GetAttribute("Side") ~= "Playable" then
+			return
+		end
+
+		Helpers.UpdateDamageUI.ToggleDamageUIVisibility(playerGui, true)
+		Helpers.UpdateDamageUI.UpdateTotalDamageUI(playerGui, damageEvent.data.damage)
+	end)
+
+	-- Listens to move end events to reset the total damage UI
+	Zap.MoveEnd.On(function()
+		Helpers.UpdateDamageUI.ToggleDamageUIVisibility(playerGui, false)
+		Helpers.UpdateDamageUI.ResetTotalDamage()
 	end)
 
 	-- Listen to completed turns to update the turn queue
@@ -500,6 +524,12 @@ function HUDController.Init()
 	if not screenGui:FindFirstChild("UI_ManaFrame", true) then
 		local manaFrame = Components.Combat.Mana.createManaFrame()
 		manaFrame.Parent = playerUIFolder
+	end
+
+	-- Create the damage card if it doesn't exist
+	if not screenGui:FindFirstChild("UI_DamageCard", true) then
+		local damageCard = Components.Combat.Damage.createDamageCard()
+		damageCard.Parent = playerUIFolder
 	end
 end
 

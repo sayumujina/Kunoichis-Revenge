@@ -440,47 +440,38 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 		return
 	end
 
-	task.delay(2, function()
-		-- Stop the start turn timeout for the player to avoid moving to the next turn
-		local combatData = CombatService.GetCombatData(player)
-		if combatData and combatData.startTurnTimeout and combatData.startTurnTimeout.IsRunning then
-			warn("Stopping start turn timeout for player:", player.Name)
-			combatData.startTurnTimeout:Stop()
+	local extraAction = playerData.extraActionQueue[1]
+	playerData.currentExtraAction = extraAction
+
+	local char = extraAction.char
+	local action = extraAction.action
+	local isFollowupAttack = extraAction.isFollowupAttack
+
+	-- Get the combat service for the character
+	if not getCharacterCombatService(char) then
+		warn("No combat service found for character:", char.Name)
+		return
+	end
+
+	local charCombatService = require(getCharacterCombatService(char))
+
+	-- Set the char as the active character for the player
+	player.ActiveCharacter.Value = char
+
+	-- If the attack is a follow-up, call the attack handler directly
+	if isFollowupAttack then
+		local charCombatData = charCombatService.GetCharData(char)
+		if not charCombatService.GetAttackHandlers()[action](char, charCombatData) then
+			warn("Failed to execute follow-up attack for character:", char.Name, "with action:", action)
+			TurnService.EndCurrentExtraAction(player)
 		end
-
-		local extraAction = playerData.extraActionQueue[1]
-		playerData.currentExtraAction = extraAction
-
-		local char = extraAction.char
-		local action = extraAction.action
-		local isFollowupAttack = extraAction.isFollowupAttack
-
-		-- Get the combat service for the character
-		if not getCharacterCombatService(char) then
-			warn("No combat service found for character:", char.Name)
-			return
-		end
-
-		local charCombatService = require(getCharacterCombatService(char))
-
-		-- Set the char as the active character for the player
-		player.ActiveCharacter.Value = char
-
-		-- If the attack is a follow-up, call the attack handler directly
-		if isFollowupAttack then
-			local charCombatData = charCombatService.GetCharData(char)
-			if not charCombatService.GetAttackHandlers()[action](char, charCombatData) then
-				warn("Failed to execute follow-up attack for character:", char.Name, "with action:", action)
-				TurnService.EndCurrentExtraAction(player)
-			end
 		-- Otherwise, call the input handler for the character's combat service
-		else
-			if not charCombatService.HandleInput(char, { action = action }) then
-				warn("Failed to execute extra action for character:", char.Name, "with action:", action)
-				TurnService.EndCurrentExtraAction(player)
-			end
+	else
+		if not charCombatService.HandleInput(char, { action = action }) then
+			warn("Failed to execute extra action for character:", char.Name, "with action:", action)
+			TurnService.EndCurrentExtraAction(player)
 		end
-	end)
+	end
 end
 
 --- Add an extra action for a character

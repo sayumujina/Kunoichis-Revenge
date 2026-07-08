@@ -109,8 +109,8 @@ local function ExecuteMove(
 		-- Loop through each target and apply the appropriate effect based on the move category
 		for _, target in pairs(targets) do
 			if data.attackCategory == "Damage" then
-				local damage = CalculateDamage(data.scalings, char, target, moveName)
-				DamageService.Damage(char, target, damage)
+				local damage, isCrit = CalculateDamage(data.scalings, char, target, moveName)
+				DamageService.Damage(char, target, damage, isCrit)
 
 				-- Also deal exposure damage if specified
 				if data.exposureDealt and data.exposureDealt > 0 then
@@ -176,15 +176,16 @@ local function ExecuteMove(
 		-- Get the timer for the player
 		-- Skip this step there is already an extra action queued
 		if turnData and not next(turnData.extraActionQueue) then
-			local combatData = CombatService.GetCombatData(player :: _TYPES.RobloxPlayerType)
-			combatData.startTurnTimeout.Tick:Once(function()
-				warn("Start turn timeout reached for player:", player.Name)
-				TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
-			end)
-			-- Start the timer for the player to move to the next turn
-			combatData.startTurnTimeout:Start()
-			warn("Starting start turn timeout for player:", player.Name)
+			TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
 		end
+
+		-- Fire the MoveEnd event to notify that the move has ended
+		EventService.Events.MoveEnd:Fire({
+			origin = char,
+			data = {
+				moveName = moveName,
+			},
+		})
 
 		-- Clean up the trove after the animation is complete
 		trove:Clean()

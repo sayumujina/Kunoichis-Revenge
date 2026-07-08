@@ -3,6 +3,12 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 
+--- Determines the targets for a move based on the move's target selection type and the primary target index.
+--- @within Modules
+--- @param char - The character executing the move
+--- @param primaryTargetIndex - The index of the primary target for the move
+--- @param moveName - The name of the move being executed
+--- @return { _TYPES.Character } - A list of characters that are the targets of the move
 return function(char: _TYPES.Character, primaryTargetIndex: number, moveName: string)
 	local targets = {} :: { _TYPES.Character }
 	local targetsList
