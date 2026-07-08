@@ -14,6 +14,7 @@ local AttackScalingsTypes = require(script.Combat.type_AttackScalings)
 local KnockbackTypes = require(script.Combat.type_Knockback)
 local InputDataTypes = require(script.Combat.type_InputData)
 local DamageTypes = require(script.Combat.type_Damage)
+local StageTypes = require(script.type_Stage)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
@@ -60,5 +61,8 @@ export type ConsumableType = ConsumablesTypes.ConsumableType
 export type Consumables = ConsumablesTypes.Consumables
 export type RegenerationConsumables = ConsumablesTypes.RegenerationConsumables
 export type BuffingConsumables = ConsumablesTypes.BuffingConsumables
+
+-- Stage
+export type Stage = StageTypes.Stage
 
 return nil

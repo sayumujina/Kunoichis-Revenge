@@ -99,7 +99,6 @@ local function ExecuteMove(
 
 	-- Update the player's mana after performing the move
 	if attackData.manaChange then
-		warn("Updating player mana for " .. player.Name .. " by " .. attackData.manaChange)
 		HandleMana.UpdatePlayerMana(player, attackData.manaChange)
 	end
 

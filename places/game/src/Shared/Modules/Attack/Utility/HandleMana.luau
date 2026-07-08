@@ -8,7 +8,6 @@ local function hasEnoughMana(player: _TYPES.RobloxPlayerType, manaChange: number
 		warn("Player data not found for the player.")
 		return false
 	end
-	warn(playerData.data.currentStats.mana + manaChange)
 	return playerData.data.currentStats.mana + manaChange >= 0
 end
 
