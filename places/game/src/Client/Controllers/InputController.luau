@@ -30,6 +30,7 @@ local InputToActions = {
 	[Enum.KeyCode.One] = "Ultimate1",
 	[Enum.KeyCode.Two] = "Ultimate2",
 	[Enum.KeyCode.Three] = "Ultimate3",
+	[Enum.KeyCode.Z] = "SkipTurn",
 	-- Open detailed combat info menu
 	[Enum.KeyCode.C] = "OpenDetailedCombatInfo",
 	-- Spawn

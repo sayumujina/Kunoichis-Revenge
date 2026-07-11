@@ -12,6 +12,8 @@ local AnimationService = require(script.Parent.AnimationService)
 local Zap = require(Services.Parent.zap)
 --
 local Utility = require(rep.Shared.Modules.Utility)
+-- General combat info
+local generalCombatInfo = require(rep.Shared.Data.data_GeneralCombatInfo)
 
 -- Constants
 local BASE_ACTION_VALUE = 10000
@@ -585,6 +587,36 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 	-- Update the move preview for the player with the default move
 	local defaultMove = Utility.GetCharacterDefaultMove(currentTurnChar :: _TYPES.Character)
 	CombatService.UpdateMovePreview(player, currentTurnChar :: _TYPES.Character, defaultMove)
+end
+
+--- Skip the current turn for a player, marking it as completed and moving to the next turn
+--- @param player -- The player to skip the current turn for
+function TurnService.SkipTurn(player: _TYPES.RobloxPlayerType)
+	local playerData = Players[player]
+	if not playerData then
+		warn("Player data not found for player:", player.Name)
+		return
+	end
+
+	if not playerData.currentTurn then
+		warn("No current turn to skip for player:", player.Name)
+		return
+	end
+
+	-- Mark the current turn as completed
+	TurnService.CompleteTurn(player)
+
+	-- Provide the player with energy and mana gain for skipping the turn
+	local char = playerData.previousTurn and playerData.previousTurn.char or nil
+	if char then
+		local ProvideEnergy = require(rep.Shared.Modules.Attack.Utility.ProvideEnergy)
+		ProvideEnergy(char, generalCombatInfo.skipTurn.energyGain, true)
+	end
+	local HandleMana = require(rep.Shared.Modules.Attack.Utility.HandleMana)
+	HandleMana.UpdatePlayerMana(player, generalCombatInfo.skipTurn.manaGain)
+
+	-- Move to the next turn
+	TurnService.MoveToNextTurn(player)
 end
 
 --- Check if there are any active characters

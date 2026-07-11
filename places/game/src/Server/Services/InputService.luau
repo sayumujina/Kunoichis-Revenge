@@ -20,6 +20,8 @@ local DisallowedActionsDuringAttack = {
 	-- Target selection
 	"PreviousTarget",
 	"NextTarget",
+	-- Turn skip
+	"SkipTurn",
 }
 
 -- A list of allowed inputs outside of the character's turn
@@ -28,6 +30,8 @@ local AllowedInputsOutsideOfTurn = {
 	"Ultimate2",
 	"Ultimate3",
 }
+
+local skipTurnSelected = false
 
 -- Helper function to check if an action is allowed based on the current state
 local function isActionAllowed(actionName: string): boolean
@@ -62,6 +66,20 @@ function InputService.OnStart()
 			return
 		end
 
+		-- Handle the SkipTurn action separately
+		-- Only confirm the skip action if it has already been selected once
+		if action == "SkipTurn" then
+			if not skipTurnSelected then
+				skipTurnSelected = true
+				return
+			end
+
+			-- Call the TurnService to skip the turn
+			TurnService.SkipTurn(player :: _TYPES.RobloxPlayerType)
+
+			skipTurnSelected = false
+			return
+		end
 		-- Get the character from the input data
 		local char = inputData.origin
 		local activeChar = player.ActiveCharacter.Value
@@ -88,6 +106,9 @@ function InputService.OnStart()
 		else
 			warn("HandleInput function not found in CombatService for character", char.Name)
 		end
+
+		-- If one other action has succeeded, reset the skipTurnSelected flag to false
+		skipTurnSelected = false
 	end)
 end
 
