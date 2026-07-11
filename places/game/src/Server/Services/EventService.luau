@@ -174,28 +174,34 @@ export type MoveEndedEvent = {
 	},
 }
 
---- @type StatusAddedEvent<T> { char: _TYPES.Character, data: { id: string, status: _TYPES.Status, new: boolean } }
+--- @type StatusAddedEvent<T> { player: _TYPES.RobloxPlayerType, data: { char: _TYPES.Character, data: { id: string, status: _TYPES.Status, new: boolean } } }
 --- @within EventService
 --- Describes the event for when a status effect is added or removed from a character.
 --- Contains the origin of the event, the target character, the status ID, status data, and whether it is a new application.
 export type StatusAddedEvent = {
-	char: _TYPES.Character,
+	player: _TYPES.RobloxPlayerType,
 	data: {
-		id: string,
-		status: _TYPES.Status,
-		new: boolean,
+		char: _TYPES.Character,
+		data: {
+			id: string,
+			status: _TYPES.Status,
+			new: boolean,
+		},
 	},
 }
 
---- @type StatusRemovedEvent<T> { char: _TYPES.Character, data: { id: string, status: _TYPES.Status } }
+--- @type StatusRemovedEvent<T> { player: _TYPES.RobloxPlayerType, data: { char: _TYPES.Character, data: { id: string, status: _TYPES.Status } } }
 --- @within EventService
 --- Describes the event for when a status effect is removed from a character.
 --- Contains the origin of the event, the target character, the status ID, and status data.
 export type StatusRemovedEvent = {
-	char: _TYPES.Character,
+	player: _TYPES.RobloxPlayerType,
 	data: {
-		id: string,
-		status: _TYPES.Status,
+		char: _TYPES.Character,
+		data: {
+			id: string,
+			status: _TYPES.Status,
+		},
 	},
 }
 
@@ -271,8 +277,6 @@ EventService.Events = {
 --- A list of events that do not need to be replicated to clients.
 EventService.ClientBlacklist = {
 	"RequestSpawn",
-	"StatusAdded",
-	"StatusRemoved",
 }
 
 --- @type PlayerScoped { string }
@@ -284,6 +288,8 @@ EventService.PlayerScoped = {
 	"TurnStarted",
 	"PlayerBaseStatsChanged",
 	"PlayerCurrentStatsChanged",
+	"StatusAdded",
+	"StatusRemoved",
 }
 
 --- Initializes the EventService by connecting all events to the Zap event for local players.

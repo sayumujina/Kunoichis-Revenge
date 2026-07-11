@@ -30,8 +30,8 @@ local toughenedStatus = {
 	statusType = { "DmgTakenReduced" } :: { _TYPES.StatusTypes },
 	--
 	info = {
-		name = "Red_MockEnemy_Toughened",
-		description = "The character has toughened. They take reduced damage",
+		name = "Toughened",
+		description = "The character has toughened and take 80% less damage. Removed upon collapsing",
 	},
 	--
 	data = {
@@ -52,8 +52,8 @@ local weakenedStatus = {
 	statusType = { "DmgTakenIncreased" } :: { _TYPES.StatusTypes },
 	--
 	info = {
-		name = "Red_MockEnemy_Weakened",
-		description = "The character has weakened. They take increased damage",
+		name = "Weakened",
+		description = "The character has weakened and take 50% more damage. Removed upon recovering from collapsing",
 	},
 	--
 	data = {
@@ -88,12 +88,12 @@ function Red_MockEnemy_CombatService.OnStart()
 	-- Listens to status added event
 	EventService.Events.StatusAdded:Connect(function(statusAddedEvent)
 		-- Skip if the character is not found in the Chars table (i.e., not Red_MockEnemy)
-		local statusOrigin = statusAddedEvent.char
+		local statusOrigin = statusAddedEvent.data.char
 		if not Chars[statusOrigin] then
 			return
 		end
 
-		local statusName = statusAddedEvent.data.id
+		local statusName = statusAddedEvent.data.data.id
 
 		-- If the character collapsed, remove the toughened status and applied weakened status
 		if statusName == "Collapsed" then
@@ -105,12 +105,12 @@ function Red_MockEnemy_CombatService.OnStart()
 	-- Listens to status removed event
 	EventService.Events.StatusRemoved:Connect(function(statusRemovedEvent)
 		-- Skip if the character is not found in the Chars table (i.e., not Red_MockEnemy)
-		local statusOrigin = statusRemovedEvent.char
+		local statusOrigin = statusRemovedEvent.data.char
 		if not Chars[statusOrigin] then
 			return
 		end
 
-		local statusName = statusRemovedEvent.data.id
+		local statusName = statusRemovedEvent.data.data.id
 
 		-- If the character's collapsed status was removed, reapply the toughened status and remove weakened status
 		if statusName == "Collapsed" then

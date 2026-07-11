@@ -23,12 +23,12 @@ return function(char: _TYPES.Character)
 	local characterInfoEnergy = createCharacterCombatInfoEnergy()
 	characterInfoEnergy.Parent = characterInfoCard
 
+	local characterInfoShieldbar = createCharacterCombatInfoShieldbar()
+	characterInfoShieldbar.Parent = characterInfoCard
+
 	local characterInfoHealthbar =
 		createCharacterCombatInfoHealthbar(UDim2.fromScale(0.964, 0.1344), UDim2.fromScale(0.005, 0.669))
 	characterInfoHealthbar.Parent = characterInfoCard
-
-	local characterInfoShieldbar = createCharacterCombatInfoShieldbar()
-	characterInfoShieldbar.Parent = characterInfoCard
 
 	local characterInfoHPLabel = Instance.new("TextLabel")
 	characterInfoHPLabel.Name = "CharacterInfo_HPLabel"
@@ -38,6 +38,7 @@ return function(char: _TYPES.Character)
 	characterInfoHPLabel.Position = UDim2.fromScale(0.97, 0.82)
 	characterInfoHPLabel.Size = UDim2.fromScale(0.3, 0.1)
 	characterInfoHPLabel.Text = "4233"
+	characterInfoHPLabel.RichText = true
 	characterInfoHPLabel.TextColor3 = Color3.new(1, 1, 1)
 	characterInfoHPLabel.TextScaled = true
 	characterInfoHPLabel.TextXAlignment = Enum.TextXAlignment.Right

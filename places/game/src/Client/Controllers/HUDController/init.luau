@@ -2,6 +2,9 @@ local HUDController = {}
 local Zap = require(game.StarterPlayer.StarterPlayerScripts.Client.zap)
 local rep = game.ReplicatedStorage
 local _TYPES = require(rep.Shared.data_Types)
+-- Controllers
+local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 
@@ -19,28 +22,36 @@ local ComponentsPath = game.StarterPlayer.StarterPlayerScripts.Client.Controller
 local Components = {
 	Combat = {
 		CharacterCombatInfo = {
-			createCharacterCombatInfoFrame = require(
+			CreateCharacterCombatInfoFrame = require(
 				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoFrame
 			),
-			createCharacterCombatInfoCard = require(ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoCard),
-			createCharacterCombatInfoHealthbar = require(
+			CreateCharacterCombatInfoCard = require(ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoCard),
+			CreateCharacterCombatInfoHealthbar = require(
 				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfo_Healthbar
 			),
-			createCharacterCombatInfoBillboardGui = require(
+			CreateCharacterCombatInfoBillboardGui = require(
 				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfo_BillboardGui
 			),
 		},
 		Mana = {
-			createManaFrame = require(ComponentsPath.Combat.Mana.Mana_Frame),
+			CreateManaFrame = require(ComponentsPath.Combat.Mana.Mana_Frame),
 		},
 		Turns = {
-			createTurnsFrame = require(ComponentsPath.Combat.Turns.Turns_Frame),
-			createExtraActionCard = require(ComponentsPath.Combat.Turns.ExtraAction_Card),
-			createMainTurnCard = require(ComponentsPath.Combat.Turns.MainTurn_Card),
-			createTurnCardsList = require(ComponentsPath.Combat.Turns.Turn_Cards_List),
+			CreateTurnsFrame = require(ComponentsPath.Combat.Turns.Turns_Frame),
+			CreateExtraActionCard = require(ComponentsPath.Combat.Turns.ExtraAction_Card),
+			CreateMainTurnCard = require(ComponentsPath.Combat.Turns.MainTurn_Card),
+			CreateTurnCardsList = require(ComponentsPath.Combat.Turns.Turn_Cards_List),
+		},
+		DetailedCombatInfo = {
+			CharacterSelection = require(
+				ComponentsPath.Combat.DetailedCombatInfo.DetailedCombatInfo_CharacterSelection
+			),
+			ScrollingFrame = require(ComponentsPath.Combat.DetailedCombatInfo.DetailedCombatInfo_ScrollingFrame),
+			DetailedStatsFrame = require(ComponentsPath.Combat.DetailedCombatInfo.DetailedStats_Frame),
+			StatusListFrame = require(ComponentsPath.Combat.DetailedCombatInfo.StatusList_Frame),
 		},
 		Damage = {
-			createDamageCard = require(ComponentsPath.Combat.Damage.Damage_Card),
+			CreateDamageCard = require(ComponentsPath.Combat.Damage.Damage_Card),
 		},
 	},
 }
@@ -166,7 +177,7 @@ function HUDController.OnStart()
 		-- If the spawned character is a playable character, create a character info card for them
 		if spawnSuccessfulEvent.data.side == "Playable" then
 			-- Create a character info card for the spawned character
-			local characterInfoCard = components.createCharacterCombatInfoCard(char :: _TYPES.Character)
+			local characterInfoCard = components.CreateCharacterCombatInfoCard(char :: _TYPES.Character)
 			local characterInfoFrame = playerGui:FindFirstChild("UI_CharacterInfoFrame", true)
 			if characterInfoFrame then
 				characterInfoCard.Parent = characterInfoFrame
@@ -174,7 +185,18 @@ function HUDController.OnStart()
 		-- If it's an enemy, we only the need the health bar floating above thir head
 		else
 			-- Create a billboard GUI for the spawned enemy character
-			components.createCharacterCombatInfoBillboardGui(char :: _TYPES.Character, playerGui)
+			components.CreateCharacterCombatInfoBillboardGui(char :: _TYPES.Character, playerGui)
+		end
+
+		-- Create the detailed combat info UI for the spawned character before pushing stat values into the HUD
+		local c = Components.Combat.DetailedCombatInfo
+		local detailedCombatInfoMenu = playerGui:FindFirstChild("DetailedCombatInfo_ScreenGui", true)
+		local characterSelectionFrame = detailedCombatInfoMenu
+			and detailedCombatInfoMenu:FindFirstChild("UI_Character_Selection_Frame", true)
+		if characterSelectionFrame then
+			c.CharacterSelection.AddCharButton(characterSelectionFrame, spawnSuccessfulEvent.char :: _TYPES.Character)
+			c.ScrollingFrame.CreateDetailedCombatInfoScrollingFrame(spawnSuccessfulEvent.char :: _TYPES.Character).Parent =
+				detailedCombatInfoMenu
 		end
 
 		Helpers.UpdateCharacterStatValue(
@@ -190,6 +212,12 @@ function HUDController.OnStart()
 			spawnSuccessfulEvent.char :: _TYPES.Character,
 			"currentStats",
 			spawnSuccessfulEvent.data.currentStats
+		)
+
+		-- Replace the stat value on the detailed combat info scrolling frame with the updated stat value
+		Components.Combat.DetailedCombatInfo.DetailedStatsFrame.UpdateStatValue(
+			spawnSuccessfulEvent.char :: _TYPES.Character,
+			spawnSuccessfulEvent.data.realStats
 		)
 	end)
 
@@ -209,6 +237,12 @@ function HUDController.OnStart()
 			playerGui,
 			statsChangedEvent.char :: _TYPES.Character,
 			"realStats",
+			statsChangedEvent.data
+		)
+
+		-- Replace the stat value on the detailed combat info scrolling frame with the updated stat value
+		Components.Combat.DetailedCombatInfo.DetailedStatsFrame.UpdateStatValue(
+			statsChangedEvent.char :: _TYPES.Character,
 			statsChangedEvent.data
 		)
 	end)
@@ -329,7 +363,7 @@ function HUDController.OnStart()
 		turnQueue = Utility.SortTurnQueue(turnQueue)
 
 		-- Create a new turn card for the added turn
-		local turnCardsList = Components.Combat.Turns.createTurnCardsList(
+		local turnCardsList = Components.Combat.Turns.CreateTurnCardsList(
 			turn.char :: _TYPES.Character,
 			turn.turnId,
 			findTurnIndex(turn.turnId) or 0,
@@ -361,7 +395,7 @@ function HUDController.OnStart()
 			turnId = extraActionData.currentTurnId,
 		}
 
-		local extraActionCard = Components.Combat.Turns.createExtraActionCard(
+		local extraActionCard = Components.Combat.Turns.CreateExtraActionCard(
 			extraActionData.char :: _TYPES.Character,
 			extraActionData.extraActionId,
 			MAIN_TURN_LAYOUT_ORDER
@@ -493,62 +527,141 @@ function HUDController.OnStart()
 	Zap.Warning.On(function(warningEvent)
 		Helpers.DisplayWarning(playerGui, warningEvent.message)
 	end)
+
+	-- Listens to the status added event
+	Zap.StatusAdded.On(function(statusAddedEvent)
+		task.defer(function()
+			warn("Status added for character:", statusAddedEvent.char, "Status ID:", statusAddedEvent.data.id)
+			Components.Combat.DetailedCombatInfo.StatusListFrame.AddStatusToList(
+				statusAddedEvent.char :: _TYPES.Character,
+				statusAddedEvent.data.id,
+				statusAddedEvent.data.status.info.name,
+				statusAddedEvent.data.status.info.description
+			)
+		end)
+		Components.Combat.DetailedCombatInfo.StatusListFrame.AddStatusToList(
+			statusAddedEvent.char :: _TYPES.Character,
+			statusAddedEvent.data.id,
+			statusAddedEvent.data.status.info.name,
+			statusAddedEvent.data.status.info.description
+		)
+	end)
+
+	-- Listens to the status removed event
+	Zap.StatusRemoved.On(function(statusRemovedEvent)
+		warn("Status removed for character:", statusRemovedEvent.char, "Status ID:", statusRemovedEvent.data.id)
+		Components.Combat.DetailedCombatInfo.StatusListFrame.RemoveStatusFromList(
+			statusRemovedEvent.char :: _TYPES.Character,
+			statusRemovedEvent.data.id
+		)
+	end)
+
+	-- Listens to death events
+	Zap.Death.On(function(deathEvent)
+		-- Remove the character from the selected character list in the detailed combat info menu
+		local detailedCombatInfoMenu = playerGui:FindFirstChild("DetailedCombatInfo_ScreenGui", true)
+		local characterSelectionFrame = detailedCombatInfoMenu
+			and detailedCombatInfoMenu:FindFirstChild("UI_Character_Selection_Frame", true)
+		if characterSelectionFrame then
+			Components.Combat.DetailedCombatInfo.CharacterSelection.RemoveCharButton(
+				characterSelectionFrame,
+				deathEvent.char :: _TYPES.Character
+			)
+		end
+	end)
 end
 
+--- Initializes the HUD for the player
 function HUDController.Init()
 	-- Create a screen GUI for the player if it doesn't exist
-	if not playerGui:FindFirstChild("ScreenGui", true) then
+	if not playerGui:FindFirstChild("Combat_ScreenGui", true) then
 		local hud = Instance.new("ScreenGui")
-		hud.Name = "ScreenGui"
+		hud.Name = "Combat_ScreenGui"
 		hud.Parent = playerGui
 	end
 
-	local screenGui = playerGui:FindFirstChild("ScreenGui", true)
+	local combatScreenGui = playerGui:FindFirstChild("Combat_ScreenGui", true)
 
 	-- Create a folder for character and player UI
-	local characterUIFolder = screenGui:FindFirstChild("CharacterUI", true)
+	local characterUIFolder = combatScreenGui:FindFirstChild("CharacterUI", true)
 	if not characterUIFolder then
 		characterUIFolder = Instance.new("Folder")
 		characterUIFolder.Name = "CharacterUI"
-		characterUIFolder.Parent = screenGui
+		characterUIFolder.Parent = combatScreenGui
 	end
 
-	local playerUIFolder = screenGui:FindFirstChild("PlayerUI", true)
+	local playerUIFolder = combatScreenGui:FindFirstChild("PlayerUI", true)
 	if not playerUIFolder then
 		playerUIFolder = Instance.new("Folder")
 		playerUIFolder.Name = "PlayerUI"
-		playerUIFolder.Parent = screenGui
+		playerUIFolder.Parent = combatScreenGui
 	end
 
 	-- Create a folder to contain the billboard GUIs
-	if not screenGui:FindFirstChild("UI_BillboardGui_Folder", true) then
+	if not combatScreenGui:FindFirstChild("UI_BillboardGui_Folder", true) then
 		local billboardGuiContainer = Instance.new("Folder")
 		billboardGuiContainer.Name = "UI_BillboardGui_Folder"
-		billboardGuiContainer.Parent = screenGui
+		billboardGuiContainer.Parent = combatScreenGui
 	end
 
 	-- Create the turn card container if it doesn't exist
-	if not screenGui:FindFirstChild("UI_TurnsFrame", true) then
-		local turnsFrame = Components.Combat.Turns.createTurnsFrame()
+	if not combatScreenGui:FindFirstChild("UI_TurnsFrame", true) then
+		local turnsFrame = Components.Combat.Turns.CreateTurnsFrame()
 		turnsFrame.Parent = playerUIFolder
 	end
 
 	-- Create the character info card container if it doesn't exist
-	if not screenGui:FindFirstChild("UI_CharacterInfoFrame", true) then
-		local characterInfoFrame = Components.Combat.CharacterCombatInfo.createCharacterCombatInfoFrame()
+	if not combatScreenGui:FindFirstChild("UI_CharacterInfoFrame", true) then
+		local characterInfoFrame = Components.Combat.CharacterCombatInfo.CreateCharacterCombatInfoFrame()
 		characterInfoFrame.Parent = characterUIFolder
 	end
 
 	-- Create the mana frame if it doesn't exist
-	if not screenGui:FindFirstChild("UI_ManaFrame", true) then
-		local manaFrame = Components.Combat.Mana.createManaFrame()
+	if not combatScreenGui:FindFirstChild("UI_ManaFrame", true) then
+		local manaFrame = Components.Combat.Mana.CreateManaFrame()
 		manaFrame.Parent = playerUIFolder
 	end
 
 	-- Create the damage card if it doesn't exist
-	if not screenGui:FindFirstChild("UI_DamageCard", true) then
-		local damageCard = Components.Combat.Damage.createDamageCard()
+	if not combatScreenGui:FindFirstChild("UI_DamageCard", true) then
+		local damageCard = Components.Combat.Damage.CreateDamageCard()
 		damageCard.Parent = playerUIFolder
+	end
+
+	-- Create a detailed combat info screen gui for the player if it doesn't exist
+	if not playerGui:FindFirstChild("DetailedCombatInfo_ScreenGui", true) then
+		local hud = Instance.new("ScreenGui")
+		hud.Name = "DetailedCombatInfo_ScreenGui"
+		hud.Parent = playerGui
+
+		-- Turn it off by default
+		hud.Enabled = false
+	end
+
+	local detailedCombatScreenGui = playerGui:FindFirstChild("DetailedCombatInfo_ScreenGui", true)
+
+	-- Create the detailed combat info menu if it doesn't exist
+	if not detailedCombatScreenGui:FindFirstChild("UI_Character_Selection_Frame", true) then
+		local detailedMenuCharacterList = Components.Combat.DetailedCombatInfo.CharacterSelection.CreateCharacterList()
+		detailedMenuCharacterList.Parent = detailedCombatScreenGui
+
+		-- Every time the detailed combat info GUI is shown, default the selection to be the active character
+		detailedCombatScreenGui:GetPropertyChangedSignal("Enabled"):Connect(function()
+			if not detailedCombatScreenGui.Enabled then
+				return
+			end
+
+			local activeChar = game.Players.LocalPlayer.ActiveCharacter.Value
+			if not activeChar then
+				return
+			end
+
+			Components.Combat.DetailedCombatInfo.CharacterSelection.SelectCharButton(
+				detailedMenuCharacterList,
+				activeChar
+			)
+			CameraController.LookAtCharacterInDetailedMenu(activeChar)
+		end)
 	end
 end
 
@@ -567,6 +680,18 @@ function HUDController.UpdateManaPreview(previewValue: number)
 	if currentManaLabel and currentManaLabel:IsA("TextLabel") then
 		local sign = previewValue >= 0 and "+" or "-"
 		currentManaLabel.Text = sign .. tostring(math.floor(math.abs(previewValue)))
+	end
+end
+
+--- Toggles the visibility of a specific ScreenGui in the player's PlayerGui
+---  @param screenGuiName -- The name of the ScreenGui to toggle
+---  @param isVisible -- A boolean indicating whether to show (true) or hide (false
+function HUDController.ToggleScreenGuiVisibility(screenGuiName: string, isVisible: boolean)
+	local screenGui = playerGui:FindFirstChild(screenGuiName, true)
+	if screenGui and screenGui:IsA("ScreenGui") then
+		screenGui.Enabled = isVisible
+	else
+		warn("ScreenGui named '" .. screenGuiName .. "' not found in PlayerGui")
 	end
 end
 

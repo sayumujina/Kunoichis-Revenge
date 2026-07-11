@@ -10,12 +10,39 @@ local FILL_POSITION_OFFSET = 0.008 -- The scale of the shieldbar fill relative t
 local FILL_SIZE_X_OFFSET = FILL_POSITION_OFFSET * 2 -- The scale of the shieldbar fill relative to the shieldbar frame size
 local FILL_SIZE_Y_SCALE = 0.9
 
-return function()
+local function findOwnerContainer(container: Instance?): Instance?
+	local current = container
+	while current do
+		local associatedCharValue = current:FindFirstChild("AssociatedCharValue")
+		if associatedCharValue and associatedCharValue:IsA("ObjectValue") then
+			return current
+		end
+
+		current = current.Parent
+	end
+
+	return nil
+end
+
+local function findDescendantInContainer(container: Instance?, name: string, className: string?): Instance?
+	if not container then
+		return nil
+	end
+
+	local descendant = container:FindFirstChild(name, true)
+	if descendant and (not className or descendant:IsA(className)) then
+		return descendant
+	end
+
+	return nil
+end
+
+return function(size: UDim2?, position: UDim2?)
 	local shieldbarFrame = Instance.new("Frame")
 	shieldbarFrame.Name = "CharacterInfo_Shieldbar"
 	shieldbarFrame.BackgroundTransparency = 1
-	shieldbarFrame.Position = UDim2.fromScale(0.005, 0.669)
-	shieldbarFrame.Size = UDim2.fromScale(0.964, 0.1344)
+	shieldbarFrame.Position = position or UDim2.fromScale(0.005, 0.669)
+	shieldbarFrame.Size = size or UDim2.fromScale(0.964, 0.1344)
 	shieldbarFrame.Visible = false
 	shieldbarFrame.ZIndex = 2
 
@@ -56,44 +83,78 @@ return function()
 	shieldbarFillImageLabel.Parent = shieldbarFill
 	shieldbarFill.Parent = shieldbarFrame
 
-	local function updateShieldbar()
-		local container = shieldbarFrame.Parent
-		if not container then
-			return
-		end
+	local maxHPChangedConnection: RBXScriptConnection? = nil
+	local ownerDescendantAddedConnection: RBXScriptConnection? = nil
+	local ownerDescendantRemovingConnection: RBXScriptConnection? = nil
 
-		local characterMaxHPValue = container:FindFirstChild("CharacterMaxHPValue", true)
+	local function updateShieldbar()
+		local ownerContainer = findOwnerContainer(shieldbarFrame.Parent)
+		local characterMaxHPValue = findDescendantInContainer(ownerContainer, "CharacterMaxHPValue", "NumberValue")
 		if not characterMaxHPValue or not characterMaxHPValue:IsA("NumberValue") then
 			return
 		end
 
 		local shieldScale = getShieldScale(currentShieldValue.Value, characterMaxHPValue.Value)
-		shieldbarFill.Size = UDim2.fromScale(shieldScale - FILL_SIZE_X_OFFSET, FILL_SIZE_Y_SCALE)
+		shieldbarFill.Size = UDim2.fromScale(math.max(shieldScale - FILL_SIZE_X_OFFSET, 0), FILL_SIZE_Y_SCALE)
 		shieldbarFrame.Visible = currentShieldValue.Value > 0
 	end
 
-	local maxHPChangedConnection: RBXScriptConnection? = nil
 	local function bindMaxHPListener()
-		local container = shieldbarFrame.Parent
-		if not container then
-			return
-		end
-
-		local characterMaxHPValue = container:FindFirstChild("CharacterMaxHPValue", true)
-		if not characterMaxHPValue or not characterMaxHPValue:IsA("NumberValue") then
-			return
-		end
-
 		if maxHPChangedConnection then
 			maxHPChangedConnection:Disconnect()
+			maxHPChangedConnection = nil
+		end
+
+		local ownerContainer = findOwnerContainer(shieldbarFrame.Parent)
+		local characterMaxHPValue = findDescendantInContainer(ownerContainer, "CharacterMaxHPValue", "NumberValue")
+		if not characterMaxHPValue or not characterMaxHPValue:IsA("NumberValue") then
+			return
 		end
 
 		maxHPChangedConnection = characterMaxHPValue.Changed:Connect(updateShieldbar)
 		updateShieldbar()
 	end
 
+	local function bindOwnerContainerListeners()
+		if ownerDescendantAddedConnection then
+			ownerDescendantAddedConnection:Disconnect()
+			ownerDescendantAddedConnection = nil
+		end
+
+		if ownerDescendantRemovingConnection then
+			ownerDescendantRemovingConnection:Disconnect()
+			ownerDescendantRemovingConnection = nil
+		end
+
+		local ownerContainer = findOwnerContainer(shieldbarFrame.Parent)
+		if not ownerContainer then
+			return
+		end
+
+		ownerDescendantAddedConnection = ownerContainer.DescendantAdded:Connect(function(descendant)
+			if descendant.Name == "CharacterMaxHPValue" and descendant:IsA("NumberValue") then
+				bindMaxHPListener()
+			end
+		end)
+
+		ownerDescendantRemovingConnection = ownerContainer.DescendantRemoving:Connect(function(descendant)
+			if descendant.Name == "CharacterMaxHPValue" and descendant:IsA("NumberValue") then
+				bindMaxHPListener()
+			end
+		end)
+	end
+
 	currentShieldValue.Changed:Connect(updateShieldbar)
-	shieldbarFrame:GetPropertyChangedSignal("Parent"):Connect(bindMaxHPListener)
+	shieldbarFrame:GetPropertyChangedSignal("Parent"):Connect(function()
+		bindOwnerContainerListeners()
+		bindMaxHPListener()
+	end)
+	shieldbarFrame.AncestryChanged:Connect(function()
+		bindOwnerContainerListeners()
+		bindMaxHPListener()
+	end)
+	bindOwnerContainerListeners()
+	bindMaxHPListener()
 
 	return shieldbarFrame
 end

@@ -1,14 +1,45 @@
 local rep = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
 local _TYPES = require(rep.Shared.data_Types)
 --
 local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
 local EventService = require(Services.EventService)
+local PlayerService = require(Services.PlayerService)
 
 local StatusService = {}
+local STATUS_ATTRIBUTE = "DetailedStatuses"
+
+local function syncStatusesAttribute(char: _TYPES.Character)
+	if not char then
+		return
+	end
+
+	local statuses = {}
+	local charData = CharService.GetCharacterCombatData(char)
+	if charData and charData.statuses then
+		for id, status in pairs(charData.statuses) do
+			table.insert(statuses, {
+				id = id,
+				name = status.info.name,
+				description = status.info.description,
+			})
+		end
+	end
+
+	table.sort(statuses, function(left, right)
+		return left.id < right.id
+	end)
+
+	char:SetAttribute(STATUS_ATTRIBUTE, HttpService:JSONEncode(statuses))
+end
 
 --- Called when the service starts
 function StatusService.OnStart() end
+
+function StatusService.SyncStatusesAttribute(char: _TYPES.Character)
+	syncStatusesAttribute(char)
+end
 
 --- Adds a status to a character
 --- @param char - The character to add the status to
@@ -25,14 +56,18 @@ function StatusService.AddStatus(char: _TYPES.Character, id: string, status: _TY
 
 	-- Add the status to the character's combat data
 	charData.statuses[id] = status
+	syncStatusesAttribute(char)
 
 	-- Fire an event to notify that a status has been added to the character
 	EventService.Events.StatusAdded:Fire({
-		char = char,
+		player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType,
 		data = {
-			id = id,
-			status = status,
-			new = true,
+			char = char,
+			data = {
+				id = id,
+				status = status,
+				new = true,
+			},
 		},
 	})
 
@@ -42,7 +77,7 @@ end
 
 --- Removes a status from a character
 --- @param char - The character to remove the status from
---- @param statusId - The ID of the status to remove
+--- @param id - The ID of the status to remove
 function StatusService.RemoveStatus(char: _TYPES.Character, id: string)
 	if not char or not id then
 		return
@@ -61,23 +96,27 @@ function StatusService.RemoveStatus(char: _TYPES.Character, id: string)
 
 	-- Remove the status from the character's combat data if found
 	charData.statuses[id] = nil
+	syncStatusesAttribute(char)
 
 	-- Remove the stat changes of the status for the character
 	CharService.ApplyStatuses(char)
 
 	-- Fire an event to notify that a status has been removed from the character
 	EventService.Events.StatusRemoved:Fire({
-		char = char,
+		player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType,
 		data = {
-			id = id,
-			status = status,
+			char = char,
+			data = {
+				id = id,
+				status = status,
+			},
 		},
 	})
 end
 
 --- Reduces the duration of a status on a character by 1
 --- @param char - The character to reduce the status duration for
---- @param statusId - The ID of the status to reduce the duration of
+--- @param id - The ID of the status to reduce the duration of
 function StatusService.ReduceStatusDuration(char: _TYPES.Character, id: string, status: _TYPES.Status)
 	-- Check if the character and statusId are valid
 	if not char or not id then

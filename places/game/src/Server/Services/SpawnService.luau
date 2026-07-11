@@ -6,6 +6,7 @@ local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
 local CharService = require(Services.CharService)
 local AnimationService = require(Services.AnimationService)
+local StatusService = require(Services.StatusService)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages

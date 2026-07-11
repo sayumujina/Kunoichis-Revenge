@@ -16,13 +16,13 @@ local CollapsedStatus = {}
 --- @private
 local function collapsedStatusAdded(event: EventService.StatusAddedEvent)
 	--
-	warn("Collapsed status added to character:", event.char, "Status ID:", event.data.id)
-	if event.data.id ~= "Collapsed" then
+	warn("Collapsed status added to character:", event.data.char, "Status ID:", event.data.data.id)
+	if event.data.data.id ~= "Collapsed" then
 		return
 	end
 
 	-- Play the collapse animation for the target character
-	AnimationService.Play(event.char, "Collapsed")
+	AnimationService.Play(event.data.char, "Collapsed")
 end
 
 --- Handles collapsed status removal
@@ -30,13 +30,13 @@ end
 --- @param event -- The `StatusRemovedEvent` event.
 --- @private
 local function collapsedStatusRemoved(event: EventService.StatusRemovedEvent)
-	warn("Collapsed status removed from character:", event.char, "Status ID:", event.data.id)
-	if event.data.id ~= "Collapsed" then
+	warn("Collapsed status removed from character:", event.data.char, "Status ID:", event.data.data.id)
+	if event.data.data.id ~= "Collapsed" then
 		return
 	end
 
 	-- Play the wakeup animation for the target character
-	AnimationService.Stop(event.char, "Collapsed")
+	AnimationService.Stop(event.data.char, "Collapsed")
 end
 
 --- Initializes the Collapsed status functionality by listening to status events.

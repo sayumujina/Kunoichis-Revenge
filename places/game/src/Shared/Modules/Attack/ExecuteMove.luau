@@ -28,6 +28,10 @@ local function resetAttackingState(player: _TYPES.RobloxPlayerType)
 	InputService.ToggleActionsAvailability(true)
 	-- Mark the attack as not being processed
 	CombatService.SetAttackingState(player :: _TYPES.RobloxPlayerType, false)
+	-- Send the allow detailed combat info toggle event to the client to enable the detailed combat info menu toggle during the attack animation
+	Zap.AllowCombatInfoMenuToggle.Fire(player :: _TYPES.RobloxPlayerType, {
+		allowed = true,
+	})
 end
 
 --- Creates an attack function based on the provided attack data
@@ -48,6 +52,10 @@ local function ExecuteMove(
 	InputService.ToggleActionsAvailability(false)
 	-- Mark the attack as being processed
 	CombatService.SetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+	-- Send the allow detailed combat info toggle event to the client to disable the detailed combat info menu toggle during the attack animation
+	Zap.AllowCombatInfoMenuToggle.Fire(player :: _TYPES.RobloxPlayerType, {
+		allowed = false,
+	})
 
 	if not player then
 		warn("Player not found for the origin character.")

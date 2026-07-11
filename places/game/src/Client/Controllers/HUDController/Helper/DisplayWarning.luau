@@ -20,7 +20,11 @@ return function(playerGui: PlayerGui, message: string)
 
 	-- Create a new warning label
 	local warningPopup = createWarningLabel(message)
-	warningPopup.Parent = playerGui:FindFirstChild("ScreenGui").PlayerUI
+	local combatScreenGui = playerGui:FindFirstChild("Combat_ScreenGui", true)
+	if not combatScreenGui:FindFirstChild("PlayerUI", true) then
+		return
+	end
+	warningPopup.Parent = combatScreenGui:FindFirstChild("PlayerUI", true)
 	local warningLabel = warningPopup:FindFirstChild("Warning_Label")
 
 	-- Tween the bg to fade out and move up

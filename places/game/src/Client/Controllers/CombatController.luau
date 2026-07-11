@@ -17,6 +17,13 @@ local Trove = require(game.ReplicatedStorage.Packages.Trove)
 local CombatData: {
 	[_TYPES.RobloxPlayerType]: {
 		trove: Trove.Trove, -- A trove for cleaning up connections
+		savedMovePreviewData: {
+			char: _TYPES.Character,
+			selectedSide: "Playable" | "NPC",
+			primaryTargetIndex: number,
+			targetSelectionType: string,
+			manaChangePreviewValue: number,
+		}?,
 	},
 } =
 	{}
@@ -95,6 +102,15 @@ function CombatController.OnStart()
 
 		-- Get the mana change value of the move
 		local manaChange = moveList[data.data.moveName].manaChange :: number
+
+		-- Save the move preview data for later use
+		CombatController.SavePreviewData(
+			data.char :: _TYPES.Character,
+			selectedSide,
+			primaryTargetIndex,
+			targetSelectionType,
+			manaChange
+		)
 
 		-- Update the move preview with the target selection type and mana change value
 		CombatController.UpdateMovePreview(
@@ -186,6 +202,47 @@ function CombatController.UpdateMovePreview(
 	if controller then
 		require(controller).UpdateCamera(char, side, primaryTargetIndex)
 	end
+end
+
+--- Store the move preview data for later use
+function CombatController.SavePreviewData(
+	char: _TYPES.Character,
+	selectedSide: "Playable" | "NPC",
+	primaryTargetIndex: number,
+	targetSelectionType: string,
+	manaChangePreviewValue: number
+)
+	if not CombatData[localPlayer] then
+		return
+	end
+
+	CombatData[localPlayer].savedMovePreviewData = {
+		char = char,
+		selectedSide = selectedSide,
+		primaryTargetIndex = primaryTargetIndex,
+		targetSelectionType = targetSelectionType,
+		manaChangePreviewValue = manaChangePreviewValue,
+	}
+end
+
+--- Reload the move preview data from the saved data
+function CombatController.ReloadPreviewData()
+	if not CombatData[localPlayer] then
+		return
+	end
+
+	local savedData = CombatData[localPlayer].savedMovePreviewData
+	if not savedData then
+		return
+	end
+
+	CombatController.UpdateMovePreview(
+		savedData.char,
+		savedData.selectedSide,
+		savedData.targetSelectionType,
+		savedData.primaryTargetIndex,
+		savedData.manaChangePreviewValue
+	)
 end
 
 function CombatController.GetCombatData()

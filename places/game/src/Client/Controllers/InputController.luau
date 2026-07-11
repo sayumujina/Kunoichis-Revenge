@@ -3,6 +3,14 @@ local UserInputService = game:GetService("UserInputService")
 -- Utility
 local player = game:GetService("Players").LocalPlayer
 local Utility = require(game:GetService("ReplicatedStorage").Shared.Modules.Utility)
+-- Controllers
+local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local Controllers = StarterPlayerScripts.Client.Controllers
+local HUDController = require(Controllers.HUDController)
+local CombatController = require(Controllers.CombatController)
+-- HUD Components
+local Components = Controllers.HUDController.Components
+local DetailedCombatInfoScrollingFrame = require(Components.Combat.DetailedCombatInfo.DetailedCombatInfo_ScrollingFrame)
 --
 local Zap = require(game.StarterPlayer.StarterPlayerScripts.Client.zap)
 
@@ -22,13 +30,23 @@ local InputToActions = {
 	[Enum.KeyCode.One] = "Ultimate1",
 	[Enum.KeyCode.Two] = "Ultimate2",
 	[Enum.KeyCode.Three] = "Ultimate3",
+	-- Open detailed combat info menu
+	[Enum.KeyCode.C] = "OpenDetailedCombatInfo",
 	-- Spawn
 	[Enum.KeyCode.U] = "Spawn",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
 
 local spawned = false
+local detailedCombatInfoOpened = false
+local allowDetailedCombatInfoToggle = true
+
 --- Called when the controller starts
 function InputController.OnStart()
+	-- Listen to the spawn successful event to set the spawned flag to true
+	Zap.AllowCombatInfoMenuToggle.On(function(data)
+		allowDetailedCombatInfoToggle = data.allowed
+	end)
+
 	-- Listen to input began event
 	UserInputService.InputBegan:Connect(function(input, _)
 		local actionName = InputToActions[input.KeyCode] or InputToActions[input.UserInputType]
@@ -41,6 +59,32 @@ function InputController.OnStart()
 		if actionName == "Spawn" and not spawned then
 			Zap.RequestSpawn.Fire()
 			spawned = true
+			return
+		end
+
+		-- If the action is opening the detailed combat info menu, we don't need to send it to the server
+		if actionName == "OpenDetailedCombatInfo" and allowDetailedCombatInfoToggle then
+			-- Toggle the detailed combat info menu flag
+			detailedCombatInfoOpened = not detailedCombatInfoOpened
+
+			if detailedCombatInfoOpened then
+				-- Toggle the detailed combat info menu visibility
+				HUDController.ToggleScreenGuiVisibility("Combat_ScreenGui", not detailedCombatInfoOpened)
+				HUDController.ToggleScreenGuiVisibility("DetailedCombatInfo_ScreenGui", detailedCombatInfoOpened)
+				DetailedCombatInfoScrollingFrame.ShowCharDetailedCombat(player.ActiveCharacter.Value)
+			else
+				-- Toggle the detailed combat info menu visibility
+				HUDController.ToggleScreenGuiVisibility("Combat_ScreenGui", not detailedCombatInfoOpened)
+				HUDController.ToggleScreenGuiVisibility("DetailedCombatInfo_ScreenGui", detailedCombatInfoOpened)
+
+				-- Reload the move preview data when closing the detailed combat info menu
+				CombatController.ReloadPreviewData()
+			end
+			return
+		end
+
+		-- Disable every other action if the menu is open
+		if detailedCombatInfoOpened then
 			return
 		end
 

@@ -6,8 +6,8 @@ return function()
 	characterInfoFrame.BackgroundColor3 = Color3.new()
 	characterInfoFrame.BackgroundTransparency = 0.9
 	characterInfoFrame.BorderSizePixel = 0
-	characterInfoFrame.Position = UDim2.fromScale(0.02, 0.905)
-	characterInfoFrame.Size = UDim2.fromScale(0.6, 0.185)
+	characterInfoFrame.Position = UDim2.fromScale(0.02, 0.88)
+	characterInfoFrame.Size = UDim2.fromScale(0.8, 0.246)
 
 	local characterInfoFrameAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 	characterInfoFrameAspectRatioConstraint.Name = "UIAspectRatioConstraint"

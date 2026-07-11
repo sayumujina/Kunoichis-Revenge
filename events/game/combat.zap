@@ -127,3 +127,79 @@ event Warning = {
 		message: string.binary,
 	},
 }
+
+event StatusAdded = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		char: Instance.Model, 
+		data: struct {
+			id: string.binary,
+			status: struct {
+				statusType: enum { Collapsed, DmgTakenReduced, DmgTakenIncreased }?[],
+				info: struct {
+					name: string.binary,
+					description: string.binary,
+				},
+				data: struct {
+					duration: u8?,
+					expellable: boolean?,
+				},
+				statChanges: struct {
+					statChangeType: enum { Flat, Mult, Override },
+					statName: string.binary,
+					value: f32,
+				}[]
+			},
+			new: boolean,
+		},
+	},
+}
+
+event StatusRemoved = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		char: Instance.Model, 
+		data: struct {
+			id: string.binary,
+			status: struct {
+				statusType: enum { Collapsed, DmgTakenReduced, DmgTakenIncreased }?[],
+				info: struct {
+					name: string.binary,
+					description: string.binary,
+				},
+				data: struct {
+					duration: u8?,
+					expellable: boolean?,
+				},
+				statChanges: struct {
+					statChangeType: enum { Flat, Mult, Override }?,
+					statName: string.binary,
+					value: f32,
+				}[]
+			},
+		},
+	},
+}
+
+event Death = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		char: Instance.Model, 
+		origin: Instance.Model,
+	},
+}
+
+event AllowCombatInfoMenuToggle = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		allowed: boolean,
+	},
+}

@@ -1,8 +1,10 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
 -- Services
-local StatusService = require(game:GetService("ServerScriptService").Server.Services.StatusService)
-local AnimationService = require(game:GetService("ServerScriptService").Server.Services.AnimationService)
+local Services = game:GetService("ServerScriptService").Server.Services
+local StatusService = require(Services.StatusService)
+local AnimationService = require(Services.AnimationService)
+local TurnService = require(Services.TurnService)
 
 -- Collapsed status
 local collapsedStatus = {
@@ -10,7 +12,7 @@ local collapsedStatus = {
 	--
 	info = {
 		name = "Collapsed",
-		description = "The character has collapsed. They cannot act and takes increased damage",
+		description = "The character has collapsed. Their next action will be delayed and takes 10% increased damage",
 	},
 	--
 	data = {
@@ -30,5 +32,8 @@ local collapsedStatus = {
 return function(target: _TYPES.Character)
 	-- Add the collapsed status to the target character
 	StatusService.AddStatus(target, "Collapsed", collapsedStatus)
+
+	-- Delay the target's next action by 60%
+	TurnService.AdvanceAction(target, -60 / 100)
 	warn("Collapsed status added to character: " .. target.Name)
 end

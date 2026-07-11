@@ -10,7 +10,7 @@ local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 function QueueUIUtility.UpdateTurnQueueUI(queue: { _TYPES.TurnEntry })
 	-- Loop through the turn queue to update the layout order of all turn cards based on their current index in the queue
 	for index, turnInLoop in pairs(queue) do
-		local containerPath = playerGui.ScreenGui.PlayerUI.UI_TurnsFrame.UI_TurnCard_Container
+		local containerPath = playerGui:FindFirstChild("Combat_ScreenGui", true).PlayerUI.UI_TurnsFrame.UI_TurnCard_Container
 		local loopedTurnCardList = containerPath:FindFirstChild("Turn_Cards_List_" .. turnInLoop.turnId, true)
 		if not loopedTurnCardList then
 			warn("Turn card list not found for turnId:", "Turn_Cards_List_" .. turnInLoop.turnId)

@@ -5,12 +5,12 @@ local function getEnergyScale(current: number, max: number): number
 	return current / max
 end
 
-return function()
+return function(size: UDim2?, position: UDim2?)
 	local energyFrame = Instance.new("Frame")
 	energyFrame.Name = "CharacterInfo_Energy"
 	energyFrame.BackgroundTransparency = 1
-	energyFrame.Position = UDim2.fromScale(0.51, 0)
-	energyFrame.Size = UDim2.fromScale(0.63, 0.63)
+	energyFrame.Position = position or UDim2.fromScale(0.51, 0)
+	energyFrame.Size = size or UDim2.fromScale(0.63, 0.63)
 
 	local currentEnergyValue = Instance.new("NumberValue")
 	currentEnergyValue.Name = "CharacterCurrentEnergyValue"
