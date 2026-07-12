@@ -61,7 +61,13 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 
 	-- Determine the primary target index for the attack
 	local attackToExecute = AttackPattern[currentPatternIndex]
-	local primaryTargetIndex = DeterminePrimaryTargetIndex() or 1
+	local primaryTargetIndex = DeterminePrimaryTargetIndex()
+
+	if not primaryTargetIndex then
+		warn("No valid primary target index found for Red_MockEnemy's attack.")
+		return false
+	end
+
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	CombatService.SetPrimarySelectedTargetIndex(player, primaryTargetIndex, MoveInfo[attackToExecute].selectedSide)
 
