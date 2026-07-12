@@ -9,9 +9,10 @@ local PlayerService = require(Services.PlayerService)
 local CombatService = require(Services.CombatService)
 local EventService = require(Services.EventService)
 -- Utility
-local IsAtFullEnergy = require(rep.Shared.Modules.Attack.Utility.IsAtFullEnergy)
+local CanCastUltimate = require(rep.Shared.Modules.Attack.Utility.CanCastUltimate)
 -- Packages
 local Trove = require(rep.Packages.Trove)
+local Zap = require(Services.Parent.zap)
 
 -- Data
 local MoveInfo = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_Moves)
@@ -102,7 +103,7 @@ function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		end
 
 		-- Check if Tsuyoka's energy is full
-		if not IsAtFullEnergy(char) then
+		if not CanCastUltimate(char) then
 			warn("Tsuyoka's energy is not full. Cannot execute ultimate.")
 			return false
 		end
@@ -128,7 +129,19 @@ function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 
 		-- Update the selection type reference for the new move
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
-	-- Handle move selection actions
+
+		-- Notify the client that the ultimate has been casted
+		local cinematicInfo = MoveInfo[charData.Info.selectedMove].cinematicInfo
+		local flashDuration = cinematicInfo and cinematicInfo.flashDuration or 1
+		Zap.CastedUltimate.Fire(PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType, {
+			char = char,
+			data = {
+				fullMoveName = MoveInfo[charData.Info.selectedMove].info.name,
+				flashDuration = flashDuration,
+			},
+		})
+
+		-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		-- If ultimate is already selected, disallow switching to other moves
 		if charData.Info.selectedMove == "DestructiveCriticism" then

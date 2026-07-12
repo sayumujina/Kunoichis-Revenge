@@ -56,6 +56,10 @@ local moves: { [string]: _TYPES.MoveData } = {
 		targetSelectionType = "Single",
 		selectedSide = "Playable",
 		--
+		cinematicInfo = {
+			flashDuration = 1.5,
+		},
+		--
 		attacks = {
 			{
 				attackCategory = "Heal",

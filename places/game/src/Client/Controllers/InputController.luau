@@ -42,9 +42,24 @@ local InputToActions = {
 local spawned = false
 local detailedCombatInfoOpened = false
 local allowDetailedCombatInfoToggle = true
+local isInputAllowed = true
 
 --- Called when the controller starts
 function InputController.OnStart()
+	-- Listens to input disallowed event to disable input processing
+	Zap.ToggleInputAllowance.On(function(data)
+		isInputAllowed = data.allowed
+	end)
+
+	-- Listens to casting ultimate event to disable input processing
+	Zap.CastedUltimate.On(function(data)
+		warn("Casting ultimate, disabling input for " .. data.data.flashDuration .. " seconds")
+		isInputAllowed = false
+		task.delay(data.data.flashDuration, function()
+			isInputAllowed = true
+		end)
+	end)
+
 	-- Listen to the spawn successful event to set the spawned flag to true
 	Zap.AllowCombatInfoMenuToggle.On(function(data)
 		allowDetailedCombatInfoToggle = data.allowed
@@ -52,6 +67,10 @@ function InputController.OnStart()
 
 	-- Listen to input began event
 	UserInputService.InputBegan:Connect(function(input, _)
+		if not isInputAllowed then
+			return
+		end
+
 		local actionName = InputToActions[input.KeyCode] or InputToActions[input.UserInputType]
 
 		-- Stop processing if the action is not mapped

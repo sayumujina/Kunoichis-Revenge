@@ -10,7 +10,7 @@ local PlayerService = require(Services.PlayerService)
 -- Modules
 local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 -- Utility
-local IsAtFullEnergy = require(rep.Shared.Modules.Attack.Utility.IsAtFullEnergy)
+local CanCastUltimate = require(rep.Shared.Modules.Attack.Utility.CanCastUltimate)
 
 local moveName = "VanguardsCall"
 -- Info
@@ -20,11 +20,11 @@ local combatInfo = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Comb
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	-- Check if Rin's energy is full
-	if not IsAtFullEnergy(char) then
+	if not CanCastUltimate(char) then
 		warn("Rin's energy is not full. Cannot execute ultimate.")
 		return false
 	end
-	
+
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
 

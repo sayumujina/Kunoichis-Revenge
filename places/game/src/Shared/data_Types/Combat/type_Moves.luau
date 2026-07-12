@@ -27,6 +27,11 @@ export type MoveData = {
 	selectedSide: "Playable" | "NPC",
 	-- Mana change
 	manaChange: number?, -- Only for playable characters
+	-- Cinematic info
+	cinematicInfo: {
+		-- Duration of the cinematic flash
+		flashDuration: number?,
+	}?,
 	-- A table of attacks in the move
 	attacks: {
 		{

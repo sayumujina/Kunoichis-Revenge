@@ -196,11 +196,15 @@ event Death = {
 	},
 }
 
-event AllowCombatInfoMenuToggle = {
+event CastedUltimate = {
 	from: Server,
 	type: Reliable,
 	call: ManyAsync,
 	data: struct {
-		allowed: boolean,
+		char: Instance.Model, 
+		data: struct {
+			fullMoveName: string.binary,
+			flashDuration: f32,
+		},
 	},
 }

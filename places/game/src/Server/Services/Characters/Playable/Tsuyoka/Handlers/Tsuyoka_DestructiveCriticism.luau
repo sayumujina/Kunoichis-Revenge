@@ -10,7 +10,7 @@ local PlayerService = require(Services.PlayerService)
 -- Modules
 local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 -- Utility
-local IsAtFullEnergy = require(rep.Shared.Modules.Attack.Utility.IsAtFullEnergy)
+local CanCastUltimate = require(rep.Shared.Modules.Attack.Utility.CanCastUltimate)
 
 local moveName = "DestructiveCriticism"
 -- Info
@@ -19,9 +19,9 @@ local moveInfo = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyok
 local combatInfo = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_CombatInfo)
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
-	-- Check if Rin's energy is full
-	if not IsAtFullEnergy(char) then
-		warn("Rin's energy is not full. Cannot execute ultimate.")
+	-- Check if Tsuyoka can cast her ultimate before proceeding
+	if not CanCastUltimate(char) then
+		warn("Tsuyoka's energy is not full. Cannot execute ultimate.")
 		return false
 	end
 

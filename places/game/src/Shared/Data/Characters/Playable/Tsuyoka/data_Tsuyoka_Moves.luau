@@ -69,9 +69,12 @@ local moves: { [string]: _TYPES.MoveData } = {
 	["DestructiveCriticism"] = {
 		moveType = "Ultimate",
 		--
-		targetSelectionType = "AoE",
-		selectedSide = "Playable",
+		targetSelectionType = "Single",
+		selectedSide = "NPC",
 		--
+		cinematicInfo = {
+			flashDuration = 1.5,
+		},
 		attacks = {
 			{
 				attackCategory = "Damage",

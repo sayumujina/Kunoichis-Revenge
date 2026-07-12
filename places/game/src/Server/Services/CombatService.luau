@@ -162,6 +162,7 @@ function CombatService.UpdateMovePreview(player: _TYPES.RobloxPlayerType, char: 
 		return
 	end
 
+	-- If this move is an ultimate, stop the code for a short time to display the ultimate flash
 	-- Ensure the primary selected target index is valid
 	local primaryTargetIndex = combatData.primarySelectedTargetIndex
 	local charsCount = if moveData.selectedSide == "Playable" then #combatData.playables else #combatData.npcs

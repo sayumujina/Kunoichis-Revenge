@@ -5,6 +5,7 @@ local _TYPES = require(rep.Shared.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
+
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 
@@ -52,6 +53,9 @@ local Components = {
 		},
 		Damage = {
 			CreateDamageCard = require(ComponentsPath.Combat.Damage.Damage_Card),
+		},
+		UltimateFlash = {
+			CreateUltimateFlashFrame = require(ComponentsPath.Combat.UltimateFlash.UltimateFlash_Frame),
 		},
 	},
 }
@@ -578,6 +582,15 @@ function HUDController.OnStart()
 			)
 		end
 	end)
+
+	-- Listens to casted ultimate  events
+	Zap.CastedUltimate.On(function(ultimateFlashData)
+		HUDController.DisplayUltimateFlash(
+			ultimateFlashData.char :: _TYPES.Character,
+			ultimateFlashData.data.fullMoveName,
+			ultimateFlashData.data.flashDuration
+		)
+	end)
 end
 
 --- Initializes the HUD for the player
@@ -698,6 +711,21 @@ function HUDController.ToggleScreenGuiVisibility(screenGuiName: string, isVisibl
 	else
 		warn("ScreenGui named '" .. screenGuiName .. "' not found in PlayerGui")
 	end
+end
+
+--- Displays an ultimate flash effect for a character's ultimate move
+--- @param char - The character performing the ultimate move
+--- @param move - The name of the ultimate move being performed
+function HUDController.DisplayUltimateFlash(char: _TYPES.Character, fullMoveName: string, duration: number?)
+	-- Create an ultimate flash frame for the character and move
+	local ultimateFlashFrame = Components.Combat.UltimateFlash.CreateUltimateFlashFrame(char.Name, fullMoveName)
+	ultimateFlashFrame.Parent = playerGui.Combat_ScreenGui
+
+	-- Delay the removal of the ultimate flash
+	task.delay(duration, function()
+		-- Remove the ultimate flash frame after the duration
+		ultimateFlashFrame:Destroy()
+	end)
 end
 
 return HUDController
