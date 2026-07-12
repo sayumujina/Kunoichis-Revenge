@@ -5,14 +5,14 @@ local info = {
 	description = "",
 	-- Base stats
 	baseStats = {
-		atk = 700,
+		atk = 850,
 		def = 140,
 		hp = 3000,
 		spd = 90,
 		shield = 0,
 		--
-		critRate = 30,
-		critDmg = 100,
+		critRate = 60,
+		critDmg = 110,
 		--
 		energy = 120,
 		ultimateGainEfficiency = 120,
