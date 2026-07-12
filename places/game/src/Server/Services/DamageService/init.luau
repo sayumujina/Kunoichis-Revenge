@@ -25,19 +25,6 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 	local targetHP = CharService.GetCurrentCharacterStat(target, "hp")
 	local targetShield = CharService.GetCurrentCharacterStat(target, "shield")
 
-	warn(
-		"DamageService.Damage called with origin: "
-			.. tostring(origin)
-			.. ", target: "
-			.. tostring(target)
-			.. ", damage: "
-			.. tostring(damage)
-			.. ", targetHP: "
-			.. tostring(targetHP)
-			.. ", targetShield: "
-			.. tostring(targetShield)
-	)
-
 	-- Deduct the damage from the shield first, if any
 	local remainingDamage = damage
 	if targetShield > 0 then

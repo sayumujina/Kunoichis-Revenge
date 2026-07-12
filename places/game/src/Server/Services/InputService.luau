@@ -39,6 +39,7 @@ local function isActionAllowed(actionName: string): boolean
 	if allowActions then
 		return true
 	end
+
 	return not table.find(DisallowedActionsDuringAttack, actionName)
 end
 
@@ -84,13 +85,9 @@ function InputService.OnStart()
 		local char = inputData.origin
 		local activeChar = player.ActiveCharacter.Value
 
-		-- Check if the character is valid and is the player's active character
-		if not char or char ~= activeChar then
-			-- Check if the action is allowed outside of the character's turn
-			if not table.find(AllowedInputsOutsideOfTurn, inputData.action) then
-				warn("action", action, "is not allowed outside of the character's turn.")
-				return
-			end
+		if not char then
+			warn("No character found for player", player.Name, "when processing input action", action)
+			return
 		end
 
 		-- Get the combat service module
@@ -115,6 +112,7 @@ end
 --- Disables actions for the player
 --- @param shouldEnable -- Whether to enable or disable actions
 function InputService.ToggleActionsAvailability(shouldEnable: boolean)
+	warn("Toggling actions availability to", shouldEnable)
 	allowActions = shouldEnable
 end
 

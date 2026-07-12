@@ -36,7 +36,7 @@ end
 function SpawnService.OnStart()
 	-- Listens to spawn request from clients
 	Zap.RequestSpawn.On(function(player)
-		local playables = { "Tsuyoka", "Setsuna", "Rin" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+		local playables = { "Tsuyoka", "Setsuna", "Hayumi" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 		local npcs = { "MockEnemy", "Red_MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
 
 		-- Initialise the player entry in the turn system

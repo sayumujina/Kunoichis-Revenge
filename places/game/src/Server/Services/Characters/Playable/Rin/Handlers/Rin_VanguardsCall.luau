@@ -11,6 +11,8 @@ local PlayerService = require(Services.PlayerService)
 local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 -- Utility
 local CanCastUltimate = require(rep.Shared.Modules.Attack.Utility.CanCastUltimate)
+-- Packages
+local Zap = require(Services.Parent.zap)
 
 local moveName = "VanguardsCall"
 -- Info

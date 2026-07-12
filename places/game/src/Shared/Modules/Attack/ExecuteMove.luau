@@ -23,15 +23,18 @@ local Utility = require(game.ReplicatedStorage.Shared.Modules.Utility)
 local Zap = require(Services.Parent.zap)
 
 -- Helper function to reset the attacking state for a player after an attack animation is complete
-local function resetAttackingState(player: _TYPES.RobloxPlayerType)
+local function resetAttackingState(player: _TYPES.RobloxPlayerType, enableInput: boolean?)
 	-- Re-enable input availability for actions after the attack animation is complete
-	InputService.ToggleActionsAvailability(true)
-	-- Mark the attack as not being processed
+	if enableInput then
+		InputService.ToggleActionsAvailability(true)
+		-- Send the allow detailed combat info toggle event to the client to enable the detailed combat info menu toggle during the attack animation
+		Zap.AllowCombatInfoMenuToggle.Fire(player :: _TYPES.RobloxPlayerType, {
+			allowed = true,
+		})
+	end
+
+	-- Set the attacking state to false
 	CombatService.SetAttackingState(player :: _TYPES.RobloxPlayerType, false)
-	-- Send the allow detailed combat info toggle event to the client to enable the detailed combat info menu toggle during the attack animation
-	Zap.AllowCombatInfoMenuToggle.Fire(player :: _TYPES.RobloxPlayerType, {
-		allowed = true,
-	})
 end
 
 --- Creates an attack function based on the provided attack data
@@ -59,7 +62,7 @@ local function ExecuteMove(
 
 	if not player then
 		warn("Player not found for the origin character.")
-		resetAttackingState(player :: _TYPES.RobloxPlayerType)
+		resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
 		return false
 	end
 
@@ -70,7 +73,7 @@ local function ExecuteMove(
 		Zap.Warning.Fire(player, {
 			message = "Insufficient mana",
 		})
-		resetAttackingState(player :: _TYPES.RobloxPlayerType)
+		resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
 		return false
 	end
 
@@ -81,7 +84,7 @@ local function ExecuteMove(
 	-- Return false if no valid targets were found
 	if not targets or #targets == 0 then
 		warn("No valid targets found for attack: " .. moveName)
-		resetAttackingState(player :: _TYPES.RobloxPlayerType)
+		resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
 		return false
 	-- Else, append the targets to the attackData
 	else
@@ -92,7 +95,7 @@ local function ExecuteMove(
 	local anim = AnimationService.Play(char, moveName .. "_Execute")
 	if not anim then
 		warn("Failed to play animation for attack: " .. moveName)
-		resetAttackingState(player :: _TYPES.RobloxPlayerType)
+		resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
 		return false
 	end
 
@@ -178,10 +181,24 @@ local function ExecuteMove(
 			TurnService.EndCurrentExtraAction(player :: _TYPES.RobloxPlayerType)
 		end
 
-		-- Get the timer for the player
-		-- Skip this step there is already an extra action queued
 		if turnData and not next(turnData.extraActionQueue) then
+			resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
 			TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
+		else
+			-- If the next action is a followup, do not enable input yet
+			if
+				turnData
+				and turnData.extraActionQueue
+				and turnData.extraActionQueue[1]
+				and turnData.extraActionQueue[1].isFollowupAttack
+			then
+				resetAttackingState(player :: _TYPES.RobloxPlayerType)
+			else
+				resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+			end
+
+			-- Execute the next extra action
+			TurnService.ExecuteNextExtraAction(player :: _TYPES.RobloxPlayerType)
 		end
 
 		-- Fire the MoveEnd event to notify that the move has ended
@@ -196,12 +213,6 @@ local function ExecuteMove(
 		-- Clean up the trove after the animation is complete
 		trove:Clean()
 	end))
-
-	-- Reset the attacking state upon trove end
-	trove:Add(function()
-		-- Reset the attacking state for the player after the attack animation is complete
-		resetAttackingState(player :: _TYPES.RobloxPlayerType)
-	end)
 
 	return true
 end

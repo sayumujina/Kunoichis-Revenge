@@ -91,14 +91,13 @@ function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 	elseif action:find("Ultimate") then
 		-- If the selected move is the ultimate again, execute it
 		if charData.Info.selectedMove == "DestructiveCriticism" then
-			warn("Executing ultimate for Tsuyoka:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
-			Handlers.DestructiveCriticism(char, charData)
-
 			-- Reset the queued ultimate ID after executing the ultimate
 			charData.Info.queuedUltimateId = nil
 
 			-- Reset the selected move to the default after executing the ultimate
 			charData.Info.selectedMove = "NoEscape"
+
+			Handlers.DestructiveCriticism(char, charData)
 			return true
 		end
 
@@ -111,7 +110,7 @@ function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		-- Store the queued ultimate action ID for later execution
 		if combatData.isProcessingAttack then
 			if charData.Info.queuedUltimateId then
-				return true
+				return false
 			end
 
 			charData.Info.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
@@ -127,6 +126,8 @@ function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		-- Set the selected move to the ultimate
 		charData.Info.selectedMove = "DestructiveCriticism"
 
+		warn("Selected ultimate for Tsuyoka:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
+
 		-- Update the selection type reference for the new move
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 
@@ -141,7 +142,7 @@ function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 			},
 		})
 
-		-- Handle move selection actions
+	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		-- If ultimate is already selected, disallow switching to other moves
 		if charData.Info.selectedMove == "DestructiveCriticism" then

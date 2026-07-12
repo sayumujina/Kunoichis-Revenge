@@ -5,11 +5,12 @@ local GetAvatarImageForCharacter =
 local TweenService = game:GetService("TweenService")
 
 return function(charName: string, ultimateName: string)
-	local uIUltimateFlashFrame = Instance.new("Frame")
-	uIUltimateFlashFrame.Name = "UI_UltimateFlash_Frame"
-	uIUltimateFlashFrame.BackgroundTransparency = 1
-	uIUltimateFlashFrame.Position = UDim2.fromScale(0.58, 0.16)
-	uIUltimateFlashFrame.Size = UDim2.fromScale(0.42, 0.35)
+	local ultimateFlashFrame = Instance.new("Frame")
+	ultimateFlashFrame.Name = "UI_UltimateFlash_Frame"
+	ultimateFlashFrame.BackgroundTransparency = 1
+	ultimateFlashFrame.Position = UDim2.fromScale(0.58, 0.16)
+	ultimateFlashFrame.Size = UDim2.fromScale(0.42, 0.35)
+	ultimateFlashFrame.ZIndex = 2
 
 	local ultimateFlash = Instance.new("ImageLabel")
 	ultimateFlash.Name = "UltimateFlash"
@@ -23,7 +24,7 @@ return function(charName: string, ultimateName: string)
 	uIAspectRatioConstraint.AspectRatio = 6
 	uIAspectRatioConstraint.Parent = ultimateFlash
 
-	ultimateFlash.Parent = uIUltimateFlashFrame
+	ultimateFlash.Parent = ultimateFlashFrame
 
 	local characterInfoAvatar = Instance.new("Frame")
 	characterInfoAvatar.Name = "CharacterInfo_Avatar"
@@ -42,7 +43,7 @@ return function(charName: string, ultimateName: string)
 	uIAspectRatioConstraint1.Name = "UIAspectRatioConstraint"
 	uIAspectRatioConstraint1.Parent = characterInfoAvatar
 
-	characterInfoAvatar.Parent = uIUltimateFlashFrame
+	characterInfoAvatar.Parent = ultimateFlashFrame
 
 	local ultimateNameLabel = Instance.new("TextLabel")
 	ultimateNameLabel.Name = "UltimateName_Label"
@@ -55,21 +56,21 @@ return function(charName: string, ultimateName: string)
 	ultimateNameLabel.TextColor3 = Color3.new(1, 1, 1)
 	ultimateNameLabel.TextScaled = true
 	ultimateNameLabel.TextXAlignment = Enum.TextXAlignment.Right
-	ultimateNameLabel.Parent = uIUltimateFlashFrame
+	ultimateNameLabel.Parent = ultimateFlashFrame
 
 	-- Tween the position of the flash frame from outside the screen
-	local newPosition = uIUltimateFlashFrame.Position + UDim2.fromScale(uIUltimateFlashFrame.Size.X.Scale, 0)
-	local oldPosition = uIUltimateFlashFrame.Position
-	uIUltimateFlashFrame.Position = newPosition
+	local newPosition = ultimateFlashFrame.Position + UDim2.fromScale(ultimateFlashFrame.Size.X.Scale, 0)
+	local oldPosition = ultimateFlashFrame.Position
+	ultimateFlashFrame.Position = newPosition
 
 	local posTween = TweenService:Create(
-		uIUltimateFlashFrame,
+		ultimateFlashFrame,
 		TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 		{ Position = oldPosition }
 	)
 
 	local reversePosTween = TweenService:Create(
-		uIUltimateFlashFrame,
+		ultimateFlashFrame,
 		TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
 		{ Position = newPosition }
 	)
@@ -80,6 +81,7 @@ return function(charName: string, ultimateName: string)
 	darkenFrame.Name = "DarkenFrame"
 	darkenFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 	darkenFrame.BackgroundTransparency = 1
+	darkenFrame.ZIndex = 1
 	darkenFrame.Size = UDim2.fromScale(1, 1)
 	darkenFrame.Parent = playerGui.Combat_ScreenGui
 
@@ -103,5 +105,5 @@ return function(charName: string, ultimateName: string)
 		reverseDarkenTween:Play()
 	end)
 
-	return uIUltimateFlashFrame
+	return ultimateFlashFrame
 end

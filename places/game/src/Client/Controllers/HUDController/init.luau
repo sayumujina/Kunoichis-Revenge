@@ -721,6 +721,7 @@ function HUDController.DisplayUltimateFlash(char: _TYPES.Character, fullMoveName
 	local ultimateFlashFrame = Components.Combat.UltimateFlash.CreateUltimateFlashFrame(char.Name, fullMoveName)
 	ultimateFlashFrame.Parent = playerGui.Combat_ScreenGui
 
+	warn("Displaying ultimate flash for character:", char.Name, "Move:", fullMoveName, "Duration:", duration)
 	-- Delay the removal of the ultimate flash
 	task.delay(duration, function()
 		-- Remove the ultimate flash frame after the duration

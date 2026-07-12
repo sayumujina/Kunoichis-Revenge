@@ -14,7 +14,7 @@ local info = {
 		critRate = 0,
 		critDmg = 0,
 		--
-		energy = 120,
+		energy = 0,
 		ultimateGainEfficiency = 120,
 		--
 		manaGainEfficiency = 100,
@@ -31,7 +31,7 @@ local info = {
 	-- Starting stats
 	startingStats = {
 		hp = 2000,
-		energy = 100,
+		energy = 0,
 		shield = 0,
 	},
 } :: _TYPES.CharacterInfo

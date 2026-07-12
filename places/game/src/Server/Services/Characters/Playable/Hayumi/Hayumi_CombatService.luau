@@ -51,7 +51,6 @@ function Hayumi_CombatService.Init(char: _TYPES.Character)
 
 	-- Listen to successful move events
 	Chars[char].Trove:Add(EventService.Events.SuccessfulMove:Connect(function(successfulMoveData)
-		warn("Successful move detected for Hayumi. Checking if Archery's Vision should be cast.")
 		local origin = successfulMoveData.origin
 		local attackData = successfulMoveData.data.attackData
 
@@ -88,9 +87,6 @@ function Hayumi_CombatService.Init(char: _TYPES.Character)
 		end
 
 		local charData = Chars[char]
-		warn(
-			"Casting Archery's Vision for " .. char.Name .. ". Remaining uses: " .. charData.Info.archerysVisionUseCount
-		)
 		if charData and charData.Info.archerysVisionUseCount > 0 then
 			charData.Info.archerysVisionTarget = target
 			TurnService.AddExtraAction(char, "ArcherysVision", true)
