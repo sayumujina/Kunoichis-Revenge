@@ -111,7 +111,6 @@ function CombatController.OnStart()
 			targetSelectionType,
 			manaChange
 		)
-
 		-- Update the move preview with the target selection type and mana change value
 		CombatController.UpdateMovePreview(
 			data.char :: _TYPES.Character,
@@ -200,7 +199,9 @@ function CombatController.UpdateMovePreview(
 	-- Call the character combat controller to update the camera
 	local controller = Utility.GetCharacterCombatController(char)
 	if controller then
-		require(controller).UpdateCamera(char, side, primaryTargetIndex)
+		task.defer(function()
+			require(controller).UpdateCamera(char, side, primaryTargetIndex)
+		end)
 	end
 end
 

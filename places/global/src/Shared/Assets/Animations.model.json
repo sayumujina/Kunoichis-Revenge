@@ -28,6 +28,20 @@
               "Properties": {
                 "AnimationId": "rbxassetid://111318199248117"
               }
+            },
+            {
+              "ClassName": "Animation",
+              "Name": "Downed",
+              "Properties": {
+                "AnimationId": "rbxassetid://102984770463904"
+              }
+            },
+            {
+              "ClassName": "Animation",
+              "Name": "Downed_Loop",
+              "Properties": {
+                "AnimationId": "rbxassetid://112233279292073"
+              }
             }
           ]
         }
@@ -225,7 +239,7 @@
                   "ClassName": "Animation",
                   "Name": "DestructiveCriticism_Execute",
                   "Properties": {
-                    "AnimationId": "rbxassetid://76199782295122"
+                    "AnimationId": "rbxassetid://72502436953839"
                   }
                 }
               ]

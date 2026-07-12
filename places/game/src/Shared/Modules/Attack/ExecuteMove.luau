@@ -181,9 +181,18 @@ local function ExecuteMove(
 			TurnService.EndCurrentExtraAction(player :: _TYPES.RobloxPlayerType)
 		end
 
+		-- If there's no more extra action left in the queue and no current turn exists
 		if turnData and not next(turnData.extraActionQueue) then
-			resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
-			TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
+			-- If there's a current turn, only reset the attacking state
+			local currentTurnExists = turnData and turnData.currentTurn
+			if currentTurnExists then
+				warn("No more extra actions left in the queue, but a current turn exists. Resetting attacking state.")
+				resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+			-- If there's no current turn, reset the attacking state and move to the next turn
+			else
+				resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+				TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
+			end
 		else
 			-- If the next action is a followup, do not enable input yet
 			if
