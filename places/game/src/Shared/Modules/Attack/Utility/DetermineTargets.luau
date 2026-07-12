@@ -29,7 +29,6 @@ return function(char: _TYPES.Character, primaryTargetIndex: number, moveName: st
 
 	-- Determine the indexes first
 	if targetSelectionType == "Single" then -- Select a single target.
-		warn("Primary target index:", primaryTargetIndex)
 		table.insert(targets, findChar(primaryTargetIndex, targetsList) :: _TYPES.Character)
 	elseif targetSelectionType == "Blast" then -- Select a main target and 2 targets around them (if they exist).
 		-- Insert the primary target first

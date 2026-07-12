@@ -1,5 +1,7 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
+-- Packages
+local TableUtil = require(rep.Packages.TableUtil)
 
 --- This utility is for NPCs to determine the primary target index for their moves
 return function(): number?
@@ -10,14 +12,20 @@ return function(): number?
 	end
 
 	-- Randomly select a target from the Playable folder
+	-- Filter downed characters (if any) and only select from the remaining characters
 	local playables = playablesFolder:GetChildren()
+	-- Filter out downed characters
+	playables = TableUtil.Filter(playables, function(char)
+		return not char:GetAttribute("Downed")
+	end)
+
 	if #playables == 0 then
 		warn("No playable characters found in the Playable folder.")
 		return nil
 	end
 
-	local randomIndex = math.random(1, #playables)
-	warn("Randomly selected primary target index:", randomIndex)
+	local shuffledPlayables = TableUtil.Shuffle(playables)
+	local randomIndex = shuffledPlayables[1]:GetAttribute("Index") -- Get the Index attribute of the randomly selected character
 
 	return randomIndex
 end

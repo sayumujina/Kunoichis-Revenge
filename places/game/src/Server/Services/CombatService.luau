@@ -69,19 +69,44 @@ function CombatService.OnStart()
 		local player = PlayerService.GetPlayerFromCharacter(deadChar)
 
 		if player then
-			-- Remove the character from the character list
-			local list = if deadChar:GetAttribute("Side") == "Playable"
-				then CombatData[player].playables
-				else CombatData[player].npcs
-			table.remove(list, table.find(list, deadChar))
+			local deadCharIndex = deadChar:GetAttribute("Index")
 
-			-- Update the indexes of the remaining characters in the list
-			for i, char in pairs(list) do
-				char:SetAttribute("Index", i)
+			-- If the dead character was the primary selected target, switch to the next target
+			if CombatData[player].primarySelectedTargetIndex == deadCharIndex then
+				CombatService.SwitchToNextTarget(player, deadChar:GetAttribute("Side") :: _TYPES.Sides)
 			end
 
-			-- Reposition the remaining characters of the side
-			Utility.RepositionCharactersOfSide(deadChar:GetAttribute("Side") :: _TYPES.Sides)
+			-- If the dead character is the npc, simply destroy it
+			if deadChar:GetAttribute("Side") == "NPC" then
+				deadChar:Destroy()
+
+				-- Update the indexes of the remaining npcs
+				local list = CombatData[player].npcs
+				table.remove(list, table.find(list, deadChar))
+				for i, char in pairs(list) do
+					char:SetAttribute("Index", i)
+				end
+
+				-- Reposition the remaining characters of the side
+				Utility.RepositionCharactersOfSide(deadChar:GetAttribute("Side") :: _TYPES.Sides)
+			-- If the dead character is a playable, play the downed animation
+			else
+				-- Mark the character as downed
+				deadChar:SetAttribute("Downed", true)
+
+				-- Set their index to 0 so that they are not selectable as a target
+				deadChar:SetAttribute("Index", 0)
+
+				local anim = AnimationService.Play(deadChar, "Downed")
+				if not anim then
+					warn("Failed to play downed animation for character: " .. deadChar.Name)
+				end
+
+				anim.Stopped:Connect(function()
+					-- Play the downed loop animation after the downed animation finishes
+					AnimationService.Play(deadChar, "Downed_Loop")
+				end)
+			end
 		end
 	end)
 
@@ -144,6 +169,7 @@ function CombatService.SetPrimarySelectedTargetIndex(player: _TYPES.RobloxPlayer
 		return
 	end
 
+	warn("Setting primary selected target index for player:", player.Name, "to index:", index, "on side:", side)
 	combatData.primarySelectedTargetIndex = index
 end
 
@@ -162,12 +188,11 @@ function CombatService.UpdateMovePreview(player: _TYPES.RobloxPlayerType, char: 
 		return
 	end
 
-	-- If this move is an ultimate, stop the code for a short time to display the ultimate flash
-	-- Ensure the primary selected target index is valid
+	-- If the primary target index is valid, update the move preview with the current primary target index
 	local primaryTargetIndex = combatData.primarySelectedTargetIndex
 	local charsCount = if moveData.selectedSide == "Playable" then #combatData.playables else #combatData.npcs
 	if primaryTargetIndex < 1 or primaryTargetIndex > charsCount then
-		combatData.primarySelectedTargetIndex = 1
+		warn("Invalid primary target index for move preview:", primaryTargetIndex, "for move:", moveName)
 	end
 
 	Zap.UpdateMovePreview.Fire(player, {
