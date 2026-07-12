@@ -155,7 +155,10 @@ function CameraController.LookAtOpposingSide(origin: _TYPES.Character, selectedT
 		r22
 	)
 
-	-- 10. Tween the camera's CFrame to look at the target
+	-- 10. Set the FOV of the camera
+	Camera.FieldOfView = CAMERA_FOV
+
+	-- 11. Tween the camera's CFrame to look at the target
 	TweenService:Create(
 		Camera,
 		TweenInfo.new(CAMERA_TWEEN_DURATION, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
@@ -201,7 +204,10 @@ function CameraController.LookAtTheirSide(origin: _TYPES.Character)
 		middleTarget.HumanoidRootPart.Position
 	)
 
-	-- 4. Set the camera CFrame
+	-- 4. Set the FOV of the camera
+	Camera.FieldOfView = CAMERA_FOV
+
+	-- 5. Set the camera CFrame
 	TweenService:Create(
 		Camera,
 		TweenInfo.new(CAMERA_TWEEN_DURATION, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
