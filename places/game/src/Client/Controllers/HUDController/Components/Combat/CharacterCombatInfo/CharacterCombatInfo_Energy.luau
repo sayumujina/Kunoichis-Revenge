@@ -1,4 +1,6 @@
 local TweenService = game:GetService("TweenService")
+local ui = require(game.ReplicatedStorage.Assets.Asphalt.UI)
+--
 
 local function getEnergyScale(current: number, max: number): number
 	if max == 0 then
@@ -39,7 +41,7 @@ return function(size: UDim2?, position: UDim2?)
 	local energyBackgroundImageLabel = Instance.new("ImageLabel")
 	energyBackgroundImageLabel.Name = "CharacterInfo_EnergyBackground_BG"
 	energyBackgroundImageLabel.BackgroundTransparency = 1
-	energyBackgroundImageLabel.Image = "rbxassetid://75345050398965"
+	energyBackgroundImageLabel.Image = ui.hud.Combat.UI_CombatHud_EnergyCircle
 	energyBackgroundImageLabel.Size = UDim2.new(1, 0, 0, energyFrame.AbsoluteSize.Y)
 	energyBackgroundImageLabel.ZIndex = 2 -- Place it on top of the energy fill
 
@@ -66,7 +68,7 @@ return function(size: UDim2?, position: UDim2?)
 	local energyFillImageLabel = Instance.new("ImageLabel")
 	energyFillImageLabel.Name = "CharacterInfo_EnergyFill_BG"
 	energyFillImageLabel.BackgroundTransparency = 1
-	energyFillImageLabel.Image = "rbxassetid://119247488685815"
+	energyFillImageLabel.Image = ui.hud.Combat.UI_CombatHud_EnergyFill
 	energyFillImageLabel.Size = UDim2.fromScale(1, 1)
 	energyFillImageLabel.ZIndex = 1 -- Place it below the energy background
 
@@ -87,7 +89,7 @@ return function(size: UDim2?, position: UDim2?)
 			local energyPulse = energyFillImageLabel:Clone()
 			energyPulse.Parent = energyFill
 			energyPulse.Name = "CharacterInfo_EnergyPulse"
-			energyPulse.Image = "rbxassetid://116012145452820"
+			energyPulse.Image = ui.hud.Combat.UI_CombatHud_EnergyPulse
 			energyPulse.ImageTransparency = 0
 			energyPulse.Size = UDim2.fromScale(1, 1)
 			energyPulse.Position = UDim2.fromScale(0.5, 0.5)

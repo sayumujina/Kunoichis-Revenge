@@ -17,7 +17,7 @@ local ui = {
 			UI_CombatHud_HealthBorder = "rbxassetid://84100549722129",
 			UI_CombatHud_HealthFill = "rbxassetid://93013412082634",
 			UI_CombatHud_ShieldBorder = "rbxassetid://83728712714494",
-			UI_CombatHud_UltimateFlash = "rbxassetid://113005762543741",
+			UI_CombatHud_UltimateFlash = "rbxassetid://105761982517972",
 		},
 	},
 }

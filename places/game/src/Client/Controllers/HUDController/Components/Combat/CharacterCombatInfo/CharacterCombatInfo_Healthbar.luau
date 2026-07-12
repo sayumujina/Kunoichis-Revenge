@@ -2,6 +2,7 @@ local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
 --
 local TweenService = game:GetService("TweenService")
+local ui = require(rep.Assets.Asphalt.UI)
 
 -- Table to keep track of the current tweens for health and damage bars
 local currentTween = {} :: { [_TYPES.Character]: { Health: Tween?, Damage: Tween? } }
@@ -221,7 +222,7 @@ local function createHealthbar(char: _TYPES.Character, size: UDim2, position: UD
 		local healthbarBorderImageLabel = Instance.new("ImageLabel")
 		healthbarBorderImageLabel.Name = "ImageLabel"
 		healthbarBorderImageLabel.BackgroundTransparency = 1
-		healthbarBorderImageLabel.Image = "rbxassetid://84100549722129"
+		healthbarBorderImageLabel.Image = ui.hud.Combat.UI_CombatHud_HealthBorder
 		healthbarBorderImageLabel.Size = UDim2.fromScale(1, 1)
 
 		local healthbarBorderUIGradient = Instance.new("UIGradient")
@@ -250,7 +251,7 @@ local function createHealthbar(char: _TYPES.Character, size: UDim2, position: UD
 	damageFillImageLabel.Name = "ImageLabel"
 	damageFillImageLabel.BackgroundTransparency = 1
 	damageFillImageLabel.ZIndex = 1 -- Place it below the healthbar fill
-	damageFillImageLabel.Image = "rbxassetid://93013412082634"
+	damageFillImageLabel.Image = ui.hud.Combat.UI_CombatHud_HealthFill
 	damageFillImageLabel.Size = UDim2.new(1, 0, 0, healthbarFrame.AbsoluteSize.Y * FILL_SIZE_Y_SCALE)
 	damageFillImageLabel.Parent = damageFill
 
@@ -276,7 +277,7 @@ local function createHealthbar(char: _TYPES.Character, size: UDim2, position: UD
 	healthbarFillImageLabel.Name = "ImageLabel"
 	healthbarFillImageLabel.BackgroundTransparency = 1
 	healthbarFillImageLabel.ZIndex = 2 -- Place it above the damage fill
-	healthbarFillImageLabel.Image = "rbxassetid://93013412082634"
+	healthbarFillImageLabel.Image = ui.hud.Combat.UI_CombatHud_HealthFill
 	healthbarFillImageLabel.Size = UDim2.new(1, 0, 0, healthbarFrame.AbsoluteSize.Y * FILL_SIZE_Y_SCALE)
 	healthbarFillImageLabel.Parent = healthbarFill
 

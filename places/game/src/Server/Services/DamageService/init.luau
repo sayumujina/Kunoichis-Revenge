@@ -42,9 +42,6 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 	-- If the target hp goes down to 0 or below, set it to 0 and handle the character's death
 	local newHP = targetHP - remainingDamage
 	if newHP <= 0 then
-		-- Destroy the target character and handle death logic
-		target:Destroy()
-
 		-- Fire the death event with the target and origin characters
 		EventService.Events.Death:Fire({
 			char = target,

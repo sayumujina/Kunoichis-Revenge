@@ -30,6 +30,7 @@ local Components = {
 			CharacterCombatInfoHealthbar = require(
 				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfo_Healthbar
 			),
+			CharacterCombatInfoAvatar = require(ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfo_Avatar),
 			CreateCharacterCombatInfoBillboardGui = require(
 				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfo_BillboardGui
 			),
@@ -402,9 +403,24 @@ function HUDController.OnStart()
 			return
 		end
 
+		-- Decide the layout group
+		local layoutGroup
+		if extraActionData.isProcessingAttack then
+			-- If there is no extra action at the moment, place it before the main turn card
+			if not next(extraActionLayoutInfoByTurnId) then
+				layoutGroup = "before"
+			-- If there are already extra actions, place it on the same group as the last extra action
+			else
+				local _, currentGroupData = next(extraActionLayoutInfoByTurnId)
+				layoutGroup = currentGroupData and currentGroupData.layoutGroup or "before"
+			end
+		-- If there is no extra action at the moment, place it before the main turn card
+		else
+			layoutGroup = "before"
+		end
 		-- Remember which side of the main turn card this extra action belongs on for future reflows.
 		extraActionLayoutInfoByTurnId[extraActionData.extraActionId] = {
-			layoutGroup = if extraActionData.isProcessingAttack then "after" else "before",
+			layoutGroup = layoutGroup,
 			turnId = extraActionData.currentTurnId,
 		}
 
@@ -581,6 +597,19 @@ function HUDController.OnStart()
 				deathEvent.char :: _TYPES.Character
 			)
 		end
+
+		-- Set the hp, energy and shield bars to 0 for the dead character
+		Helpers.UpdateCharacterStatValue(
+			playerGui,
+			deathEvent.char :: _TYPES.Character,
+			"currentStats",
+			{ hp = 0, energy = 0, shield = 0 }
+		)
+
+		-- Darkens the character info card for the dead character
+		Components.Combat.CharacterCombatInfo.CharacterCombatInfoAvatar.DarkensAvatarImage(
+			deathEvent.char :: _TYPES.Character
+		)
 	end)
 
 	-- Listens to casted ultimate  events

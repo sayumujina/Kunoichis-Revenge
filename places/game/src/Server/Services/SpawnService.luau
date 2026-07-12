@@ -107,6 +107,9 @@ function SpawnService.SpawnCharacter(
 	-- Create a side attribute and insert the character's side
 	char:SetAttribute("Side", side)
 
+	-- Create a "Downed" attribute to track if the character is downed or not
+	char:SetAttribute("Downed", false)
+
 	-- Spawn from above the baseplate
 	char:PivotTo(cframe)
 
