@@ -69,7 +69,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 	["DestructiveCriticism"] = {
 		moveType = "Ultimate",
 		--
-		targetSelectionType = "Single",
+		targetSelectionType = "AoE",
 		selectedSide = "NPC",
 		--
 		cinematicInfo = {
@@ -81,8 +81,8 @@ local moves: { [string]: _TYPES.MoveData } = {
 				scalings = {
 					realStats = { def = 50 / 100 },
 				},
-				energyGain = 0,
-				exposureDealt = 0,
+				energyGain = 5,
+				exposureDealt = 70,
 			},
 		},
 		--

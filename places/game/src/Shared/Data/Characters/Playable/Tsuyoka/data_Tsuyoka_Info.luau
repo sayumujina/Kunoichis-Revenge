@@ -11,10 +11,10 @@ local info = {
 		spd = 170,
 		shield = 0,
 		--
-		critRate = 0,
-		critDmg = 0,
+		critRate = -100,
+		critDmg = 10,
 		--
-		energy = 120,
+		energy = 0,
 		ultimateGainEfficiency = 120,
 		--
 		manaGainEfficiency = 100,
@@ -30,7 +30,7 @@ local info = {
 	},
 	-- Starting stats
 	startingStats = {
-		hp = 2000,
+		hp = 10,
 		energy = 80,
 		shield = 0,
 	},
