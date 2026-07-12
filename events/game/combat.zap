@@ -88,6 +88,7 @@ event MoveEnd = {
 		origin: Instance.Model, 
 		data: struct {
 			moveName: string.binary,
+			recordedTargets: Instance.Model[],
 		},
 	},
 }

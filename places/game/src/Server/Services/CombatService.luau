@@ -101,7 +101,6 @@ function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType, s
 	end
 
 	local charsCount = if side == "Playable" then #combatData.playables else #combatData.npcs
-	warn("Switching to previous target for player:", player.Name, "on side:", side, #combatData.playables)
 	if charsCount == 0 then
 		return
 	end

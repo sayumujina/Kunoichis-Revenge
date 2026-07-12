@@ -1,3 +1,6 @@
+-- Services
+local TweenService = game:GetService("TweenService")
+
 local function getShieldScale(currentShield: number, maxHP: number): number
 	if maxHP <= 0 then
 		return 0
@@ -57,7 +60,6 @@ return function(size: UDim2?, position: UDim2?)
 	shieldbarFill.ClipsDescendants = true
 	shieldbarFill.Position = UDim2.fromScale(FILL_POSITION_OFFSET, 0.5)
 	shieldbarFill.Size = UDim2.fromScale(0, 1)
-	shieldbarFill.ZIndex = 2
 
 	local shieldbarFillImageLabel = Instance.new("ImageLabel")
 	shieldbarFillImageLabel.Name = "ImageLabel"
@@ -66,7 +68,7 @@ return function(size: UDim2?, position: UDim2?)
 	shieldbarFillImageLabel.ImageColor3 = Color3.new(1, 1, 1)
 	shieldbarFillImageLabel.ImageTransparency = 0.1
 	shieldbarFillImageLabel.Size = UDim2.new(1, 0, 0, shieldbarFrame.AbsoluteSize.Y * FILL_SIZE_Y_SCALE)
-	shieldbarFillImageLabel.ZIndex = 2
+	shieldbarFillImageLabel.ZIndex = 3
 
 	shieldbarFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		shieldbarFillImageLabel.Size = UDim2.new(1, 0, 0, shieldbarFrame.AbsoluteSize.Y * FILL_SIZE_Y_SCALE)
@@ -85,8 +87,8 @@ return function(size: UDim2?, position: UDim2?)
 
 	local maxHPChangedConnection: RBXScriptConnection? = nil
 	local ownerDescendantAddedConnection: RBXScriptConnection? = nil
-	local ownerDescendantRemovingConnection: RBXScriptConnection? = nil
 
+	local currentTween: Tween? = nil
 	local function updateShieldbar()
 		local ownerContainer = findOwnerContainer(shieldbarFrame.Parent)
 		local characterMaxHPValue = findDescendantInContainer(ownerContainer, "CharacterMaxHPValue", "NumberValue")
@@ -95,8 +97,31 @@ return function(size: UDim2?, position: UDim2?)
 		end
 
 		local shieldScale = getShieldScale(currentShieldValue.Value, characterMaxHPValue.Value)
-		shieldbarFill.Size = UDim2.fromScale(math.max(shieldScale - FILL_SIZE_X_OFFSET, 0), FILL_SIZE_Y_SCALE)
-		shieldbarFrame.Visible = currentShieldValue.Value > 0
+		-- Tween the shieldbar fill size to the new shield scale
+		if currentTween then
+			currentTween:Cancel()
+		end
+
+		currentTween = TweenService:Create(
+			shieldbarFill,
+			TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ Size = UDim2.fromScale(math.max(shieldScale - FILL_SIZE_X_OFFSET, 0), FILL_SIZE_Y_SCALE) }
+		)
+
+		-- If the current shield value is 0 or less, play the tween before hiding the shieldbar and vice versa
+		if currentShieldValue.Value <= 0 then
+			currentTween:Play()
+			currentTween.Completed:Once(function()
+				shieldbarFrame.Visible = false
+				currentTween = nil
+			end)
+		else
+			shieldbarFrame.Visible = true
+			currentTween:Play()
+			currentTween.Completed:Once(function()
+				currentTween = nil
+			end)
+		end
 	end
 
 	local function bindMaxHPListener()
@@ -121,11 +146,6 @@ return function(size: UDim2?, position: UDim2?)
 			ownerDescendantAddedConnection = nil
 		end
 
-		if ownerDescendantRemovingConnection then
-			ownerDescendantRemovingConnection:Disconnect()
-			ownerDescendantRemovingConnection = nil
-		end
-
 		local ownerContainer = findOwnerContainer(shieldbarFrame.Parent)
 		if not ownerContainer then
 			return
@@ -136,23 +156,9 @@ return function(size: UDim2?, position: UDim2?)
 				bindMaxHPListener()
 			end
 		end)
-
-		ownerDescendantRemovingConnection = ownerContainer.DescendantRemoving:Connect(function(descendant)
-			if descendant.Name == "CharacterMaxHPValue" and descendant:IsA("NumberValue") then
-				bindMaxHPListener()
-			end
-		end)
 	end
 
 	currentShieldValue.Changed:Connect(updateShieldbar)
-	shieldbarFrame:GetPropertyChangedSignal("Parent"):Connect(function()
-		bindOwnerContainerListeners()
-		bindMaxHPListener()
-	end)
-	shieldbarFrame.AncestryChanged:Connect(function()
-		bindOwnerContainerListeners()
-		bindMaxHPListener()
-	end)
 	bindOwnerContainerListeners()
 	bindMaxHPListener()
 

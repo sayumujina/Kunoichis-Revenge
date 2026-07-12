@@ -76,7 +76,6 @@ local function createDetailedCombatInfoScrollingFrame(char: _TYPES.Character)
 	local statusListFrame = StatusListFrame.CreateStatusListFrame(char)
 	statusListFrame.Parent = scrollingFrame
 
-	warn("Created DetailedCombatInfo_ScrollingFrame for character:", char.Name, "with parent:", scrollingFrame.Parent)
 	return scrollingFrame
 end
 

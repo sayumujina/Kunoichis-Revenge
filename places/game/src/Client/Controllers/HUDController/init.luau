@@ -26,7 +26,7 @@ local Components = {
 				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoFrame
 			),
 			CreateCharacterCombatInfoCard = require(ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfoCard),
-			CreateCharacterCombatInfoHealthbar = require(
+			CharacterCombatInfoHealthbar = require(
 				ComponentsPath.Combat.CharacterCombatInfo.CharacterCombatInfo_Healthbar
 			),
 			CreateCharacterCombatInfoBillboardGui = require(
@@ -284,9 +284,18 @@ function HUDController.OnStart()
 	end)
 
 	-- Listens to move end events to reset the total damage UI
-	Zap.MoveEnd.On(function()
+	Zap.MoveEnd.On(function(moveEndData)
 		Helpers.UpdateDamageUI.ToggleDamageUIVisibility(playerGui, false)
 		Helpers.UpdateDamageUI.ResetTotalDamage()
+
+		-- Tween the damage fill
+		for _, target in pairs(moveEndData.data.recordedTargets) do
+			Components.Combat.CharacterCombatInfo.CharacterCombatInfoHealthbar.UpdateBarSize(
+				target :: _TYPES.Character,
+				"Damage",
+				true
+			)
+		end
 	end)
 
 	-- Listen to completed turns to update the turn queue
@@ -656,11 +665,7 @@ function HUDController.Init()
 				return
 			end
 
-			Components.Combat.DetailedCombatInfo.CharacterSelection.SelectCharButton(
-				detailedMenuCharacterList,
-				activeChar
-			)
-			CameraController.LookAtCharacterInDetailedMenu(activeChar)
+			Components.Combat.DetailedCombatInfo.CharacterSelection.SwitchCharButton("CurrentChar")
 		end)
 	end
 end

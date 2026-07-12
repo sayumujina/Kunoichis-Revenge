@@ -189,6 +189,7 @@ local function ExecuteMove(
 			origin = char,
 			data = {
 				moveName = moveName,
+				recordedTargets = targets,
 			},
 		})
 

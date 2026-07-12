@@ -222,6 +222,7 @@ export type MoveEndEvent = {
 	origin: _TYPES.Character,
 	data: {
 		moveName: string,
+		recordedTargets: { _TYPES.Character },
 	},
 }
 

@@ -18,12 +18,6 @@ local function getStatusListFrameForCharacter(char: _TYPES.Character): Frame?
 		warn("DetailedCombatInfo_ScreenGui not found in PlayerGui")
 		return nil
 	end
-	warn(
-		"number of chars ",
-		#game.Players:GetPlayers(),
-		"number of children in statusListFrame: ",
-		#detailedCombatInfoScreenGui:QueryDescendants("#StatusList_Frame")
-	)
 
 	for _, statusListFrame in pairs(detailedCombatInfoScreenGui:QueryDescendants("#StatusList_Frame")) do
 		if statusListFrame.Name ~= "StatusList_Frame" then
@@ -31,13 +25,11 @@ local function getStatusListFrameForCharacter(char: _TYPES.Character): Frame?
 		end
 
 		local associatedCharValue = statusListFrame:FindFirstChild("AssociatedCharValue")
-		warn("Checking statusListFrame:", statusListFrame, "AssociatedCharValue:", associatedCharValue.Value, char)
 		if associatedCharValue and associatedCharValue:IsA("ObjectValue") and associatedCharValue.Value == char then
 			return statusListFrame
 		end
 	end
 
-	warn("StatusList_Frame not found for character", char)
 	return nil
 end
 

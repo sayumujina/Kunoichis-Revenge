@@ -11,6 +11,8 @@ local CombatController = require(Controllers.CombatController)
 -- HUD Components
 local Components = Controllers.HUDController.Components
 local DetailedCombatInfoScrollingFrame = require(Components.Combat.DetailedCombatInfo.DetailedCombatInfo_ScrollingFrame)
+local DetailedCombatInfoCharacterSelection =
+	require(Components.Combat.DetailedCombatInfo.DetailedCombatInfo_CharacterSelection)
 --
 local Zap = require(game.StarterPlayer.StarterPlayerScripts.Client.zap)
 
@@ -77,11 +79,20 @@ function InputController.OnStart()
 				-- Toggle the detailed combat info menu visibility
 				HUDController.ToggleScreenGuiVisibility("Combat_ScreenGui", not detailedCombatInfoOpened)
 				HUDController.ToggleScreenGuiVisibility("DetailedCombatInfo_ScreenGui", detailedCombatInfoOpened)
+				DetailedCombatInfoCharacterSelection.ResetSelectedLayoutOrder()
 
 				-- Reload the move preview data when closing the detailed combat info menu
 				CombatController.ReloadPreviewData()
 			end
 			return
+		elseif actionName == "PreviousTarget" or actionName == "NextTarget" then
+			-- If the detailed combat info menu is open, this action will be used to switch the selected character in the detailed combat info menu
+			if detailedCombatInfoOpened then
+				DetailedCombatInfoCharacterSelection.SwitchCharButton(
+					if actionName == "PreviousTarget" then "Previous" else "Next"
+				)
+				return
+			end
 		end
 
 		-- Disable every other action if the menu is open

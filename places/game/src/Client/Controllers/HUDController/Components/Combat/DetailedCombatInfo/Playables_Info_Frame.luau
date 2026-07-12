@@ -1,9 +1,8 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
-local createCharacterCombatInfoEnergy = require(script.Parent.Parent.CharacterCombatInfo.CharacterCombatInfo_Energy)
-local createCharacterCombatInfoHealthbar =
-	require(script.Parent.Parent.CharacterCombatInfo.CharacterCombatInfo_Healthbar)
-local createCharacterCombatInfoShieldbar =
+local CharacterCombatInfoEnergy = require(script.Parent.Parent.CharacterCombatInfo.CharacterCombatInfo_Energy)
+local CharacterCombatInfoHealthbar = require(script.Parent.Parent.CharacterCombatInfo.CharacterCombatInfo_Healthbar)
+local CreateCharacterCombatInfoShieldbar =
 	require(script.Parent.Parent.CharacterCombatInfo.CharacterCombatInfo_Shieldbar)
 
 return function(char: _TYPES.Character)
@@ -57,12 +56,18 @@ return function(char: _TYPES.Character)
 	barsFrame.LayoutOrder = 2
 	barsFrame.Size = UDim2.fromScale(0.9, 0.14)
 
-	local healthbar = createCharacterCombatInfoHealthbar(UDim2.fromScale(1, 1), UDim2.fromScale(0, 0), true)
-	healthbar.Name = "Detailed_Healthbar"
+	local healthbar =
+		CharacterCombatInfoHealthbar.CreateHealthbar(char, UDim2.fromScale(1, 1), UDim2.fromScale(0, 0), true)
+	healthbar.Name = "DetailedInfo_Healthbar"
 	healthbar.Parent = barsFrame
+	-- We don't need the damage fill for this healthbar, so we can destroy it to save resources
+	local damageFill = healthbar:FindFirstChild("CharacterInfo_DamageFill")
+	if damageFill then
+		damageFill:Destroy()
+	end
 
-	local shieldbar = createCharacterCombatInfoShieldbar(UDim2.fromScale(1, 1), UDim2.fromScale(0, 0))
-	shieldbar.Name = "Detailed_Shieldbar"
+	local shieldbar = CreateCharacterCombatInfoShieldbar(UDim2.fromScale(1, 1), UDim2.fromScale(0, 0))
+	shieldbar.Name = "DetailedInfo_Shieldbar"
 	shieldbar.Parent = barsFrame
 
 	barsFrame.Parent = infoFrame
@@ -82,7 +87,7 @@ return function(char: _TYPES.Character)
 
 	infoFrame.Parent = playablesInfoFrame
 
-	local energyFrame = createCharacterCombatInfoEnergy(UDim2.fromScale(0.66, 0.66), UDim2.fromScale(0.03, 0.17))
+	local energyFrame = CharacterCombatInfoEnergy(UDim2.fromScale(0.66, 0.66), UDim2.fromScale(0.03, 0.17))
 	energyFrame.Name = "Energy_Frame"
 	energyFrame.Parent = playablesInfoFrame
 

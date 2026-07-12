@@ -17,16 +17,33 @@ local function getDefaultBackgroundColor(char: _TYPES.Character): Color3
 	return if char:GetAttribute("Side") == "Playable" then PLAYABLES_BG_COLOR else NPCS_BG_COLOR
 end
 
--- Selects a character button in the character list frame and updates the selected character value
-local function selectCharButton(characterListFrame: Frame, char: _TYPES.Character)
-	local selectedCharacterValue = characterListFrame:FindFirstChild("SelectedCharacter")
-	if not selectedCharacterValue or not selectedCharacterValue:IsA("ObjectValue") then
+local function getNumberOfScrollingFrames(): number
+	local detailedCombatInfoScreenGui =
+		game.Players.LocalPlayer.PlayerGui:FindFirstChild("DetailedCombatInfo_ScreenGui")
+	if not detailedCombatInfoScreenGui then
+		return 0
+	end
+
+	local count = 0
+	for _, child in pairs(detailedCombatInfoScreenGui:GetChildren()) do
+		if child:IsA("ScrollingFrame") then
+			count += 1
+		end
+	end
+
+	return count
+end
+--- Selects a character button in the character list frame and updates the selected character value
+--- @param characterListFrame -- The frame containing the character buttons
+--- @param char -- The character to select
+local function selectCharButton(characterListFrame: Frame, order: number)
+	local selectedButtonLayoutOrder = characterListFrame:FindFirstChild("SelectedButtonLayoutOrder")
+	if not selectedButtonLayoutOrder or not selectedButtonLayoutOrder:IsA("NumberValue") then
 		return
 	end
 
-	-- Set the selected character value to the newly selected character
-	local oldSelectedChar = selectedCharacterValue.Value
-	selectedCharacterValue.Value = char
+	-- Get the selected character value to the newly selected character
+	local previouslySelectedLayoutOrder = selectedButtonLayoutOrder.Value
 
 	-- Loop through all the buttons in the character list frame and reset their background color
 	for _, frame in pairs(characterListFrame:GetChildren()) do
@@ -36,16 +53,66 @@ local function selectCharButton(characterListFrame: Frame, char: _TYPES.Characte
 		end
 
 		-- Find the currently selected button and reset its background color
-		if associatedCharValue.Value == oldSelectedChar then
+		if frame.LayoutOrder == previouslySelectedLayoutOrder then
 			frame.BackgroundColor3 = getDefaultBackgroundColor(associatedCharValue.Value :: _TYPES.Character)
 		end
 
 		-- Find the newly selected button and update its background color to indicate selection
-		if associatedCharValue.Value :: any == char then
+		if frame.LayoutOrder == order then
 			frame.BackgroundColor3 = SELECTED_BG_COLOR
-			selectedCharacterValue.Value = char
+			selectedButtonLayoutOrder.Value = order
+
+			-- Update the camera to focus on the associated character and show the detailed combat info for that character
+			CameraController.LookAtCharacterInDetailedMenu(associatedCharValue.Value :: _TYPES.Character)
+			DetailedCombatInfoScrollingFrame.ShowCharDetailedCombat(associatedCharValue.Value :: _TYPES.Character)
 		end
 	end
+end
+
+--- Switch the selected character button in the character list frame
+--- @param mode -- The mode to switch the selected character button, either "Previous" or "Next"
+local function switchCharButton(mode: "Previous" | "Next" | "CurrentChar")
+	local characterListFrame = game.Players.LocalPlayer.PlayerGui
+		:FindFirstChild("DetailedCombatInfo_ScreenGui")
+		:FindFirstChild("UI_Character_Selection_Frame")
+	if not characterListFrame then
+		return
+	end
+
+	local selectedLayoutOrderValue = characterListFrame:FindFirstChild("SelectedButtonLayoutOrder")
+	if not selectedLayoutOrderValue or not selectedLayoutOrderValue:IsA("NumberValue") then
+		return
+	end
+
+	-- Clamp the layout order to the range of available buttons
+	local order
+	if mode == "Previous" then
+		order = math.max(1, selectedLayoutOrderValue.Value - 1)
+	elseif mode == "Next" then
+		order = math.min(getNumberOfScrollingFrames(), selectedLayoutOrderValue.Value + 1)
+	elseif mode == "CurrentChar" then
+		-- Find the button associated with the player's active character and set the order to its layout order
+		local activeChar = game.Players.LocalPlayer.ActiveCharacter.Value
+		for _, frame in pairs(characterListFrame:GetChildren()) do
+			local associatedCharValue = frame:FindFirstChild("AssociatedCharacter")
+			if not frame:IsA("Frame") or not associatedCharValue or not associatedCharValue:IsA("ObjectValue") then
+				continue
+			end
+
+			if associatedCharValue.Value == activeChar then
+				order = frame.LayoutOrder
+				break
+			end
+		end
+	end
+
+	-- Skip if the selected layout order is the same as the current selected layout order
+	if order == selectedLayoutOrderValue.Value then
+		return
+	end
+
+	-- Select the character button with the clamped layout order
+	selectCharButton(characterListFrame, order)
 end
 
 --- Creates a character button for the character selection list
@@ -91,9 +158,7 @@ local function createCharButton(characterListFrame: Frame, char: _TYPES.Characte
 	-- 2. Update the camera to focus on the associated character
 	-- 3. Display the detailed combat info for that character
 	avatar.MouseButton1Click:Connect(function()
-		selectCharButton(characterListFrame, char)
-		CameraController.LookAtCharacterInDetailedMenu(char)
-		DetailedCombatInfoScrollingFrame.ShowCharDetailedCombat(char)
+		selectCharButton(characterListFrame, characterSelectionFrame.LayoutOrder)
 	end)
 	avatar.Parent = characterSelectionFrame
 
@@ -125,9 +190,9 @@ local function createCharacterList()
 	uIPadding.PaddingTop = UDim.new(0, 6)
 	uIPadding.Parent = characterListFrame
 
-	local selectedChar = Instance.new("ObjectValue")
-	selectedChar.Name = "SelectedCharacter"
-	selectedChar.Parent = characterListFrame
+	local selectedButtonLayoutOrder = Instance.new("NumberValue")
+	selectedButtonLayoutOrder.Name = "SelectedButtonLayoutOrder"
+	selectedButtonLayoutOrder.Parent = characterListFrame
 
 	return characterListFrame
 end
@@ -166,8 +231,6 @@ end
 --- @param characterListFrame -- The frame containing the character buttons
 --- @param char -- The character to remove the button for
 local function removeCharButton(characterListFrame: Frame, char: _TYPES.Character)
-	local selectedCharacterValue = characterListFrame:FindFirstChild("SelectedCharacter")
-
 	for _, child in pairs(characterListFrame:GetChildren()) do
 		local associatedCharValue = child:FindFirstChild("AssociatedCharacter")
 		if not child:IsA("Frame") or not associatedCharValue then
@@ -176,10 +239,6 @@ local function removeCharButton(characterListFrame: Frame, char: _TYPES.Characte
 
 		local associatedChar = associatedCharValue.Value
 		if associatedChar == char then
-			if selectedCharacterValue and selectedCharacterValue.Value == char then
-				selectedCharacterValue.Value = nil
-			end
-
 			child:Destroy()
 			resortButtonsLayoutOrder()
 			break
@@ -196,10 +255,41 @@ local function addCharButton(characterListFrame: Frame, char: _TYPES.Character)
 	resortButtonsLayoutOrder()
 end
 
+--- Reset the selected layout order in the character list frame to 0 for the next time the menu is opened
+local function resetSelectedLayoutOrder()
+	local characterListFrame = game.Players.LocalPlayer.PlayerGui
+		:FindFirstChild("DetailedCombatInfo_ScreenGui")
+		:FindFirstChild("UI_Character_Selection_Frame")
+
+	if not characterListFrame then
+		return
+	end
+
+	local selectedButtonLayoutOrder = characterListFrame:FindFirstChild("SelectedButtonLayoutOrder")
+	if not selectedButtonLayoutOrder or not selectedButtonLayoutOrder:IsA("NumberValue") then
+		return
+	end
+
+	-- Deselect the currently selected button by resetting its background color to the default color
+	for _, frame in pairs(characterListFrame:GetChildren()) do
+		local associatedCharValue = frame:FindFirstChild("AssociatedCharacter")
+		if not frame:IsA("Frame") or not associatedCharValue or not associatedCharValue:IsA("ObjectValue") then
+			continue
+		end
+
+		if frame.LayoutOrder == selectedButtonLayoutOrder.Value then
+			frame.BackgroundColor3 = getDefaultBackgroundColor(associatedCharValue.Value :: _TYPES.Character)
+		end
+	end
+
+	selectedButtonLayoutOrder.Value = 0
+end
+
 return {
 	CreateCharButton = createCharButton,
 	CreateCharacterList = createCharacterList,
 	RemoveCharButton = removeCharButton,
 	AddCharButton = addCharButton,
-	SelectCharButton = selectCharButton,
+	SwitchCharButton = switchCharButton,
+	ResetSelectedLayoutOrder = resetSelectedLayoutOrder,
 }

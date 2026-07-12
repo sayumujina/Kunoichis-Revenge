@@ -1,7 +1,7 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
-local createCharacterCombatInfoHealthbar = require(script.Parent.CharacterCombatInfo_Healthbar)
-local createCharacterCombatInfoExposureBar = require(script.Parent.CharacterCombatInfo_ExposureBar)
+local CharacterCombatInfoHealthbar = require(script.Parent.CharacterCombatInfo_Healthbar)
+local CreateCharacterCombatInfoExposureBar = require(script.Parent.CharacterCombatInfo_ExposureBar)
 
 return function(char: _TYPES.Character, playerGui: PlayerGui)
 	if not char or not playerGui then
@@ -20,11 +20,11 @@ return function(char: _TYPES.Character, playerGui: PlayerGui)
 
 	-- Create the healthbar frame and parent it to the billboard gui
 	local characterInfoHealthbarFrame =
-		createCharacterCombatInfoHealthbar(UDim2.fromScale(1, 0.747), UDim2.fromScale(0, 0))
+		CharacterCombatInfoHealthbar.CreateHealthbar(char, UDim2.fromScale(1, 0.747), UDim2.fromScale(0, 0))
 	characterInfoHealthbarFrame.Parent = billboardGui
 
 	-- Create the exposure bar frame and parent it to the billboard gui
-	local characterInfoExposureBar = createCharacterCombatInfoExposureBar()
+	local characterInfoExposureBar = CreateCharacterCombatInfoExposureBar()
 	characterInfoExposureBar.Parent = billboardGui
 
 	--  Create an ObjectValue to associate the character with the billboard gui

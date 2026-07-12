@@ -1,8 +1,8 @@
 local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
-local createCharacterCombatInfoEnergy = require(script.Parent.CharacterCombatInfo_Energy)
-local createCharacterCombatInfoAvatar = require(script.Parent.CharacterCombatInfo_Avatar)
-local createCharacterCombatInfoHealthbar = require(script.Parent.CharacterCombatInfo_Healthbar)
-local createCharacterCombatInfoShieldbar = require(script.Parent.CharacterCombatInfo_Shieldbar)
+local CreateCharacterCombatInfoEnergy = require(script.Parent.CharacterCombatInfo_Energy)
+local CreateCharacterCombatInfoAvatar = require(script.Parent.CharacterCombatInfo_Avatar)
+local CharacterCombatInfoHealthbar = require(script.Parent.CharacterCombatInfo_Healthbar)
+local CreateCharacterCombatInfoShieldbar = require(script.Parent.CharacterCombatInfo_Shieldbar)
 
 return function(char: _TYPES.Character)
 	local characterInfoCard = Instance.new("Frame")
@@ -17,17 +17,20 @@ return function(char: _TYPES.Character)
 	associatedCharValue.Value = char
 	associatedCharValue.Parent = characterInfoCard
 
-	local characterInfoAvatar = createCharacterCombatInfoAvatar(char.Name)
+	local characterInfoAvatar = CreateCharacterCombatInfoAvatar(char.Name)
 	characterInfoAvatar.Parent = characterInfoCard
 
-	local characterInfoEnergy = createCharacterCombatInfoEnergy()
+	local characterInfoEnergy = CreateCharacterCombatInfoEnergy()
 	characterInfoEnergy.Parent = characterInfoCard
 
-	local characterInfoShieldbar = createCharacterCombatInfoShieldbar()
+	local characterInfoShieldbar = CreateCharacterCombatInfoShieldbar()
 	characterInfoShieldbar.Parent = characterInfoCard
 
-	local characterInfoHealthbar =
-		createCharacterCombatInfoHealthbar(UDim2.fromScale(0.964, 0.1344), UDim2.fromScale(0.005, 0.669))
+	local characterInfoHealthbar = CharacterCombatInfoHealthbar.CreateHealthbar(
+		char,
+		UDim2.fromScale(0.964, 0.1344),
+		UDim2.fromScale(0.005, 0.669)
+	)
 	characterInfoHealthbar.Parent = characterInfoCard
 
 	local characterInfoHPLabel = Instance.new("TextLabel")
