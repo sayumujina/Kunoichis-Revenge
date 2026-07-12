@@ -2,18 +2,18 @@ local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Shared.data_Types)
 
 local STATS_TO_CHECK = {
-	["atk"] = { index = 1, name = "ATK" },
-	["def"] = { index = 2, name = "DEF" },
-	["spd"] = { index = 3, name = "SPD" },
-	["critRate"] = { index = 4, name = "Crit Rate" },
-	["critDmg"] = { index = 5, name = "Crit DMG" },
-	["ultimateGainEfficiency"] = { index = 6, name = "Ultimate Gain Efficiency" },
-	["manaGainEfficiency"] = { index = 7, name = "Mana Gain Efficiency" },
+	["atk"] = { index = 1, name = "ATK", isInPercentages = false },
+	["def"] = { index = 2, name = "DEF", isInPercentages = false },
+	["spd"] = { index = 3, name = "SPD", isInPercentages = false },
+	["critRate"] = { index = 4, name = "Crit Rate", isInPercentages = true },
+	["critDmg"] = { index = 5, name = "Crit DMG", isInPercentages = true },
+	["ultimateGainEfficiency"] = { index = 6, name = "Ultimate Gain Efficiency", isInPercentages = true },
+	["manaGainEfficiency"] = { index = 7, name = "Mana Gain Efficiency", isInPercentages = true },
 }
 
 local function createStatFrame(statKey: string, statName: string, order: number)
 	local statFrame = Instance.new("Frame")
-	statFrame.Name = "DetailedStat_" .. statName .. "_Frame"
+	statFrame.Name = "DetailedStat_" .. statKey .. "_Frame"
 	statFrame.BackgroundColor3 = Color3.fromRGB(185, 185, 185)
 	statFrame.BackgroundTransparency = 0.7
 	statFrame.Size = UDim2.fromScale(0.9, 0.114)
@@ -53,7 +53,9 @@ local function createStatFrame(statKey: string, statName: string, order: number)
 	statValue.Name = "Value"
 	statValue.Parent = statFrame
 	statValue.Changed:Connect(function()
-		statValueLabel.Text = tostring(math.floor(statValue.Value))
+		statValueLabel.Text = if STATS_TO_CHECK[statKey] and STATS_TO_CHECK[statKey].isInPercentages
+			then string.format("%.1f%%", statValue.Value) -- Show as percentage
+			else tostring(statValue.Value)
 	end)
 
 	return statFrame
@@ -77,11 +79,8 @@ local function updateStatValue(char: _TYPES.Character, newStatData: { [string]: 
 			continue
 		end
 
-		for statName: string, value in pairs(newStatData) do
-			local statFrame = scrollingFrame:FindFirstChild(
-				"DetailedStat_" .. (STATS_TO_CHECK[statName] and STATS_TO_CHECK[statName].name or statName) .. "_Frame",
-				true
-			)
+		for statKey: string, value in pairs(newStatData) do
+			local statFrame = scrollingFrame:FindFirstChild("DetailedStat_" .. statKey .. "_Frame", true)
 			if not statFrame then
 				continue
 			end
