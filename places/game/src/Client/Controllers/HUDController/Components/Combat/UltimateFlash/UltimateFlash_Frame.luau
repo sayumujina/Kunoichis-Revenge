@@ -3,6 +3,10 @@ local GetAvatarImageForCharacter =
 	require(StarterPlayerScripts.Client.Controllers.HUDController.Helper.GetAvatarImageForCharacter)
 -- Services
 local TweenService = game:GetService("TweenService")
+--
+local ui = require(game.ReplicatedStorage.Assets.Asphalt.UI)
+-- Constants
+local ULTIMATE_FLASH_OFFSET = UDim2.fromScale(-0.02, 0.02)
 
 return function(charName: string, ultimateName: string)
 	local ultimateFlashFrame = Instance.new("Frame")
@@ -15,7 +19,7 @@ return function(charName: string, ultimateName: string)
 	local ultimateFlash = Instance.new("ImageLabel")
 	ultimateFlash.Name = "UltimateFlash"
 	ultimateFlash.BackgroundTransparency = 1
-	ultimateFlash.Image = "rbxassetid://113005762543741"
+	ultimateFlash.Image = ui.hud.Combat.UI_CombatHud_UltimateFlash
 	ultimateFlash.Position = UDim2.fromScale(0, 0.65)
 	ultimateFlash.Size = UDim2.fromScale(1, 1)
 
@@ -59,21 +63,54 @@ return function(charName: string, ultimateName: string)
 	ultimateNameLabel.Parent = ultimateFlashFrame
 
 	-- Tween the position of the flash frame from outside the screen
-	local newPosition = ultimateFlashFrame.Position + UDim2.fromScale(ultimateFlashFrame.Size.X.Scale, 0)
+	local newPosition = ultimateFlashFrame.Position + ULTIMATE_FLASH_OFFSET
 	local oldPosition = ultimateFlashFrame.Position
 	ultimateFlashFrame.Position = newPosition
 
 	local posTween = TweenService:Create(
 		ultimateFlashFrame,
-		TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out),
 		{ Position = oldPosition }
 	)
 
-	local reversePosTween = TweenService:Create(
-		ultimateFlashFrame,
-		TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-		{ Position = newPosition }
-	)
+	local reverseTransparencyTweens = {}
+	for _, child in pairs(ultimateFlashFrame:GetDescendants()) do
+		if child:IsA("ImageLabel") then
+			-- Tween the transparency of all children of the flash frame to make them visible
+			local transparencyTween = TweenService:Create(
+				child,
+				TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out),
+				{ ImageTransparency = 0 }
+			)
+
+			-- Then store a reverse tween to make them invisible again after a delay
+			local reverseTransparencyTween = TweenService:Create(
+				child,
+				TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.In),
+				{ ImageTransparency = 1 }
+			)
+
+			table.insert(reverseTransparencyTweens, reverseTransparencyTween)
+			transparencyTween:Play()
+		elseif child:IsA("TextLabel") then
+			-- Tween the transparency of all children of the flash frame to make them visible
+			local transparencyTween = TweenService:Create(
+				child,
+				TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out),
+				{ TextTransparency = 0 }
+			)
+
+			-- Then store a reverse tween to make them invisible again after a delay
+			local reverseTransparencyTween = TweenService:Create(
+				child,
+				TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.In),
+				{ TextTransparency = 1 }
+			)
+
+			table.insert(reverseTransparencyTweens, reverseTransparencyTween)
+			transparencyTween:Play()
+		end
+	end
 
 	-- Create a frame that covers the entire screen to darken it
 	local playerGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
@@ -89,7 +126,7 @@ return function(charName: string, ultimateName: string)
 	local darkenTween = TweenService:Create(
 		darkenFrame,
 		TweenInfo.new(0.15, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out),
-		{ BackgroundTransparency = 0.3 }
+		{ BackgroundTransparency = 0.1 }
 	)
 
 	local reverseDarkenTween = TweenService:Create(
@@ -100,9 +137,11 @@ return function(charName: string, ultimateName: string)
 
 	posTween:Play()
 	darkenTween:Play()
-	task.delay(1.2, function()
-		reversePosTween:Play()
+	task.delay(0.6, function()
 		reverseDarkenTween:Play()
+		for _, reverseTween in pairs(reverseTransparencyTweens) do
+			reverseTween:Play()
+		end
 	end)
 
 	return ultimateFlashFrame
