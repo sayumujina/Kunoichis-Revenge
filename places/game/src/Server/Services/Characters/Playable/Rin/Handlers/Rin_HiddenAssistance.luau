@@ -1,6 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
-local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Types)
+local _TYPES = require(rep.Data.data_Types)
+local _TYPES_CHAR = require(rep.Data.Characters.Playable.Rin.data_Rin_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local PlayerService = require(Services.PlayerService)
@@ -10,7 +10,7 @@ local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 
 local moveName = "HiddenAssistance"
 -- Info
-local moveInfo = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Moves)[moveName]
+local moveInfo = require(rep.Data.Characters.Playable.Rin.data_Rin_Moves)[moveName]
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType

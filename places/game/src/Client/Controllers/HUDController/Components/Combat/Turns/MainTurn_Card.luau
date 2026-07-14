@@ -1,7 +1,6 @@
-local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
-local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
-local GetAvatarImageForCharacter =
-	require(StarterPlayerScripts.Client.Controllers.HUDController.Helper.GetAvatarImageForCharacter)
+local rep = game:GetService("ReplicatedStorage")
+local _TYPES = require(rep.Data.data_Types)
+local GetAvatarImageForCharacter = require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
 
 -- Helper function to create a turn card
 return function(char: _TYPES.Character, turnId: number, order: number, side: _TYPES.Sides, actionValue: number)

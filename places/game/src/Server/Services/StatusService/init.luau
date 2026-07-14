@@ -1,6 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 --
 local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)

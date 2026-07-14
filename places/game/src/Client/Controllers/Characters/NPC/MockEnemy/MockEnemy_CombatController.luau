@@ -1,13 +1,13 @@
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 -- Packages
 local Trove = require(rep.Packages.Trove)
 
 -- Handlers
 local Handlers = {
-	Info = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_Info),
-	Moves = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves),
+	Info = require(game:GetService("ReplicatedStorage").Data.Characters.NPC.MockEnemy.data_MockEnemy_Info),
+	Moves = require(game:GetService("ReplicatedStorage").Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves),
 }
 
 -- Attack handlers

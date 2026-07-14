@@ -1,5 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local _TYPES = require(ReplicatedStorage.Shared.data_Types)
+local _TYPES = require(ReplicatedStorage.Data.data_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)

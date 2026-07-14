@@ -1,12 +1,11 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 local Trove = require(rep.Packages.Trove)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
 -- Move info
-local moveInfo =
-	require(game:GetService("ReplicatedStorage").Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves).Skill
+local moveInfo = require(game:GetService("ReplicatedStorage").Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves).Skill
 
 return function(
 	trove: Trove.Trove,

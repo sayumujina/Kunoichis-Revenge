@@ -1,6 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
-local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Types)
+local _TYPES = require(rep.Data.data_Types)
+local _TYPES_CHAR = require(rep.Data.Characters.Playable.Rin.data_Rin_Types)
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
@@ -15,7 +15,7 @@ local Trove = require(rep.Packages.Trove)
 local Zap = require(Services.Parent.zap)
 
 -- Data
-local MoveInfo = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Moves)
+local MoveInfo = require(rep.Data.Characters.Playable.Rin.data_Rin_Moves)
 
 -- Attack handlers
 local Handlers = {

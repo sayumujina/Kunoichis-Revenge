@@ -1,4 +1,4 @@
-local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
+local _TYPES = require(game.ReplicatedStorage.Data.data_Types)
 
 local matchingCurrentStatsName = {
 	["energy"] = "CurrentEnergy",

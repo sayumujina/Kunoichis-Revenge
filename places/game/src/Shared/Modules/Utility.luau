@@ -3,7 +3,7 @@ local Animations = rep.Assets.Animations
 --
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 --
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 local TableUtil = require(rep.Packages.TableUtil)
 local Timer = require(rep.Packages.Timer)
 
@@ -109,7 +109,7 @@ end
 --- Get the move list for a character
 --- @param char -- The character to get the move list for
 function Utility.GetCharacterMoveList(char: _TYPES.Character): any
-	local dataFolder = rep.Shared.Data.Characters[char:GetAttribute("Side")]:FindFirstChild(char.Name)
+	local dataFolder = rep.Data.Characters[char:GetAttribute("Side")]:FindFirstChild(char.Name)
 	local charMoveList = dataFolder and require(dataFolder:FindFirstChild("data_" .. char.Name .. "_Moves")) :: any
 
 	return charMoveList

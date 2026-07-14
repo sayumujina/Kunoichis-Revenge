@@ -1,5 +1,5 @@
 local rep = game.ReplicatedStorage
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 --
 local Services = game:GetService("ServerScriptService").Server.Services
 local PlayerService = require(Services.PlayerService)
@@ -13,7 +13,7 @@ local Zap = require(Services.Parent.zap)
 --
 local Utility = require(rep.Shared.Modules.Utility)
 -- General combat info
-local generalCombatInfo = require(rep.Shared.Data.data_GeneralCombatInfo)
+local generalCombatInfo = require(rep.Data.data_GeneralCombatInfo)
 
 -- Constants
 local BASE_ACTION_VALUE = 10000

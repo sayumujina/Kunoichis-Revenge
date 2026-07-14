@@ -1,6 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
-local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Hayumi.data_Hayumi_Types)
+local _TYPES = require(rep.Data.data_Types)
+local _TYPES_CHAR = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Types)
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
@@ -12,7 +12,7 @@ local CombatService = require(Services.CombatService)
 local Trove = require(rep.Packages.Trove)
 
 -- Data
-local MoveInfo = require(rep.Shared.Data.Characters.Playable.Hayumi.data_Hayumi_Moves)
+local MoveInfo = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Moves)
 
 -- Attack handlers
 local Handlers = {

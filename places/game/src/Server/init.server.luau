@@ -1,8 +1,11 @@
 local rep = game:GetService("ReplicatedStorage")
---
-local Server = game:GetService("ServerScriptService").Server
+local _TYPES = require(rep.Data.data_Types)
 -- Services
-local Loader = require(rep.Shared.Modules.Loader)
+local Server = game:GetService("ServerScriptService").Server
+local TeleportService = game:GetService("TeleportService")
+local SpawnService = require(Server.Services.SpawnService)
+--
+local Loader = require(rep.Modules.GlobalModules.Loader)
 
 -- Disable character autoload
 game.Players.CharacterAutoLoads = false
@@ -26,3 +29,13 @@ PhysicsService:RegisterCollisionGroup("Chars")
 
 -- Set cubes to be non-collidable with doors
 PhysicsService:CollisionGroupSetCollidable("Chars", "Chars", false)
+
+-- Listens to player adding event
+game.Players.PlayerAdded:Connect(function(player)
+	-- Spawn the player
+	local tpData = player:GetJoinData().TeleportData
+	-- Delay the spawn by 2 seconds
+	task.delay(3, function()
+		SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, tpData.chars, tpData.stageId)
+	end)
+end)

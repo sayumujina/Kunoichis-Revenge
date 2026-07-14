@@ -1,4 +1,4 @@
-local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
+local _TYPES = require(game.ReplicatedStorage.Data.data_Types)
 local PlayerService = require(game.ServerScriptService.Server.Services.PlayerService)
 
 -- Verify if the player has enough mana to perform a move

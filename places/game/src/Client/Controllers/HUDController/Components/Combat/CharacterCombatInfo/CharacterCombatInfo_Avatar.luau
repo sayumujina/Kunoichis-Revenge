@@ -1,9 +1,8 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local TweenService = game:GetService("TweenService")
-local GetAvatarImageForCharacter =
-	require(StarterPlayerScripts.Client.Controllers.HUDController.Helper.GetAvatarImageForCharacter)
+local GetAvatarImageForCharacter = require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
 
 --- Darkens the avatar image when the character is dead.
 --- @param char The character to darken the avatar image for.

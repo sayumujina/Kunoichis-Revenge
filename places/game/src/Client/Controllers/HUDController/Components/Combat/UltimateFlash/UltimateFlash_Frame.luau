@@ -1,6 +1,7 @@
-local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local rep = game:GetService("ReplicatedStorage")
 local GetAvatarImageForCharacter =
-	require(StarterPlayerScripts.Client.Controllers.HUDController.Helper.GetAvatarImageForCharacter)
+	require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
+
 -- Services
 local TweenService = game:GetService("TweenService")
 --

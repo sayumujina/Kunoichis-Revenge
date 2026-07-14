@@ -1,6 +1,6 @@
 local Camera = workspace.CurrentCamera
 local TweenService = game:GetService("TweenService")
-local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
+local _TYPES = require(game:GetService("ReplicatedStorage").Data.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 

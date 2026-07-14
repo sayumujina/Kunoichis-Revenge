@@ -1,9 +1,11 @@
 local rep = game:GetService("ReplicatedStorage")
-local Loader = require(rep.Shared.Modules.Loader)
+local Loader = require(rep.Modules.GlobalModules.Loader)
+local MenuClient = script
+local Controllers = MenuClient.Controllers
+local HUDController = require(Controllers.HUDController)
 --
-local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
-local Controllers = StarterPlayerScripts.Client.Controllers
-local Zap = require(StarterPlayerScripts.Client.zap)
+
+HUDController.Init()
 
 -- Load all controllers
 Loader.SpawnAll(
@@ -15,4 +17,4 @@ Loader.SpawnAll(
 )
 
 -- Request the first stage to load
-Zap.LoadStage.Fire({ stageId = "1-1" })
+-- Zap.LoadStage.Fire({ stageId = "1-1" })

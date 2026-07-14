@@ -1,16 +1,17 @@
 -- Services
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
 local CharService = require(Services.CharService)
 local AnimationService = require(Services.AnimationService)
-local StatusService = require(Services.StatusService)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
 local Zap = require(Services.Parent.zap)
+-- Data
+local StagesData = require(rep.Data.data_Stages)
 
 --- @class SpawnService
 --- @server
@@ -33,33 +34,31 @@ local function getCharacterCombatService(char: _TYPES.Character): any
 end
 
 --- Called when the service starts
-function SpawnService.OnStart()
-	-- Listens to spawn request from clients
-	Zap.RequestSpawn.On(function(player)
-		local playables = { "Tsuyoka", "Setsuna", "Hayumi" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
-		local npcs = { "MockEnemy", "Red_MockEnemy", "MockEnemy" } -- TO DO: RETRIEVE THIS DATA FROM EACH STAGE IN THE FUTURE
+function SpawnService.OnStart() end
 
-		-- Initialise the player entry in the turn system
-		if not TurnService.GetPlayerTurnData(player :: _TYPES.RobloxPlayerType) then
-			TurnService.InitialisePlayerEntry(player :: _TYPES.RobloxPlayerType)
-		end
+function SpawnService.Spawn(player: _TYPES.RobloxPlayerType, chars: { _TYPES.Character }, stageId: string)
+	local playables = chars :: { _TYPES.Character }
+	local npcs = StagesData[stageId].enemies :: { string }
 
-		-- Spawn characters for both sides, for now
-		SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "Playable", playables)
-		SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "NPC", npcs)
+	-- Initialise the player entry in the turn system
+	if not TurnService.GetPlayerTurnData(player :: _TYPES.RobloxPlayerType) then
+		TurnService.InitialisePlayerEntry(player :: _TYPES.RobloxPlayerType)
+	end
 
-		-- Create an active character object value for the player
-		local activeCharValue = Instance.new("ObjectValue")
-		activeCharValue.Name = "ActiveCharacter"
-		activeCharValue.Parent = player
+	-- Spawn characters for both sides, for now
+	SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "Playable", playables)
+	SpawnService.SpawnAllCharactersOfSide(player :: _TYPES.RobloxPlayerType, "NPC", npcs)
 
-		-- After spawning is done, send a signal back to the client
-		EventService.Events.SpawnFinished:Fire({
-			player = player :: _TYPES.RobloxPlayerType,
-		})
-	end)
+	-- Create an active character object value for the player
+	local activeCharValue = Instance.new("ObjectValue")
+	activeCharValue.Name = "ActiveCharacter"
+	activeCharValue.Parent = player
+
+	-- After spawning is done, send a signal back to the client
+	EventService.Events.SpawnFinished:Fire({
+		player = player :: _TYPES.RobloxPlayerType,
+	})
 end
-
 --- Spawns a character into the game
 --- @within SpawnService
 --- @param player -- The player associated with the character being spawned

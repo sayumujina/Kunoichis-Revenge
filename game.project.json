@@ -1,17 +1,19 @@
 {
   "name": "kunoichi-game",
-  "servePlaceIds": [87694110914637, 0],
+  "servePlaceIds": [137371455542351, 0],
   "tree": {
     "$className": "DataModel",
 
     "ReplicatedStorage": {
       "Shared": {
-        "$path": "places/game/src/Shared"
+        "$path": "places/game/src/Shared",
+        "GlobalUtility": {
+          "$path": "places/global/src/Shared/GlobalUtility"
+        }
       },
       "Packages": {
         "$path": "Packages"
       },
-
       "Assets": {
         "$className": "Folder",
         "Asphalt": {
@@ -23,6 +25,17 @@
         "Animations": {
           "$path": "places/global/src/Shared/Assets/Animations.model.json"
         }
+      },
+      "Modules": {
+        "$className": "Folder",
+        "GlobalModules": {
+          "$path": "places/global/src/Modules"
+        },
+        "$path": "places/game/src/Modules"
+      },
+      "Data": {
+        "$className": "Folder",
+        "$path": "places/global/src/Shared/Data"
       }
     },
 

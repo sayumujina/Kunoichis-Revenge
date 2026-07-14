@@ -1,0 +1,99 @@
+{
+  "name": "kunoichi-menu",
+   "servePlaceIds": [87694110914637, 0],
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "places/menu/src/Shared",
+        "GlobalUtility": {
+          "$path": "places/global/src/Shared/GlobalUtility"
+        }
+      },
+      "Packages": {
+        "$path": "Packages"
+      },
+      "Assets": {
+        "$className": "Folder",
+        "Asphalt": {
+          "$className": "Folder",
+          "UI": {
+            "$path": "places/global/src/Shared/Asphalt/ui.luau"
+          }
+        }
+      },
+      "Data": {
+        "$className": "Folder",
+        "$path": "places/global/src/Shared/Data"
+      },
+      "Modules": {
+        "$className": "Folder",
+        "GlobalModules": {
+          "$path": "places/global/src/Modules"
+        },
+        "$path": "places/menu/src/Modules"
+      }
+    },
+
+    "ServerScriptService": {
+      "Server": {
+        "$path": "places/menu/src/Server"
+      }
+    },
+
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "places/menu/src/Client"
+        }
+      }
+    },
+
+    "Workspace": {
+      "$properties": {
+        "FilteringEnabled": true
+      },
+      "Baseplate": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Color": [
+            0.38823,
+            0.37254,
+            0.38823
+          ],
+          "Locked": true,
+          "Position": [
+            0,
+            -10,
+            0
+          ],
+          "Size": [
+            512,
+            20,
+            512
+          ]
+        }
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Ambient": [
+          0,
+          0,
+          0
+        ],
+        "Brightness": 2,
+        "GlobalShadows": true,
+        "Outlines": false,
+        "Technology": "Voxel"
+      }
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}

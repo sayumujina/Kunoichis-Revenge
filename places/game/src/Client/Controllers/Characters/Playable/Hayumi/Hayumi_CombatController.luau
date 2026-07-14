@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local Controllers = StarterPlayerScripts.Client.Controllers
@@ -10,8 +10,8 @@ local Zap = require(StarterPlayerScripts.Client.zap)
 local Trove = require(rep.Packages.Trove)
 -- Handlers
 local Handlers = {
-	Info = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.Playable.Hayumi.data_Hayumi_Info),
-	Moves = require(game:GetService("ReplicatedStorage").Shared.Data.Characters.Playable.Hayumi.data_Hayumi_Moves),
+	Info = require(game:GetService("ReplicatedStorage").Data.Characters.Playable.Hayumi.data_Hayumi_Info),
+	Moves = require(game:GetService("ReplicatedStorage").Data.Characters.Playable.Hayumi.data_Hayumi_Moves),
 }
 -- Attack handlers
 local AttackHandlers = {

@@ -4,7 +4,7 @@ local SpawnService = require(Services.SpawnService)
 --
 local ServerScriptService = game:GetService("ServerScriptService")
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 
 -- TO DO: REPLACE THIS NUMBER WITH A FILE THAT CONTAINS ENEMY INFO
 local ENEMY_SPAWN_COUNT = 3

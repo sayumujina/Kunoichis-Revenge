@@ -1,6 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
-local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Hayumi.data_Hayumi_Types)
+local _TYPES = require(rep.Data.data_Types)
+local _TYPES_CHAR = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local PlayerService = require(Services.PlayerService)
@@ -10,7 +10,7 @@ local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 
 local moveName = "ArcherysVision"
 -- Info
-local moveInfo = require(rep.Shared.Data.Characters.Playable.Hayumi.data_Hayumi_Moves)[moveName]
+local moveInfo = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Moves)[moveName]
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	warn("Attempting to execute move: " .. moveName .. " for character: " .. char.Name)
@@ -21,7 +21,7 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 		warn("No target selected for Archery's Vision. Move cannot be executed.")
 		return false
 	end
-	
+
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
 		manaChange = moveInfo.manaChange,

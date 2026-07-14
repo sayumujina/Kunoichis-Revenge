@@ -1,11 +1,11 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 -- Conrollers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
 -- Helpers
 local Helpers = StarterPlayerScripts.Client.Controllers.HUDController.Helper
-local GetAvatarImageForCharacter = require(Helpers.GetAvatarImageForCharacter)
+local GetAvatarImageForCharacter = require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
 -- Components
 local DetailedCombatInfoScrollingFrame = require(script.Parent.DetailedCombatInfo_ScrollingFrame)
 

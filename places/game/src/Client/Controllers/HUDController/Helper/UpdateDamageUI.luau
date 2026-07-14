@@ -1,6 +1,6 @@
 local TweenService = game:GetService("TweenService")
 local createDamagePopupBillboard = require(script.Parent.Parent.Components.Combat.Damage.DamagePopup_Billboard)
-local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
+local _TYPES = require(game:GetService("ReplicatedStorage").Data.data_Types)
 --
 local totalDamage = 0
 local damageTweens: { Tween } = {}

@@ -1,6 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
-local _TYPES_CHAR = require(rep.Shared.Data.Characters.Playable.Rin.data_Rin_Types)
+local _TYPES = require(rep.Data.data_Types)
+local _TYPES_CHAR = require(rep.Data.Characters.Playable.Rin.data_Rin_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local CharService = require(Services.CharService)
@@ -16,9 +16,9 @@ local Zap = require(Services.Parent.zap)
 
 local moveName = "DestructiveCriticism"
 -- Info
-local moveInfo = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_Moves)[moveName]
+local moveInfo = require(rep.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_Moves)[moveName]
 -- Combat info
-local combatInfo = require(rep.Shared.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_CombatInfo)
+local combatInfo = require(rep.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_CombatInfo)
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	-- Check if Tsuyoka can cast her ultimate before proceeding

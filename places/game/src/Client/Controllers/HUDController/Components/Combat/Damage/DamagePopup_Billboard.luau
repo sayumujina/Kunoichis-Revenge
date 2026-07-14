@@ -1,4 +1,4 @@
-local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
+local _TYPES = require(game:GetService("ReplicatedStorage").Data.data_Types)
 
 -- Popup sizes
 local NORMAL_POPUP_SIZE = UDim2.fromScale(4, 2)

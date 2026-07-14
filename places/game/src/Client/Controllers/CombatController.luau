@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local EffectsController = require(StarterPlayerScripts.Client.Controllers.EffectsController)

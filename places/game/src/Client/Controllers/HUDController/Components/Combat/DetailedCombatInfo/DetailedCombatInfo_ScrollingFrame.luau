@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 
 local StatusListFrame = require(script.Parent.StatusList_Frame)
 local CreatePlayablesInfoFrame = require(script.Parent.Playables_Info_Frame)

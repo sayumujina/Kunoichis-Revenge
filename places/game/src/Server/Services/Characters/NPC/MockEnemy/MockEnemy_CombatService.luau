@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
@@ -10,8 +10,8 @@ local CombatService = require(Services.CombatService)
 local DeterminePrimaryTargetIndex = require(rep.Shared.Modules.Attack.Utility.DeterminePrimaryTargetIndex)
 
 -- Data
-local AttackPattern = require(rep.Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_AttackPattern)
-local MoveInfo = require(rep.Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves)
+local AttackPattern = require(rep.Data.Characters.NPC.MockEnemy.data_MockEnemy_AttackPattern)
+local MoveInfo = require(rep.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves)
 
 -- Attack handlers
 local Handlers = {

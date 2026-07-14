@@ -1,9 +1,8 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 --
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
-local GetAvatarImageForCharacter =
-	require(StarterPlayerScripts.Client.Controllers.HUDController.Helper.GetAvatarImageForCharacter)
+local GetAvatarImageForCharacter = require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
 
 return function(char: _TYPES.Character, extraActionId: number, layoutOrder: number)
 	local extraActionFrame = Instance.new("Frame")

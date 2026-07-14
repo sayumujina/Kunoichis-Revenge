@@ -1,7 +1,7 @@
 local Services = game:GetService("ServerScriptService").Server.Services
 local Players = game:GetService("Players")
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 local EventService = require(Services.EventService)
 -- Packages
 local Zap = require(game.ServerScriptService.Server.zap)

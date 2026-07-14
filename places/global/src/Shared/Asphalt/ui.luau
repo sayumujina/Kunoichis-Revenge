@@ -9,6 +9,9 @@ local ui = {
 		UI_Avatar_Setsuna = "rbxassetid://101808487975409",
 		UI_Avatar_Tsuyoka = "rbxassetid://120122220992427",
 	},
+	avatarSilhouettes = {
+		UI_Avatar_Tsuyoka_Silhouette = "rbxassetid://101442370549871",
+	},
 	hud = {
 		Combat = {
 			UI_CombatHud_EnergyCircle = "rbxassetid://75345050398965",
@@ -18,6 +21,10 @@ local ui = {
 			UI_CombatHud_HealthFill = "rbxassetid://93013412082634",
 			UI_CombatHud_ShieldBorder = "rbxassetid://83728712714494",
 			UI_CombatHud_UltimateFlash = "rbxassetid://105761982517972",
+		},
+		Menu = {
+			UI_Menu_CharacterSelection = "rbxassetid://119027730570633",
+			UI_Menu_TopBar = "rbxassetid://101712964131149",
 		},
 	},
 }

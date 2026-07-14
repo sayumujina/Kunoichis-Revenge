@@ -1,4 +1,4 @@
-local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
+local _TYPES = require(game:GetService("ReplicatedStorage").Data.data_Types)
 local CreateCharacterCombatInfoEnergy = require(script.Parent.CharacterCombatInfo_Energy)
 local CharacterCombatInfoAvatar = require(script.Parent.CharacterCombatInfo_Avatar)
 local CharacterCombatInfoHealthbar = require(script.Parent.CharacterCombatInfo_Healthbar)

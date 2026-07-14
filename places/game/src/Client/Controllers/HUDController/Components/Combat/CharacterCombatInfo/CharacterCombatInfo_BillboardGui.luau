@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 local CharacterCombatInfoHealthbar = require(script.Parent.CharacterCombatInfo_Healthbar)
 local CreateCharacterCombatInfoExposureBar = require(script.Parent.CharacterCombatInfo_ExposureBar)
 

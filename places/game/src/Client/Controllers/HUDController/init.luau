@@ -1,7 +1,7 @@
 local HUDController = {}
 local Zap = require(game.StarterPlayer.StarterPlayerScripts.Client.zap)
 local rep = game.ReplicatedStorage
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)

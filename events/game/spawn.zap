@@ -17,9 +17,3 @@ event SpawnFinished = {
 	type: Reliable,
 	call: ManyAsync,
 }
-
-event RequestSpawn = {
-	from: Client,
-	type: Unreliable,
-	call: ManyAsync,
-}

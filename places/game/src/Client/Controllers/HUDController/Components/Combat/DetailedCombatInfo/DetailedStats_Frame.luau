@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 
 local STATS_TO_CHECK = {
 	["atk"] = { index = 1, name = "ATK", isInPercentages = false },

@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 --
 local createMainTurnCard = require(script.Parent.MainTurn_Card)
 local createExtraActionCard = require(script.Parent.ExtraAction_Card)

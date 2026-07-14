@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local _TYPES = require(rep.Shared.data_Types)
+local _TYPES = require(rep.Data.data_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local PlayerService = require(Services.PlayerService)
@@ -9,7 +9,7 @@ local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 
 local moveName = "BasicAttack"
 -- Info
-local moveInfo = require(rep.Shared.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves)[moveName]
+local moveInfo = require(rep.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves)[moveName]
 
 return function(char: _TYPES.Character)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType

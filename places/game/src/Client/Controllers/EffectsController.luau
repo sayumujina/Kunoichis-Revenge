@@ -1,4 +1,4 @@
-local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
+local _TYPES = require(game:GetService("ReplicatedStorage").Data.data_Types)
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local rep = game:GetService("ReplicatedStorage")
 -- Packages

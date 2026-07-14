@@ -1,4 +1,4 @@
-local _TYPES = require(game:GetService("ReplicatedStorage").Shared.data_Types)
+local _TYPES = require(game:GetService("ReplicatedStorage").Data.data_Types)
 local UserInputService = game:GetService("UserInputService")
 -- Utility
 local player = game:GetService("Players").LocalPlayer
@@ -79,8 +79,8 @@ function InputController.OnStart()
 		end
 
 		if actionName == "Spawn" and not spawned then
-			Zap.RequestSpawn.Fire()
-			spawned = true
+			-- Zap.RequestSpawn.Fire()
+			-- spawned = true
 			return
 		end
 

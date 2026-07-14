@@ -1,5 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local Loader = require(rep.Shared.Modules.Loader)
+local Loader = require(rep.Modules.GlobalModules.Loader)
 
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local Controllers = StarterPlayerScripts.Client.Controllers

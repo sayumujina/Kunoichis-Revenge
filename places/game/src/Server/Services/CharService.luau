@@ -1,4 +1,4 @@
-local _TYPES = require(game.ReplicatedStorage.Shared.data_Types)
+local _TYPES = require(game.ReplicatedStorage.Data.data_Types)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local rep = game:GetService("ReplicatedStorage")
 -- Services
@@ -92,11 +92,11 @@ local function importCharacterStatsFromSource(char: _TYPES.Character, side: _TYP
 
 	-- Get the path based on the character name, defaults to the "Default" character
 	local dataSource
-	local dataFolder = rep.Shared.Data.Characters[side]:FindFirstChild(char.Name)
+	local dataFolder = rep.Data.Characters[side]:FindFirstChild(char.Name)
 	if dataFolder then
 		dataSource = require(dataFolder["data_" .. char.Name .. "_Info"]) :: _TYPES.CharacterInfo
 	else
-		dataSource = require(rep.Shared.Data.Characters.Default.data_Default_Info) :: _TYPES.CharacterInfo
+		dataSource = require(rep.Data.Characters.Default.data_Default_Info) :: _TYPES.CharacterInfo
 	end
 
 	-- Set the character's side
