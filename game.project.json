@@ -39,6 +39,10 @@
       }
     },
 
+    "ReplicatedFirst": {
+      "$path": "places/game/src/ReplicatedFirst"
+    },
+
     "ServerScriptService": {
       "Server": {
         "$path": "places/game/src/Server"

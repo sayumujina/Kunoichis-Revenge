@@ -5,6 +5,9 @@ local MenuServer = script
 local Services = game:GetService("ServerScriptService").Server.Services
 local TeleportService = game:GetService("TeleportService")
 --
+local CreateBlackScreen =
+	require(game.StarterPlayer.StarterPlayerScripts.Client.Controllers.HUDController.Components.Global.BlackScreen)
+--
 local Zap = require(Services.Parent.zap)
 
 -- Place ids
@@ -29,6 +32,16 @@ Zap.RequestSpawn.On(function(player, spawnData)
 	tpOptions:SetTeleportData({
 		chars = spawnData.chars,
 		stageId = spawnData.stageId :: string,
+		worldId = spawnData.worldId :: string,
 	})
+
+	warn(
+		"Teleporting player",
+		player.Name,
+		"to game place with stageId:",
+		spawnData.stageId,
+		"and worldId:",
+		spawnData.worldId
+	)
 	TeleportService:TeleportAsync(GAME_PLACE_ID, { player }, tpOptions)
 end)

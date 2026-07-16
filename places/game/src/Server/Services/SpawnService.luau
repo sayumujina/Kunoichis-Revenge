@@ -36,9 +36,15 @@ end
 --- Called when the service starts
 function SpawnService.OnStart() end
 
-function SpawnService.Spawn(player: _TYPES.RobloxPlayerType, chars: { _TYPES.Character }, stageId: string)
+function SpawnService.Spawn(
+	player: _TYPES.RobloxPlayerType,
+	chars: { _TYPES.Character },
+	stageId: string,
+	worldId: string
+)
 	local playables = chars :: { _TYPES.Character }
-	local npcs = StagesData[stageId].enemies :: { string }
+	warn(StagesData[worldId].stages)
+	local npcs = StagesData[worldId].stages[stageId].enemies :: { string }
 
 	-- Initialise the player entry in the turn system
 	if not TurnService.GetPlayerTurnData(player :: _TYPES.RobloxPlayerType) then

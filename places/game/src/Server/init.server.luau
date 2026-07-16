@@ -3,6 +3,7 @@ local _TYPES = require(rep.Data.data_Types)
 -- Services
 local Server = game:GetService("ServerScriptService").Server
 local TeleportService = game:GetService("TeleportService")
+local TweenService = game:GetService("TweenService")
 local SpawnService = require(Server.Services.SpawnService)
 --
 local Loader = require(rep.Modules.GlobalModules.Loader)
@@ -34,8 +35,9 @@ PhysicsService:CollisionGroupSetCollidable("Chars", "Chars", false)
 game.Players.PlayerAdded:Connect(function(player)
 	-- Spawn the player
 	local tpData = player:GetJoinData().TeleportData
-	-- Delay the spawn by 2 seconds
-	task.delay(3, function()
-		SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, tpData.chars, tpData.stageId)
+
+	task.defer(function()
+		SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, tpData.chars, tpData.stageId, tpData.worldId)
+		-- SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, { "Hayumi" }, "1-3", "World1")
 	end)
 end)

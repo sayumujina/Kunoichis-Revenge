@@ -4,8 +4,12 @@ local _TYPES = require(rep.Data.data_Types)
 local CharacterCard = require(script.Parent.Character_Card)
 local ui = require(game.ReplicatedStorage.Assets.Asphalt.UI)
 --
+local TeleportService = game:GetService("TeleportService")
+--
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local Zap = require(StarterPlayerScripts.Client.zap)
+--
+local CreateBlackScreen = require(StarterPlayerScripts.Client.Controllers.HUDController.Components.Global.BlackScreen)
 --
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
@@ -39,8 +43,8 @@ end
 local cardFramesByName = {} :: { [string]: Frame }
 -- Toggle the selection of a character card
 local function toggleSelection(charName: string)
-	local globalScreenGui = playerGui.Global_ScreenGui
-	local characterFrame = globalScreenGui:FindFirstChild("Character_Frame_" .. charName, true)
+	local stageSelectionScreenGui = playerGui.StageSelection_ScreenGui
+	local characterFrame = stageSelectionScreenGui:FindFirstChild("Character_Frame_" .. charName, true)
 	warn("Character_Frame_" .. charName)
 
 	-- If that character is already selected, deselect it
@@ -60,7 +64,7 @@ local function toggleSelection(charName: string)
 	if selectedIndexes[1] and selectedIndexes[2] and selectedIndexes[3] then
 		local highestIndex = #selectedIndexes
 		local charToReplace = selectedIndexes[highestIndex]
-		local charToReplaceFrame = globalScreenGui:FindFirstChild("Character_Frame_" .. charToReplace, true)
+		local charToReplaceFrame = stageSelectionScreenGui:FindFirstChild("Character_Frame_" .. charToReplace, true)
 		local selectionOverlay = charToReplaceFrame:FindFirstChild("Selection_Overlay")
 
 		-- Destroy the selection overlay for the character being replaced
@@ -86,6 +90,7 @@ local function toggleSelection(charName: string)
 	warn("Selecting character: " .. charName .. " at index: " .. indexToSelect)
 	-- Create the selection overlay for the selected index
 	selectedIndexes[indexToSelect :: number] = charName
+	warn(characterFrame)
 	CharacterCard.CreateSelectedOverlay(indexToSelect :: number).Parent = characterFrame
 
 	return selectedIndexes
@@ -97,6 +102,37 @@ return function(chars: { Name: string, Level: number?, Owned: boolean })
 	stageCharacterSelectionFrame.BackgroundTransparency = 1
 	stageCharacterSelectionFrame.Position = UDim2.fromScale(0.63, 0.155)
 	stageCharacterSelectionFrame.Size = UDim2.fromScale(0.35, 0.82)
+	stageCharacterSelectionFrame.Visible = false
+
+	local returnButton = Instance.new("ImageButton")
+	returnButton.Name = "Return_Button"
+	returnButton.BackgroundTransparency = 1
+	returnButton.Image = ui.hud.Menu.UI_Menu_ReturnArrow
+	returnButton.Position = UDim2.fromScale(0.83, 0.056)
+	returnButton.Size = UDim2.fromScale(0.1, 0.1)
+	returnButton.ZIndex = 3
+
+	local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+	uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+	uIAspectRatioConstraint.Parent = returnButton
+	returnButton.Parent = stageCharacterSelectionFrame
+	returnButton.MouseButton1Click:Connect(function()
+		CreateBlackScreen(0.6, 0.4, function()
+			-- Hide the character selection screen
+			stageCharacterSelectionFrame.Visible = false
+
+			-- Show the stage lists and world list
+			local stageListFolder = playerGui.StageSelection_ScreenGui:FindFirstChild("Stages")
+			for _, child in pairs(stageListFolder:GetChildren()) do
+				if child:IsA("Frame") then
+					child.Visible = true
+				end
+			end
+			playerGui.StageSelection_ScreenGui:FindFirstChild("UI_WorldList_Frame").Visible = true
+		end, function()
+			-- Do nothing after fade out is complete
+		end)
+	end)
 
 	local characterList = Instance.new("ScrollingFrame")
 	characterList.Name = "Character_List"
@@ -155,7 +191,7 @@ return function(chars: { Name: string, Level: number?, Owned: boolean })
 	local startBattleButton = Instance.new("TextButton")
 	startBattleButton.Name = "StartBattle_Button"
 	startBattleButton.BackgroundColor3 = Color3.fromRGB(209, 198, 185)
-	startBattleButton.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	startBattleButton.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	startBattleButton.Position = UDim2.fromScale(0.3, 0.88)
 	startBattleButton.Size = UDim2.fromScale(0.4, 0.06)
 	startBattleButton.Text = "Start"
@@ -179,8 +215,28 @@ return function(chars: { Name: string, Level: number?, Owned: boolean })
 			return
 		end
 
-		warn(spawnChars)
-		Zap.RequestSpawn.Fire({ stageId = "1-1", chars = spawnChars :: { string } })
+		-- Get the selected stage and world IDs from the StageSelection_ScreenGui
+		local selectedWorldValue = playerGui.StageSelection_ScreenGui.UI_WorldList_Frame.SelectedWorld.Value
+		if not selectedWorldValue then
+			warn("No world selected. Cannot start battle.")
+			return
+		end
+
+		local blackScreenGui, forwardTween = CreateBlackScreen(0.6, 0.4, function() end, nil, true)
+
+		forwardTween.Completed:Once(function()
+			TeleportService:SetTeleportGui(blackScreenGui)
+
+			local selectedWorldFrameName = "UI_" .. selectedWorldValue .. "_StageList_Frame"
+			local selectedStageValue =
+				playerGui.StageSelection_ScreenGui.Stages[selectedWorldFrameName].SelectedStage.Value
+			warn("Selected Stage: ", selectedStageValue, " Selected World: ", selectedWorldValue, spawnChars)
+			Zap.RequestSpawn.Fire({
+				stageId = selectedStageValue,
+				worldId = selectedWorldValue,
+				chars = spawnChars :: { string },
+			})
+		end)
 	end)
 
 	local uICorner = Instance.new("UICorner")

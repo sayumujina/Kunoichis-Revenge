@@ -10,6 +10,9 @@ local ui = {
 		UI_Avatar_Tsuyoka = "rbxassetid://120122220992427",
 	},
 	avatarSilhouettes = {
+		UI_Avatar_Hayumi_Silhouette = "rbxassetid://72818897912577",
+		UI_Avatar_Rin_Silhouette = "rbxassetid://85227835998180",
+		UI_Avatar_Setsuna_Silhouette = "rbxassetid://100553902669312",
 		UI_Avatar_Tsuyoka_Silhouette = "rbxassetid://101442370549871",
 	},
 	hud = {
@@ -24,7 +27,8 @@ local ui = {
 		},
 		Menu = {
 			UI_Menu_CharacterSelection = "rbxassetid://119027730570633",
-			UI_Menu_TopBar = "rbxassetid://101712964131149",
+			UI_Menu_ReturnArrow = "rbxassetid://94633506359953",
+			UI_Menu_TopBar = "rbxassetid://115373317552494",
 		},
 	},
 }
