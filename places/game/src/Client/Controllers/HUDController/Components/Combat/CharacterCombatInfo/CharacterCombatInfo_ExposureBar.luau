@@ -6,7 +6,7 @@ local function getExposureScale(current: number, max: number): number
 end
 
 local FILL_POSITION_OFFSET = 0.008
-local FILL_SIZE_X_OFFSET = FILL_POSITION_OFFSET * 2
+local FILL_SIZE_X_OFFSET = 1 - (FILL_POSITION_OFFSET * 2)
 local FILL_SIZE_Y_SCALE = 0.9
 
 return function(size: UDim2?, position: UDim2?)
@@ -41,7 +41,7 @@ return function(size: UDim2?, position: UDim2?)
 
 	local function updateExposureBar()
 		local exposureScale = getExposureScale(currentExposureValue.Value, maxExposureValue.Value)
-		exposureBarFill.Size = UDim2.fromScale(math.max(exposureScale - FILL_SIZE_X_OFFSET, 0), FILL_SIZE_Y_SCALE)
+		exposureBarFill.Size = UDim2.fromScale(math.max(exposureScale * FILL_SIZE_X_OFFSET, 0), FILL_SIZE_Y_SCALE)
 	end
 
 	exposureBar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()

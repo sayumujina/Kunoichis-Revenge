@@ -6,7 +6,7 @@ local function getManaScale(current: number, max: number): number
 end
 
 local FILL_POSITION_OFFSET = 0.008 -- The scale of the mana bar fill relative to the mana bar frame size
-local FILL_SIZE_X_OFFSET = FILL_POSITION_OFFSET * 2 -- The scale of the mana bar fill relative to the mana bar frame size
+local FILL_SIZE_X_OFFSET = 1 - (FILL_POSITION_OFFSET * 2) -- The scale of the mana bar fill relative to the mana bar frame size
 local FILL_SIZE_Y_SCALE = 0.9
 
 return function()
@@ -111,7 +111,7 @@ return function()
 		local manaScale = getManaScale(playerCurrentManaValue.Value, playerMaxManaValue.Value)
 
 		-- Update the manabar fill size based on the new mana value
-		manaFill.Size = UDim2.fromScale(manaScale - FILL_SIZE_X_OFFSET, FILL_SIZE_Y_SCALE)
+		manaFill.Size = UDim2.fromScale(manaScale * FILL_SIZE_X_OFFSET, FILL_SIZE_Y_SCALE)
 
 		-- Update the label that shows the current mana value
 		manaCount.Text = tostring(math.floor(playerCurrentManaValue.Value))

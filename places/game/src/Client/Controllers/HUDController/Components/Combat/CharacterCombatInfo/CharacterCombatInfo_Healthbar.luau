@@ -16,7 +16,7 @@ local function getHPScale(current: number, max: number): number
 end
 
 local FILL_POSITION_OFFSET = 0.008 -- The scale of the healthbar fill relative to the healthbar frame size
-local FILL_SIZE_X_OFFSET = FILL_POSITION_OFFSET * 2 -- The scale of the healthbar fill relative to the healthbar frame size
+local FILL_SIZE_X_OFFSET = 1 - (FILL_POSITION_OFFSET * 2) -- The scale of the healthbar fill relative to the healthbar frame size
 local FILL_SIZE_Y_SCALE = 0.9
 local SHIELD_TEXT_COLOR = Color3.fromRGB(255, 170, 0)
 
@@ -92,7 +92,7 @@ local function tweenHealthbarFill(char: _TYPES.Character, bar: "Health" | "Damag
 	currentTween[char][bar] =
 		TweenService:Create(healthbarFill, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			Size = UDim2.fromScale(
-				getHPScale(frame.CharacterCurrentHPValue.Value, frame.CharacterMaxHPValue.Value) - FILL_SIZE_X_OFFSET,
+				getHPScale(frame.CharacterCurrentHPValue.Value, frame.CharacterMaxHPValue.Value) * FILL_SIZE_X_OFFSET,
 				FILL_SIZE_Y_SCALE
 			),
 		})
@@ -146,7 +146,7 @@ local function updateBarSize(char: _TYPES.Character, bar: "Health" | "Damage", t
 			healthbarFillFrame.Size = UDim2.fromScale(
 				math.max(
 					getHPScale(healthbarFrame.CharacterCurrentHPValue.Value, healthbarFrame.CharacterMaxHPValue.Value)
-						- FILL_SIZE_X_OFFSET,
+						* FILL_SIZE_X_OFFSET,
 					0
 				),
 				FILL_SIZE_Y_SCALE
@@ -182,7 +182,7 @@ local function updateBarSize(char: _TYPES.Character, bar: "Health" | "Damage", t
 			barFill.Size = UDim2.fromScale(
 				math.max(
 					getHPScale(healthbarFrame.CharacterCurrentHPValue.Value, healthbarFrame.CharacterMaxHPValue.Value)
-						- FILL_SIZE_X_OFFSET,
+						* FILL_SIZE_X_OFFSET,
 					0
 				),
 				FILL_SIZE_Y_SCALE
@@ -245,7 +245,7 @@ local function createHealthbar(char: _TYPES.Character, size: UDim2, position: UD
 	damageFill.ClipsDescendants = true
 	damageFill.Position = UDim2.fromScale(FILL_POSITION_OFFSET, 0.5)
 	damageFill.Size =
-		UDim2.fromScale(getHPScale(currentHPValue.Value, maxHPValue.Value) - FILL_SIZE_X_OFFSET, FILL_SIZE_Y_SCALE)
+		UDim2.fromScale(getHPScale(currentHPValue.Value, maxHPValue.Value) * FILL_SIZE_X_OFFSET, FILL_SIZE_Y_SCALE)
 
 	local damageFillImageLabel = Instance.new("ImageLabel")
 	damageFillImageLabel.Name = "ImageLabel"
@@ -270,7 +270,7 @@ local function createHealthbar(char: _TYPES.Character, size: UDim2, position: UD
 	healthbarFill.ClipsDescendants = true
 	healthbarFill.Position = UDim2.fromScale(FILL_POSITION_OFFSET, 0.5)
 	healthbarFill.Size =
-		UDim2.fromScale(getHPScale(currentHPValue.Value, maxHPValue.Value) - FILL_SIZE_X_OFFSET, FILL_SIZE_Y_SCALE)
+		UDim2.fromScale(getHPScale(currentHPValue.Value, maxHPValue.Value) * FILL_SIZE_X_OFFSET, FILL_SIZE_Y_SCALE)
 
 	-- Healthbar fill
 	local healthbarFillImageLabel = Instance.new("ImageLabel")

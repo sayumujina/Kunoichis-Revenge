@@ -37,7 +37,7 @@ game.Players.PlayerAdded:Connect(function(player)
 	local tpData = player:GetJoinData().TeleportData
 
 	task.defer(function()
-		SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, tpData.chars, tpData.stageId, tpData.worldId)
-		-- SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, { "Hayumi" }, "1-3", "World1")
+		-- SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, tpData.chars, tpData.stageId, tpData.worldId)
+		SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, { "Hayumi", "Tsuyoka", "Setsuna" }, "1-3", "World1")
 	end)
 end)

@@ -10,7 +10,7 @@ local function getShieldScale(currentShield: number, maxHP: number): number
 end
 
 local FILL_POSITION_OFFSET = 0.008 -- The scale of the shieldbar fill relative to the shieldbar frame size
-local FILL_SIZE_X_OFFSET = FILL_POSITION_OFFSET * 2 -- The scale of the shieldbar fill relative to the shieldbar frame size
+local FILL_SIZE_X_OFFSET = 1 - (FILL_POSITION_OFFSET * 2) -- The scale of the shieldbar fill relative to the shieldbar frame size
 local FILL_SIZE_Y_SCALE = 0.9
 
 local function findOwnerContainer(container: Instance?): Instance?
@@ -105,7 +105,7 @@ return function(size: UDim2?, position: UDim2?)
 		currentTween = TweenService:Create(
 			shieldbarFill,
 			TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-			{ Size = UDim2.fromScale(math.max(shieldScale - FILL_SIZE_X_OFFSET, 0), FILL_SIZE_Y_SCALE) }
+			{ Size = UDim2.fromScale(math.max(shieldScale * FILL_SIZE_X_OFFSET, 0), FILL_SIZE_Y_SCALE) }
 		)
 
 		-- If the current shield value is 0 or less, play the tween before hiding the shieldbar and vice versa
