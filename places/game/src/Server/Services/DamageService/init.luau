@@ -42,11 +42,16 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 	-- If the target hp goes down to 0 or below, set it to 0 and handle the character's death
 	local newHP = targetHP - remainingDamage
 	if newHP <= 0 then
-		-- Fire the death event with the target and origin characters
-		EventService.Events.Death:Fire({
-			char = target,
-			origin = origin,
-		})
+		CharService.UpdateCurrentCharacterStat(target, "hp", 0)
+
+		-- Fire the death event with the target and origin characters after origin trove is cleaned (on animation end)
+		local trove = CharService.GetCharacterCombatData(origin).trove
+		trove:Add(function()
+			EventService.Events.Death:Fire({
+				char = target,
+				origin = origin,
+			})
+		end)
 	else
 		-- Otherwise, subtract the damage from the target's current HP
 		CharService.UpdateCurrentCharacterStat(target, "hp", newHP)

@@ -109,13 +109,15 @@ function CameraController.LookAtOpposingSide(origin: _TYPES.Character, selectedT
 	-- 4. Calculate the base camera Y rotation angle, looking from the origin to the middle index
 	local cameraYRotation
 	for _, target in pairs(folder:GetChildren()) do
-		if target:GetAttribute("Index") == middleIndex then
+		if target:GetAttribute("Index") == middleIndex or target:GetAttribute("originalIndex") == middleIndex then
 			local lookAtCFrame = CFrame.lookAt(originCFrame.Position, target.HumanoidRootPart.Position)
 			local _, YRotation, _ = lookAtCFrame:ToWorldSpace(lookAtCFrame):ToOrientation()
 			cameraYRotation = YRotation + ENEMIES_CAMERA_Y_OFFSET + anglesAddition
 			break
 		end
 	end
+
+	warn(middleIndex, selectedTargetIndex, cameraYRotation)
 
 	-- 5. Calculate the camera's Y rotation based on the difference between the middle index and the selected index
 	if middleIndex - selectedTargetIndex >= 0 then

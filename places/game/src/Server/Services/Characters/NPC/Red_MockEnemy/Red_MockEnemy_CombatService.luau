@@ -171,11 +171,9 @@ function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Characte
 	end
 
 	-- Execute the attack using the appropriate handler
-	if attackToExecute == "BasicAttack" then
-		return Handlers.BasicAttack(char)
-	elseif attackToExecute == "Skill" then
-		return Handlers.Skill(char)
-	end
+	task.delay(1, function()
+		Handlers[attackToExecute](char)
+	end)
 
 	-- Loop back to the start of the attack pattern if we've reached the end
 	if currentPatternIndex + 1 >= #AttackPattern then

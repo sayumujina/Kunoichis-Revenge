@@ -578,7 +578,8 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 	-- Else, return the active character to the current turn's character
 	local currentTurn = playerData.currentTurn
 	if not currentTurn then
-		warn("No current turn found for player:", player.Name)
+		warn("No current turn found for player:", player.Name, ", moving to next turn instead.")
+		TurnService.MoveToNextTurn(player)
 		return
 	end
 

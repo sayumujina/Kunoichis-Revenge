@@ -17,7 +17,7 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
 
-	if not data.Info.archerysVisionTarget then
+	if not data.Info.archerysVisionTarget or not data.Info.archerysVisionTarget:FindFirstChild("Humanoid") then
 		warn("No target selected for Archery's Vision. Move cannot be executed.")
 		return false
 	end

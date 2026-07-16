@@ -94,6 +94,9 @@ function CombatService.OnStart()
 				-- Mark the character as downed
 				deadChar:SetAttribute("Downed", true)
 
+				-- Set their original index value for the camera to use as reference
+				deadChar:SetAttribute("originalIndex", deadCharIndex)
+
 				-- Set their index to 0 so that they are not selectable as a target
 				deadChar:SetAttribute("Index", 0)
 

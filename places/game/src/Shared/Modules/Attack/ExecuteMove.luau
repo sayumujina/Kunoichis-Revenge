@@ -207,7 +207,9 @@ local function ExecuteMove(
 			end
 
 			-- Execute the next extra action
-			TurnService.ExecuteNextExtraAction(player :: _TYPES.RobloxPlayerType)
+			if not TurnService.ExecuteNextExtraAction(player :: _TYPES.RobloxPlayerType) then
+				warn("Failed to execute the next extra action for player:", player.Name)
+			end
 		end
 
 		-- Fire the MoveEnd event to notify that the move has ended

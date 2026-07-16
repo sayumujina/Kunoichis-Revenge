@@ -15,6 +15,12 @@ return function(
 	attackData: _TYPES.AttackData
 )
 	CameraController.SetSideToLookAt(moveInfo.selectedSide)
+	warn(
+		"Executing BasicAttack for character: "
+			.. char.Name
+			.. " with primary target index: "
+			.. attackData.primaryTargetIndex
+	)
 	CameraController.LookAtSide(char, attackData.primaryTargetIndex)
 
 	local originalCFrame = char.HumanoidRootPart.CFrame
