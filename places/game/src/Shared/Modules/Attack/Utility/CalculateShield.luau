@@ -64,20 +64,6 @@ return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, targe
 
 	-- Calculate final shield for each target
 	local finalShield = baseShield * shieldPercentMult * shieldReceivedMult * shieldProvidedMult
-	LogService:Output(
-		"Calculated shield for move "
-			.. moveName
-			.. ": "
-			.. finalShield
-			.. " (Base: "
-			.. baseShield
-			.. ", Shield% Mult: "
-			.. shieldPercentMult
-			.. ", Shield Received Mult: "
-			.. shieldReceivedMult
-			.. ", Shield Provided Mult: "
-			.. shieldProvidedMult
-			.. ")"
-	)
+
 	return finalShield
 end

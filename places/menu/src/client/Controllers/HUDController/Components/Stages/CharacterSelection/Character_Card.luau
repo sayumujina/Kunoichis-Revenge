@@ -17,7 +17,8 @@ local function createSelectedOverlay(index: number)
 	local indexLabel = Instance.new("TextLabel")
 	indexLabel.Name = "Index"
 	indexLabel.BackgroundTransparency = 1
-	indexLabel.FontFace = Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+	indexLabel.FontFace =
+		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	indexLabel.Size = UDim2.fromScale(1, 1)
 	indexLabel.Text = tostring(index)
 	indexLabel.TextColor3 = Color3.new()
@@ -62,7 +63,7 @@ local function createCharacterCard(owned: boolean, charName: string, charLevel: 
 		levelLabel.Name = "Level_Label"
 		levelLabel.BackgroundColor3 = Color3.fromRGB(209, 198, 185)
 		levelLabel.FontFace =
-			Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+			Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 		levelLabel.Position = UDim2.fromScale(0, 0.8)
 		levelLabel.Size = UDim2.fromScale(1, 0.2)
 		levelLabel.Text = "Lv. " .. tostring(charLevel)

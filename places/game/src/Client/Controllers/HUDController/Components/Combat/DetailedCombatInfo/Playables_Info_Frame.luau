@@ -40,9 +40,9 @@ return function(char: _TYPES.Character)
 	characterNameLabel.Name = "CharacterName_Label"
 	characterNameLabel.BackgroundTransparency = 1
 	characterNameLabel.FontFace =
-		Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	characterNameLabel.LayoutOrder = 1
-	characterNameLabel.Size = UDim2.fromScale(1, 0.3)
+	characterNameLabel.Size = UDim2.fromScale(1, 0.35)
 	characterNameLabel.Text = char.Name
 	characterNameLabel.TextColor3 = Color3.new(1, 1, 1)
 	characterNameLabel.TextSize = 60
@@ -75,7 +75,7 @@ return function(char: _TYPES.Character)
 	local hpLabel = Instance.new("TextLabel")
 	hpLabel.Name = "CharacterInfo_HPLabel"
 	hpLabel.BackgroundTransparency = 1
-	hpLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	hpLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	hpLabel.RichText = true
 	hpLabel.LayoutOrder = 3
 	hpLabel.Size = UDim2.fromScale(1, 0.2)

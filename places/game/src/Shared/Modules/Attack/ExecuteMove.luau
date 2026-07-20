@@ -66,6 +66,13 @@ local function ExecuteMove(
 		return false
 	end
 
+	-- Return if no primary target index or targets are provided for the attack
+	if not attackData.primaryTargetIndex and not attackData.targets then
+		warn("No primary target index or targets provided for the attack.")
+		resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+		return false
+	end
+
 	-- Check if the playable character has enough mana to perform the move
 	-- If after the move, the playable character's mana would be less than 0, then the move cannot be performed
 	-- Only playable characters have mana change in the move data,  hence the "if attackData.manaChange" condition
@@ -117,6 +124,7 @@ local function ExecuteMove(
 	local currentAttack = 1
 	local data
 
+	local deadTargets = {}
 	-- Apply damage on the hit marker
 	trove:Add(anim:GetMarkerReachedSignal("hit"):Connect(function()
 		-- Retrieve the attack data for the current attack
@@ -125,7 +133,10 @@ local function ExecuteMove(
 		for _, target in pairs(targets) do
 			if data.attackCategory == "Damage" then
 				local damage, isCrit = CalculateDamage(data.scalings, char, target, moveName)
-				DamageService.Damage(char, target, damage, isCrit)
+				local shouldKill = DamageService.Damage(char, target, damage, isCrit).shouldKill
+				if shouldKill and not table.find(deadTargets, target) then
+					table.insert(deadTargets, target)
+				end
 
 				-- Also deal exposure damage if specified
 				if data.exposureDealt and data.exposureDealt > 0 then
@@ -171,58 +182,82 @@ local function ExecuteMove(
 
 	-- Move to the next turn after the attack animation is complete
 	trove:Add(anim.Stopped:Connect(function()
-		local turnData = TurnService.GetTurnData(player :: _TYPES.RobloxPlayerType)
-
-		-- Move to the next turn if specified
-		if not isExtraAction then
-			TurnService.CompleteTurn(player :: _TYPES.RobloxPlayerType)
-		-- End the current extra action for the player if this was an extra action
-		else
-			TurnService.EndCurrentExtraAction(player :: _TYPES.RobloxPlayerType)
+		local cleanupDelay = 0
+		if deadTargets and #deadTargets > 0 then
+			for _, target in pairs(deadTargets) do
+				-- Fire the death event for each dead target
+				EventService.Events.Death:Fire({
+					char = target,
+					origin = char,
+				})
+			end
+			cleanupDelay = 1 -- Delay to allow death animations to play before moving to the next turn
 		end
 
-		-- If there's no more extra action left in the queue and no current turn exists
-		if turnData and not next(turnData.extraActionQueue) then
-			-- If there's a current turn, only reset the attacking state
-			local currentTurnExists = turnData and turnData.currentTurn
-			if currentTurnExists then
-				warn("No more extra actions left in the queue, but a current turn exists. Resetting attacking state.")
-				resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
-			-- If there's no current turn, reset the attacking state and move to the next turn
+		local function cleanup()
+			local turnData = TurnService.GetTurnData(player :: _TYPES.RobloxPlayerType)
+
+			-- Move to the next turn if specified
+			if not isExtraAction then
+				TurnService.CompleteTurn(player :: _TYPES.RobloxPlayerType)
+			-- End the current extra action for the player if this was an extra action
 			else
-				resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
-				TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
-			end
-		else
-			-- If the next action is a followup, do not enable input yet
-			if
-				turnData
-				and turnData.extraActionQueue
-				and turnData.extraActionQueue[1]
-				and turnData.extraActionQueue[1].isFollowupAttack
-			then
-				resetAttackingState(player :: _TYPES.RobloxPlayerType)
-			else
-				resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+				TurnService.EndCurrentExtraAction(player :: _TYPES.RobloxPlayerType)
 			end
 
-			-- Execute the next extra action
-			if not TurnService.ExecuteNextExtraAction(player :: _TYPES.RobloxPlayerType) then
-				warn("Failed to execute the next extra action for player:", player.Name)
+			-- If there's no more extra action left in the queue and no current turn exists
+			if turnData and not next(turnData.extraActionQueue) then
+				-- If there's a current turn, only reset the attacking state
+				local currentTurnExists = turnData and turnData.currentTurn
+				if currentTurnExists then
+					resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+				-- If there's no current turn, reset the attacking state and move to the next turn
+				else
+					resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+					TurnService.MoveToNextTurn(player :: _TYPES.RobloxPlayerType)
+				end
+			else
+				-- If the next action is a followup, do not enable input yet
+				if
+					turnData
+					and turnData.extraActionQueue
+					and turnData.extraActionQueue[1]
+					and turnData.extraActionQueue[1].isFollowupAttack
+				then
+					resetAttackingState(player :: _TYPES.RobloxPlayerType)
+				else
+					resetAttackingState(player :: _TYPES.RobloxPlayerType, true)
+				end
+
+				-- Execute the next extra action
+				if not TurnService.ExecuteNextExtraAction(player :: _TYPES.RobloxPlayerType) then
+					warn("Failed to execute the next extra action for player:", player.Name)
+				end
 			end
+
+			warn(
+				"Attack animation complete for move: "
+					.. moveName
+					.. ". Moving to the next turn or executing the next extra action."
+			)
+			-- Fire the MoveEnd event to notify that the move has ended
+			EventService.Events.MoveEnd:Fire({
+				origin = char,
+				data = {
+					moveName = moveName,
+					recordedTargets = targets,
+				},
+			})
+
+			-- Clean up the trove after the animation is complete
+			trove:Clean()
 		end
 
-		-- Fire the MoveEnd event to notify that the move has ended
-		EventService.Events.MoveEnd:Fire({
-			origin = char,
-			data = {
-				moveName = moveName,
-				recordedTargets = targets,
-			},
-		})
-
-		-- Clean up the trove after the animation is complete
-		trove:Clean()
+		if cleanupDelay > 0 then
+			task.delay(cleanupDelay, cleanup)
+		else
+			cleanup()
+		end
 	end))
 
 	return true

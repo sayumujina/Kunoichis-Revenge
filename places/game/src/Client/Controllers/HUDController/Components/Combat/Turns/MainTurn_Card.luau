@@ -120,7 +120,7 @@ return function(char: _TYPES.Character, turnId: number, order: number, side: _TY
 	local actionValueLabel = Instance.new("TextLabel")
 	actionValueLabel.Name = "ActionValue_Label"
 	actionValueLabel.BackgroundTransparency = 1
-	actionValueLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	actionValueLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	actionValueLabel.Size = UDim2.fromScale(1, 1)
 	actionValueLabel.Text = tostring(math.floor(actionValueValue.Value))
 

@@ -208,3 +208,12 @@ event CastedUltimate = {
 		},
 	},
 }
+
+event ObjectiveFailed = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		objectiveId: string.binary,
+	},
+}

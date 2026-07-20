@@ -37,6 +37,12 @@ export type SpawnSuccessfulForCharEvent = {
 --- Contains the player associated with the spawn
 export type SpawnFinishedEvent = {
 	player: _TYPES.RobloxPlayerType,
+	data: {
+		stageData: {
+			worldId: string,
+			stageId: string,
+		},
+	},
 }
 
 --- @type TurnCompletedEvent { player: _TYPES.RobloxPlayerType, data: { turnId: number } }
@@ -247,6 +253,17 @@ export type ShieldProvidedEvent = {
 	},
 }
 
+--- @type ObjectiveFailedEvent { objectiveId: string }
+--- @within EventService
+--- Describes the event for when an objective failed.
+--- Contains the ID of the failed objective.
+export type ObjectiveFailedEvent = {
+	player: _TYPES.RobloxPlayerType,
+	data: {
+		objectiveId: string,
+	},
+}
+
 --- @type Events { [string]: Signal.Signal<any> }
 --- @within EventService
 --- A collection of events that can be fired and listened to. Refer to the specific event types for more information.
@@ -272,6 +289,7 @@ EventService.Events = {
 	MoveEnd = Signal.new() :: Signal.Signal<MoveEndEvent>,
 	Damage = Signal.new() :: Signal.Signal<DamageEvent>,
 	ShieldProvided = Signal.new() :: Signal.Signal<ShieldProvidedEvent>,
+	ObjectiveFailed = Signal.new() :: Signal.Signal<ObjectiveFailedEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService
@@ -291,6 +309,7 @@ EventService.PlayerScoped = {
 	"PlayerCurrentStatsChanged",
 	"StatusAdded",
 	"StatusRemoved",
+	"ObjectiveFailed",
 }
 
 --- Initializes the EventService by connecting all events to the Zap event for local players.

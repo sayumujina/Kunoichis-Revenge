@@ -64,20 +64,6 @@ return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, targe
 
 	-- Calculate final healing for each target
 	local finalHealing = baseHealing * healingPercentMult * healingReceivedMult * healingProvidedMult
-	LogService:Output(
-		"Calculated healing for move "
-			.. moveName
-			.. ": "
-			.. finalHealing
-			.. " (Base: "
-			.. baseHealing
-			.. ", Healing% Mult: "
-			.. healingPercentMult
-			.. ", Healing Received Mult: "
-			.. healingReceivedMult
-			.. ", Healing Provided Mult: "
-			.. healingProvidedMult
-			.. ")"
-	)
+
 	return finalHealing
 end

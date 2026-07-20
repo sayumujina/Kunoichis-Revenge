@@ -14,7 +14,7 @@ local moveInfo = require(rep.Data.Characters.Playable.Tsuyoka.data_Tsuyoka_Moves
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
+	local primaryTargetIndex = CombatService.GetCombatData(player).selectedPlayableIndex
 
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,

@@ -64,5 +64,7 @@ export type BuffingConsumables = ConsumablesTypes.BuffingConsumables
 
 -- Stage
 export type Stage = StageTypes.Stage
+export type World = StageTypes.World
+export type ExtraObjective = StageTypes.ExtraObjective
 
 return nil

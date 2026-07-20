@@ -334,7 +334,6 @@ local function createHealthbar(char: _TYPES.Character, size: UDim2, position: UD
 
 	local updatedDamgeFillOnSpawn = false
 	currentHPValue.Changed:Connect(function()
-		warn("Current HP changed: " .. currentHPValue.Value .. " / " .. maxHPValue.Value .. " for " .. char.Name)
 		-- Characters spawn, then change current hp value, then change max hp value.
 		-- This is to ensure that the damage fill size is not at 0
 		-- However it should only trigger once, hence the flag

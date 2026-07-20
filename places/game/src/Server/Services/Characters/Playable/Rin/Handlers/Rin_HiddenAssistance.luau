@@ -14,7 +14,7 @@ local moveInfo = require(rep.Data.Characters.Playable.Rin.data_Rin_Moves)[moveNa
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
+	local primaryTargetIndex = CombatService.GetCombatData(player).selectedNPCIndex
 
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,

@@ -30,7 +30,7 @@ local info = {
 	},
 	-- Starting stats
 	startingStats = {
-		hp = 10,
+		hp = 30,
 		energy = 80,
 		shield = 0,
 	},

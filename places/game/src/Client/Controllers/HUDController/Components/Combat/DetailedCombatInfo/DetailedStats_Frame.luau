@@ -27,7 +27,7 @@ local function createStatFrame(statKey: string, statName: string, order: number)
 	local statNameLabel = Instance.new("TextLabel")
 	statNameLabel.Name = "StatName_Label"
 	statNameLabel.BackgroundTransparency = 1
-	statNameLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	statNameLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	statNameLabel.Position = UDim2.fromScale(0.03, 0.05)
 	statNameLabel.Size = UDim2.fromScale(0.5, 0.9)
 	statNameLabel.Text = statName
@@ -40,7 +40,7 @@ local function createStatFrame(statKey: string, statName: string, order: number)
 	statValueLabel.Name = "StatValue_Label"
 	statValueLabel.AnchorPoint = Vector2.new(1, 0.5)
 	statValueLabel.BackgroundTransparency = 1
-	statValueLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	statValueLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	statValueLabel.Position = UDim2.fromScale(0.97, 0.5)
 	statValueLabel.Size = UDim2.fromScale(0.35, 0.9)
 	statValueLabel.Text = "0"

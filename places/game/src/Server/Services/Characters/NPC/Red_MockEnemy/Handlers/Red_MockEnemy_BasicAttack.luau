@@ -13,7 +13,7 @@ local moveInfo = require(rep.Data.Characters.NPC.Red_MockEnemy.data_Red_MockEnem
 
 return function(char: _TYPES.Character)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
+	local primaryTargetIndex = CombatService.GetCombatData(player).selectedPlayableIndex
 
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,

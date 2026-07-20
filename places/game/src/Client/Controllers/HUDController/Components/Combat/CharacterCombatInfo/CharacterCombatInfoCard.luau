@@ -37,7 +37,7 @@ return function(char: _TYPES.Character)
 	characterInfoHPLabel.Name = "CharacterInfo_HPLabel"
 	characterInfoHPLabel.AnchorPoint = Vector2.new(1, 0)
 	characterInfoHPLabel.BackgroundTransparency = 1
-	characterInfoHPLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	characterInfoHPLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	characterInfoHPLabel.Position = UDim2.fromScale(0.97, 0.82)
 	characterInfoHPLabel.Size = UDim2.fromScale(0.3, 0.1)
 	characterInfoHPLabel.Text = "4233"

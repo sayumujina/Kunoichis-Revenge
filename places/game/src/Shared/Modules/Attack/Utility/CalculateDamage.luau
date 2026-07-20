@@ -64,7 +64,6 @@ return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, targe
 	if isCrit then
 		local critDmgMult = originStats.realStats.critDmg / 100
 		baseDmg *= critDmgMult
-		LogService:Output("Critical hit! Damage multiplied by " .. critDmgMult)
 	end
 
 	-- 4. Include DEF Multiplier
@@ -75,23 +74,6 @@ return function(scalings: _TYPES.AttackScalings, origin: _TYPES.Character, targe
 
 	-- 6. Calculate final damage for each target
 	local finalDmg = baseDmg * dmgPercentMult * defMult * dmgTakenMult
-	LogService:Output(
-		"Calculated damage for move "
-			.. moveName
-			.. ": "
-			.. finalDmg
-			.. " (Base: "
-			.. baseDmg
-			.. ", DMG% Mult: "
-			.. dmgPercentMult
-			.. ", DEF Mult: "
-			.. defMult
-			.. ", Crit DMG: "
-			.. (isCrit and originStats.realStats.critDmg / 100 or 1)
-			.. ", DMG Taken Mult: "
-			.. dmgTakenMult
-			.. ")"
-	)
 
 	return finalDmg, isCrit
 end

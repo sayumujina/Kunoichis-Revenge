@@ -112,7 +112,6 @@ end
 --- Disables actions for the player
 --- @param shouldEnable -- Whether to enable or disable actions
 function InputService.ToggleActionsAvailability(shouldEnable: boolean)
-	warn("Toggling actions availability to", shouldEnable)
 	allowActions = shouldEnable
 end
 

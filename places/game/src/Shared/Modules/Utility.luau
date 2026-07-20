@@ -67,11 +67,12 @@ end
 --- Normalise the turn queue after a turn is completed
 --- This makes sure the action on top is always at 0 action value
 --- @param queue -- The turn queue to normalise
---- @return The normalised turn queue
+--- @return normalisedQueue -- The normalised turn queue
+--- @return elapsedActionValue -- The amount of action value that has elapsed since the last turn
 function Utility.NormaliseTurnQueue(queue: { _TYPES.TurnEntry })
 	-- Deep copy the queue to avoid mutating the original
 	if #queue == 0 then
-		return {}
+		return { normalisedQueue = {}, elapsedActionValue = 0 }
 	end
 
 	local normalisedQueue = TableUtil.Copy(queue, true)
@@ -81,7 +82,10 @@ function Utility.NormaliseTurnQueue(queue: { _TYPES.TurnEntry })
 		entry.actionValue = entry.actionValue - topActionValue
 	end
 
-	return normalisedQueue :: { _TYPES.TurnEntry }
+	return {
+		normalisedQueue = normalisedQueue :: { _TYPES.TurnEntry },
+		elapsedActionValue = topActionValue :: number,
+	}
 end
 
 --- Get the combat controller module for a character

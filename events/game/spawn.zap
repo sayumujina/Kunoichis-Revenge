@@ -16,4 +16,10 @@ event SpawnFinished = {
 	from: Server,
 	type: Reliable,
 	call: ManyAsync,
+	data: struct{
+		stageData: struct {
+			worldId: string,
+			stageId: string,
+		},
+	}
 }

@@ -22,6 +22,7 @@ local ui = {
 			UI_CombatHud_EnergyPulse = "rbxassetid://116012145452820",
 			UI_CombatHud_HealthBorder = "rbxassetid://84100549722129",
 			UI_CombatHud_HealthFill = "rbxassetid://93013412082634",
+			UI_CombatHud_ObjectiveIcon = "rbxassetid://77234658436074",
 			UI_CombatHud_ShieldBorder = "rbxassetid://83728712714494",
 			UI_CombatHud_UltimateFlash = "rbxassetid://105761982517972",
 		},

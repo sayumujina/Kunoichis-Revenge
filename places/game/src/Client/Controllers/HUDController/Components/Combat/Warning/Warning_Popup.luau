@@ -27,7 +27,7 @@ return function(message: string)
 	local warningLabel = Instance.new("TextLabel")
 	warningLabel.Name = "Warning_Label"
 	warningLabel.BackgroundTransparency = 1
-	warningLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	warningLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	warningLabel.Position = UDim2.fromScale(0.2, 0.2)
 	warningLabel.Size = UDim2.fromScale(0.6, 0.6)
 	warningLabel.Text = message

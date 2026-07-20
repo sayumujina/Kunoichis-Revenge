@@ -10,7 +10,7 @@ return function()
 	totalDamageLabel.Name = "TotalDamage_Label"
 	totalDamageLabel.BackgroundTransparency = 1
 	totalDamageLabel.FontFace =
-		Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	totalDamageLabel.Position = UDim2.fromScale(0.2, 0)
 	totalDamageLabel.Size = UDim2.fromScale(0.4, 0.4)
 	totalDamageLabel.Text = "TOTAL DAMAGE"
@@ -23,7 +23,7 @@ return function()
 	totalDamageValue.Name = "TotalDamage_Value"
 	totalDamageValue.BackgroundTransparency = 1
 	totalDamageValue.FontFace =
-		Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	totalDamageValue.Position = UDim2.fromScale(0, 0.32)
 	totalDamageValue.Size = UDim2.fromScale(0.6, 0.6)
 	totalDamageValue.Text = "0"

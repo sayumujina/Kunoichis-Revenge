@@ -16,10 +16,11 @@ function DamageService.OnStart() end
 
 --- Deals damage to a target character based on the origin character and the damage amount
 --- @within DamageService
---- @param origin - The character dealing the damage
---- @param target - The character receiving the damage
---- @param damage - The amount of damage to deal
---- @param isCrit - Whether the damage is a critical hit
+--- @param origin -- The character dealing the damage
+--- @param target -- The character receiving the damage
+--- @param damage -- The amount of damage to deal
+--- @param isCrit -- Whether the damage is a critical hit
+--- @return appliedDamage -- The amount of damage that was applied to the target
 function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character, damage: number, isCrit: boolean)
 	-- Get the target's current HP and shield
 	local targetHP = CharService.GetCurrentCharacterStat(target, "hp")
@@ -45,13 +46,13 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 		CharService.UpdateCurrentCharacterStat(target, "hp", 0)
 
 		-- Fire the death event with the target and origin characters after origin trove is cleaned (on animation end)
-		local trove = CharService.GetCharacterCombatData(origin).trove
-		trove:Add(function()
-			EventService.Events.Death:Fire({
-				char = target,
-				origin = origin,
-			})
-		end)
+		-- local trove = CharService.GetCharacterCombatData(origin).trove
+		-- trove:Add(function()
+		-- 	EventService.Events.Death:Fire({
+		-- 		char = target,
+		-- 		origin = origin,
+		-- 	})
+		-- end)
 	else
 		-- Otherwise, subtract the damage from the target's current HP
 		CharService.UpdateCurrentCharacterStat(target, "hp", newHP)
@@ -66,14 +67,19 @@ function DamageService.Damage(origin: _TYPES.Character, target: _TYPES.Character
 			isCrit = isCrit,
 		},
 	})
+
+	return {
+		appliedDamage = damage,
+		shouldKill = newHP <= 0,
+	}
 end
 
 --- Deals exposure damage to a target character based on the origin character and the exposure amount
 --- Exposures only exist for NPC characters
 --- @within DamageService
---- @param origin - The character dealing the exposure damage
---- @param target - The character receiving the exposure damage
---- @param exposure - The amount of exposure damage to deal
+--- @param origin -- The character dealing the exposure damage
+--- @param target -- The character receiving the exposure damage
+--- @param exposure -- The amount of exposure damage to deal
 function DamageService.DealExposure(origin: _TYPES.Character, target: _TYPES.Character, exposure: number)
 	-- Ignore if the target character is not an NPC
 	if target:GetAttribute("Side") ~= "NPC" then
@@ -105,9 +111,9 @@ end
 
 --- Heals a target character based on the origin character and the heal amount
 --- @within DamageService
---- @param origin - The character initiating the heal
---- @param target - The character receiving the heal
---- @param healAmount - The amount of heal to apply
+--- @param origin -- The character initiating the heal
+--- @param target -- The character receiving the heal
+--- @param healAmount -- The amount of heal to apply
 function DamageService.Heal(origin: _TYPES.Character, target: _TYPES.Character, healAmount: number)
 	-- Get the target's current HP
 	local targetCombatData = CharService.GetCurrentCharacterStat(target, "hp")

@@ -13,7 +13,7 @@ local moveInfo = require(rep.Data.Characters.NPC.MockEnemy.data_MockEnemy_Moves)
 
 return function(char: _TYPES.Character)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
+	local primaryTargetIndex = CombatService.GetCombatData(player).selectedPlayableIndex
 
 	warn("MockEnemy is executing BasicAttack on target index: " .. primaryTargetIndex)
 	local attackData = {

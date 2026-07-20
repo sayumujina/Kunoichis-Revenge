@@ -48,7 +48,7 @@ local function createStatusFrame(id: string, name: string, description: string)
 	statusInfoLabel.Name = "StatusInfo_Label"
 	statusInfoLabel.AutomaticSize = Enum.AutomaticSize.Y
 	statusInfoLabel.BackgroundTransparency = 1
-	statusInfoLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	statusInfoLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	statusInfoLabel.Interactable = false
 	statusInfoLabel.LayoutOrder = 2
 	statusInfoLabel.Position = UDim2.fromScale(0, 0.35)
@@ -98,7 +98,7 @@ local function createStatusFrame(id: string, name: string, description: string)
 	statusNameLabel.Name = "StatusName_Label"
 	statusNameLabel.AutomaticSize = Enum.AutomaticSize.X
 	statusNameLabel.BackgroundTransparency = 1
-	statusNameLabel.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	statusNameLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	statusNameLabel.Interactable = false
 	statusNameLabel.Position = UDim2.fromScale(0.13, 0)
 	statusNameLabel.Size = UDim2.fromScale(0.9, 1)

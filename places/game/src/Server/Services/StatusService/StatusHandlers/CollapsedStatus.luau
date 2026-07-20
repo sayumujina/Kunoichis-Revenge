@@ -16,7 +16,6 @@ local CollapsedStatus = {}
 --- @private
 local function collapsedStatusAdded(event: EventService.StatusAddedEvent)
 	--
-	warn("Collapsed status added to character:", event.data.char, "Status ID:", event.data.data.id)
 	if event.data.data.id ~= "Collapsed" then
 		return
 	end
@@ -30,7 +29,6 @@ end
 --- @param event -- The `StatusRemovedEvent` event.
 --- @private
 local function collapsedStatusRemoved(event: EventService.StatusRemovedEvent)
-	warn("Collapsed status removed from character:", event.data.char, "Status ID:", event.data.data.id)
 	if event.data.data.id ~= "Collapsed" then
 		return
 	end

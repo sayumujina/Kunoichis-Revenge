@@ -15,7 +15,7 @@ local combatInfo = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Comba
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
+	local primaryTargetIndex = CombatService.GetCombatData(player).selectedNPCIndex
 
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,

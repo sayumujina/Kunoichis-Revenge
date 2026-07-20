@@ -35,5 +35,4 @@ return function(target: _TYPES.Character)
 
 	-- Delay the target's next action by 60%
 	TurnService.AdvanceAction(target, -60 / 100)
-	warn("Collapsed status added to character: " .. target.Name)
 end

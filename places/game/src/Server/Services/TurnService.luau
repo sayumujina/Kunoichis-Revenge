@@ -123,7 +123,7 @@ function TurnService.OnStart()
 		end
 
 		-- Normalise the turn queue
-		playerData.turnQueue = Utility.NormaliseTurnQueue(playerData.turnQueue)
+		-- playerData.turnQueue = Utility.NormaliseTurnQueue(playerData.turnQueue).normalisedQueue
 
 		-- Do this at the end of the thread to make sure spawn finished reaches the client first
 		task.defer(function()
@@ -270,9 +270,6 @@ function TurnService.CompleteTurn(player: _TYPES.RobloxPlayerType)
 	EventService.Events.TurnCompleted:Fire({
 		turnId = completedTurn.turnId,
 	})
-
-	-- Normalise the turn queue after removing the completed turn
-	playerData.turnQueue = Utility.NormaliseTurnQueue(playerData.turnQueue)
 end
 
 --- Advance to the next turn
@@ -332,10 +329,15 @@ function TurnService.StartTurn(player: _TYPES.RobloxPlayerType)
 
 	-- Return if no turn is available
 	if not playerData.turnQueue[1] then
-		warn("No turn available to start.")
 		return
 	end
-	warn(playerData.turnQueue)
+
+	-- Normalise the turn queue after removing the completed turn
+	local normalisedResult = Utility.NormaliseTurnQueue(playerData.turnQueue)
+	playerData.turnQueue = normalisedResult.normalisedQueue
+
+	-- Add the elasped action value to the combat data
+	CombatService.IncrementElapsedActionValue(player, normalisedResult.elapsedActionValue)
 
 	-- Set the current turn entry
 	playerData.currentTurn = playerData.turnQueue[1]
@@ -400,7 +402,6 @@ function TurnService.AdvanceAction(char: _TYPES.Character, advancedBy: number)
 
 		-- Re-sort the turn queue after modification
 		local sortedQueue = Utility.SortTurnQueue(playerData.turnQueue) or {}
-		warn(sortedQueue)
 
 		-- Promote that queue to the top of the tie group if it's not already
 		-- If the action value is 0 when there's a current turn, it should not take over the current turn
@@ -416,8 +417,6 @@ function TurnService.AdvanceAction(char: _TYPES.Character, advancedBy: number)
 		})
 		return
 	end
-
-	warn("Character", char.Name, "not found in turn queue. Cannot advance action.")
 end
 
 --- Execute the current extra action for a player, if any
@@ -427,12 +426,11 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 	local playerData = Players[player]
 	if not playerData then
 		warn("Player data not found for player:", player.Name)
-		return
+		return false
 	end
 
 	if #playerData.extraActionQueue == 0 then
-		warn("No extra actions queued for player:", player.Name)
-		return
+		return false
 	end
 
 	local extraAction = playerData.extraActionQueue[1]
@@ -445,7 +443,7 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 	-- Get the combat service for the character
 	if not getCharacterCombatService(char) then
 		warn("No combat service found for character:", char.Name)
-		return
+		return false
 	end
 
 	local charCombatService = require(getCharacterCombatService(char))
@@ -457,19 +455,19 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 	if isFollowupAttack then
 		local charCombatData = charCombatService.GetCharData(char)
 		if not charCombatService.GetAttackHandlers()[action](char, charCombatData) then
-			warn("Failed to execute follow-up attack for character:", char.Name, "with action:", action)
 			TurnService.EndCurrentExtraAction(player)
-			return
+			return false
 		end
-		-- Otherwise, call the input handler for the character's combat service
+
+	-- Otherwise, call the input handler for the character's combat service
 	else
 		if not charCombatService.HandleInput(char, { action = action }) then
-			warn("Failed to execute extra action for character:", char.Name, "with action:", action)
 			TurnService.EndCurrentExtraAction(player)
-			return
+			return false
 		end
-		warn("Executed extra action for character:", char.Name, "with action:", action)
 	end
+
+	return true
 end
 
 --- Add an extra action for a character
@@ -504,12 +502,8 @@ function TurnService.AddExtraAction(char: _TYPES.Character, action: string, isFo
 	else
 		if playerData.previousTurn then
 			currentTurnId = playerData.previousTurn.turnId
-		else
-			warn("No current or previous turn found for player:", player.Name)
 		end
 	end
-
-	warn("Current turn ID for char", char.Name, "is", currentTurnId)
 
 	-- Add the extra action to the queue
 	table.insert(playerData.extraActionQueue, {
@@ -550,7 +544,6 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 	end
 
 	if not playerData.currentExtraAction then
-		warn("No current extra action to end for player:", player.Name)
 		return
 	end
 
@@ -558,7 +551,6 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 	local removedExtraAction = table.remove(playerData.extraActionQueue, 1)
 
 	if not removedExtraAction then
-		warn("Failed to remove current extra action for player:", player.Name)
 		return
 	end
 
@@ -578,7 +570,6 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 	-- Else, return the active character to the current turn's character
 	local currentTurn = playerData.currentTurn
 	if not currentTurn then
-		warn("No current turn found for player:", player.Name, ", moving to next turn instead.")
 		TurnService.MoveToNextTurn(player)
 		return
 	end
@@ -604,7 +595,6 @@ function TurnService.SkipTurn(player: _TYPES.RobloxPlayerType)
 	end
 
 	if not playerData.currentTurn then
-		warn("No current turn to skip for player:", player.Name)
 		return
 	end
 

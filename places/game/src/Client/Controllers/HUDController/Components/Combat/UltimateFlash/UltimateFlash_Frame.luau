@@ -1,6 +1,5 @@
 local rep = game:GetService("ReplicatedStorage")
-local GetAvatarImageForCharacter =
-	require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
+local GetAvatarImageForCharacter = require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
 
 -- Services
 local TweenService = game:GetService("TweenService")
@@ -54,7 +53,7 @@ return function(charName: string, ultimateName: string)
 	ultimateNameLabel.Name = "UltimateName_Label"
 	ultimateNameLabel.BackgroundTransparency = 1
 	ultimateNameLabel.FontFace =
-		Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	ultimateNameLabel.Position = UDim2.fromScale(0.04, 0.695)
 	ultimateNameLabel.Size = UDim2.fromScale(0.57, 0.27)
 	ultimateNameLabel.Text = ultimateName

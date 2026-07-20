@@ -56,7 +56,6 @@ function Hayumi_CombatService.Init(char: _TYPES.Character)
 
 		-- If the origin is Hayumi, do not cast Archery's Vision
 		if origin :: any == char then
-			warn("Origin is Hayumi. Not casting Archery's Vision.")
 			return
 		end
 
@@ -70,13 +69,11 @@ function Hayumi_CombatService.Init(char: _TYPES.Character)
 		end
 
 		if not foundDamageAttack then
-			warn("No 'Damage' attack found. Not casting Archery's Vision.")
 			return
 		end
 
 		-- If an ally attacked successfully, cast Archery's Vision if the player has uses left
 		if origin:GetAttribute("Side") ~= "Playable" then
-			warn("Archery's Vision can only be cast by playable characters.")
 			return
 		end
 

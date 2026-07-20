@@ -40,7 +40,8 @@ return function(target: _TYPES.Character, isCrit: boolean, damage: number, isShi
 	local critLabel = Instance.new("TextLabel")
 	critLabel.Name = "Crit_Label"
 	critLabel.BackgroundTransparency = 1
-	critLabel.FontFace = Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+	critLabel.FontFace =
+		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	critLabel.Position = UDim2.fromScale(0.325, 0)
 	critLabel.Size = UDim2.fromScale(0.35, 0.35)
 	critLabel.Text = "CRIT"
@@ -55,7 +56,7 @@ return function(target: _TYPES.Character, isCrit: boolean, damage: number, isShi
 	damagePopupLabel.Name = "DamagePopup_Label"
 	damagePopupLabel.BackgroundTransparency = 1
 	damagePopupLabel.FontFace =
-		Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	damagePopupLabel.Position = UDim2.fromScale(0.2, 0.2)
 	damagePopupLabel.Size = UDim2.fromScale(0.6, 0.6)
 	-- Add a "+" sign for healing

@@ -1,10 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
 local _TYPES_CHAR = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Types)
--- Services
-local Services = game:GetService("ServerScriptService").Server.Services
-local PlayerService = require(Services.PlayerService)
-local CombatService = require(Services.CombatService)
 -- Modules
 local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 
@@ -13,19 +9,13 @@ local moveName = "ArcherysVision"
 local moveInfo = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Moves)[moveName]
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
-	warn("Attempting to execute move: " .. moveName .. " for character: " .. char.Name)
-	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
-
-	if not data.Info.archerysVisionTarget or not data.Info.archerysVisionTarget:FindFirstChild("Humanoid") then
-		warn("No target selected for Archery's Vision. Move cannot be executed.")
-		return false
-	end
+	local selectedTarget = data.Info.archerysVisionTarget
+	local target = if selectedTarget and selectedTarget:FindFirstChild("Humanoid") then selectedTarget else nil
 
 	local attackData = {
-		primaryTargetIndex = primaryTargetIndex,
+		primaryTargetIndex = if target then target:GetAttribute("Index") else nil,
 		manaChange = moveInfo.manaChange,
-		targets = data.Info.archerysVisionTarget and { data.Info.archerysVisionTarget } or {},
+		targets = if target then { target } else nil,
 		attacks = moveInfo.attacks,
 		info = moveInfo.info,
 	} :: _TYPES.AttackData

@@ -117,8 +117,6 @@ function CameraController.LookAtOpposingSide(origin: _TYPES.Character, selectedT
 		end
 	end
 
-	warn(middleIndex, selectedTargetIndex, cameraYRotation)
-
 	-- 5. Calculate the camera's Y rotation based on the difference between the middle index and the selected index
 	if middleIndex - selectedTargetIndex >= 0 then
 		cameraYRotation = cameraYRotation

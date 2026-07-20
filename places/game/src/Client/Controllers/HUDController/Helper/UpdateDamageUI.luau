@@ -28,15 +28,6 @@ local function toggleDamageUIVisibility(playerGui: PlayerGui, visible: boolean)
 		return
 	end
 
-	-- -- If the visibility state is already the same as the desired state, do nothing
-	-- if damageCard.Visible == visible then
-	-- 	warn("Damage card visibility is already set to " .. tostring(visible) .. ". No changes made.")
-	-- 	return
-	-- end
-
-	-- -- Set the visibility of the damage card
-	-- damageCard.Visible = visible
-
 	-- Cancel any existing tween before creating a new one
 	for _, tween in pairs(damageTweens) do
 		tween:Cancel()
@@ -158,12 +149,6 @@ local function createShieldPopup(playerGui: PlayerGui, shieldData: { target: _TY
 
 	-- Wait for one second before fading out the shield popup
 	task.delay(DAMAGE_POPUP_LIFETIME, function()
-		warn(
-			"Fading out shield popup for target: "
-				.. shieldData.target.Name
-				.. ", Shield Amount: "
-				.. shieldData.shieldAmount
-		)
 		-- Tween the shield label to fade out
 		TweenService:Create(shieldLabel, TweenInfo.new(0.2), { TextTransparency = 1, TextStrokeTransparency = 1 })
 			:Play()

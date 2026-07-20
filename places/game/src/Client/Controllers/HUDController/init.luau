@@ -5,10 +5,8 @@ local _TYPES = require(rep.Data.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
-
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
-
 -- Helpers
 local Helpers = {
 	QueueUIUtility = require(script.Helper.QueueUIUtility),
@@ -17,7 +15,8 @@ local Helpers = {
 	UpdateDamageUI = require(script.Helper.UpdateDamageUI),
 	DisplayWarning = require(script.Helper.DisplayWarning),
 }
-
+-- Data
+local StagesData = require(rep.Data.data_Stages)
 -- Components
 local ComponentsPath = game.StarterPlayer.StarterPlayerScripts.Client.Controllers.HUDController.Components
 local Components = {
@@ -57,6 +56,10 @@ local Components = {
 		},
 		UltimateFlash = {
 			CreateUltimateFlashFrame = require(ComponentsPath.Combat.UltimateFlash.UltimateFlash_Frame),
+		},
+		Objectives = {
+			ObjectiveFrame = require(ComponentsPath.Combat.Objectives.ObjectiveFrame),
+			ObjectiveCard = require(ComponentsPath.Combat.Objectives.ObjectiveCard),
 		},
 	},
 }
@@ -166,12 +169,44 @@ end
 --- Called when the controller starts
 function HUDController.OnStart()
 	-- Normalise the turn queue once all characters are spawned and the battle is ready to proceed
-	Zap.SpawnFinished.On(function()
+	Zap.SpawnFinished.On(function(spawnData)
 		-- Normalize the turn queue
-		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
+		turnQueue = Utility.NormaliseTurnQueue(turnQueue).normalisedQueue
 
 		-- Update the turn queue UI after normalisation
 		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
+
+		-- Create the objective frame UI for the player
+		-- Get the stage data for the current stage
+		local stageData = StagesData[spawnData.stageData.worldId]
+				and StagesData[spawnData.stageData.worldId].stages[spawnData.stageData.stageId]
+			or nil
+
+		local objectives = {}
+		-- Store a copy of the extra objectives for the stage along with a failed flag for each objective
+		if stageData and stageData.extraObjectives then
+			for _, objective in pairs(stageData.extraObjectives) do
+				local objectiveId = objective.objectiveId
+				local objectiveDesc
+				if objective.conditionType == "UsedActionValue" then
+					objectiveDesc = "Use less than " .. objective.value .. " action value"
+				elseif objective.conditionType == "DownedCharacters" then
+					objectiveDesc = "Have less than " .. objective.value .. " downed characters"
+				end
+				table.insert(objectives, { description = objectiveDesc, id = objectiveId, passed = true })
+			end
+		end
+
+		local objectivesFrame = Components.Combat.Objectives.ObjectiveFrame.CreateObjectiveFrame(objectives)
+		objectivesFrame.Parent = playerGui:FindFirstChild("Combat_ScreenGui", true)
+
+		-- Show the objectives frame for a few seconds before hiding it
+		local toggle = Components.Combat.Objectives.ObjectiveFrame.ToggleObjectiveFrame
+		toggle(true)
+		task.delay(2, function()
+			warn("Hiding objectives frame after 2 seconds")
+			toggle(false)
+		end)
 	end)
 
 	-- Listens to spawn successful events to create character info cards for the spawned characters
@@ -328,10 +363,6 @@ function HUDController.OnStart()
 				break
 			end
 		end
-
-		-- Normalise the turn queue after removal and update the turn queue UI
-		turnQueue = Utility.NormaliseTurnQueue(turnQueue)
-		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 	end)
 
 	-- Listens to turn started event
@@ -343,6 +374,10 @@ function HUDController.OnStart()
 				turnCardsList:Destroy()
 			end
 		end
+
+		-- Normalise the turn queue after removal and update the turn queue UI
+		turnQueue = Utility.NormaliseTurnQueue(turnQueue).normalisedQueue
+		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 
 		-- Reduce the size of the other two character info cards to highlight the current character's turn
 		for _, card in pairs(playerGui:GetDescendants()) do
@@ -406,9 +441,9 @@ function HUDController.OnStart()
 		-- Decide the layout group
 		local layoutGroup
 		if extraActionData.isProcessingAttack then
-			-- If there is no extra action at the moment, place it before the main turn card
+			-- If there is no extra action at the moment, place it after the main turn card
 			if not next(extraActionLayoutInfoByTurnId) then
-				layoutGroup = "before"
+				layoutGroup = "after"
 			-- If there are already extra actions, place it on the same group as the last extra action
 			else
 				local _, currentGroupData = next(extraActionLayoutInfoByTurnId)
@@ -560,7 +595,6 @@ function HUDController.OnStart()
 	-- Listens to the status added event
 	Zap.StatusAdded.On(function(statusAddedEvent)
 		task.defer(function()
-			warn("Status added for character:", statusAddedEvent.char, "Status ID:", statusAddedEvent.data.id)
 			Components.Combat.DetailedCombatInfo.StatusListFrame.AddStatusToList(
 				statusAddedEvent.char :: _TYPES.Character,
 				statusAddedEvent.data.id,
@@ -568,12 +602,6 @@ function HUDController.OnStart()
 				statusAddedEvent.data.status.info.description
 			)
 		end)
-		Components.Combat.DetailedCombatInfo.StatusListFrame.AddStatusToList(
-			statusAddedEvent.char :: _TYPES.Character,
-			statusAddedEvent.data.id,
-			statusAddedEvent.data.status.info.name,
-			statusAddedEvent.data.status.info.description
-		)
 	end)
 
 	-- Listens to the status removed event
@@ -619,6 +647,22 @@ function HUDController.OnStart()
 			ultimateFlashData.data.fullMoveName,
 			ultimateFlashData.data.flashDuration
 		)
+	end)
+
+	-- Listens to objective failed events
+	Zap.ObjectiveFailed.On(function(objectiveFailedEvent)
+		local obj = Components.Combat.Objectives
+
+		-- Mark the objective as failed and show the objective frame
+		obj.ObjectiveCard.ChangeObjectiveCardState(objectiveFailedEvent.objectiveId, false)
+		warn("Showing objective frame for failed objective:", objectiveFailedEvent.objectiveId)
+		obj.ObjectiveFrame.ToggleObjectiveFrame(true)
+
+		-- Hide again after 3 seconds
+		task.delay(3, function()
+			warn("Hiding objective frame after 3 seconds")
+			obj.ObjectiveFrame.ToggleObjectiveFrame(false)
+		end)
 	end)
 end
 

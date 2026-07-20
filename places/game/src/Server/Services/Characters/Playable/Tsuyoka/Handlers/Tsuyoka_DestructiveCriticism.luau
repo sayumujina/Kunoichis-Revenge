@@ -28,7 +28,7 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	end
 
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
-	local primaryTargetIndex = CombatService.GetCombatData(player).primarySelectedTargetIndex
+	local primaryTargetIndex = CombatService.GetCombatData(player).selectedNPCIndex
 
 	-- Set energy to 0 after executing the ultimate
 	CharService.UpdateCurrentCharacterStat(char, "energy", 0)

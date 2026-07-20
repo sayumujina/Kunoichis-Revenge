@@ -63,6 +63,12 @@ function SpawnService.Spawn(
 	-- After spawning is done, send a signal back to the client
 	EventService.Events.SpawnFinished:Fire({
 		player = player :: _TYPES.RobloxPlayerType,
+		data = {
+			stageData = {
+				worldId = worldId,
+				stageId = stageId,
+			},
+		},
 	})
 end
 --- Spawns a character into the game

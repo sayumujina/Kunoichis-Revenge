@@ -4,7 +4,7 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 --
 local TweenService = game:GetService("TweenService")
 --
-local WAIT_TIME = 1 -- Time to wait before fading out the loading screen
+local WAIT_TIME = 3 -- Time to wait before fading out the loading screen
 local FADE_OUT_DURATION = 0.4 -- Time for the fade-out tween
 
 -- Listens to player adding event
