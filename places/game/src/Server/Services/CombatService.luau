@@ -194,6 +194,12 @@ function CombatService.OnStart()
 	game.Players.PlayerRemoving:Connect(function(player)
 		CombatData[player] = nil
 	end)
+
+	-- Listen to despawn event to clean up combat data for the player
+	EventService.Events.DespawnSuccessful:Connect(function(despawnEvent)
+		local player = despawnEvent.player
+		CombatData[player] = nil
+	end)
 end
 
 --- Switches to the next target in the combat data for the player

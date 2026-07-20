@@ -35,11 +35,10 @@ local InputToActions = {
 	[Enum.KeyCode.Z] = "SkipTurn",
 	-- Open detailed combat info menu
 	[Enum.KeyCode.C] = "OpenDetailedCombatInfo",
-	-- Spawn
-	[Enum.KeyCode.U] = "Spawn",
+	-- Restart
+	[Enum.KeyCode.R] = "Restart",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
 
-local spawned = false
 local detailedCombatInfoOpened = false
 local allowDetailedCombatInfoToggle = true
 local isInputAllowed = true
@@ -60,9 +59,15 @@ function InputController.OnStart()
 		end)
 	end)
 
-	-- Listen to the spawn successful event to set the spawned flag to true
+	-- Listen to combat info menu toggle event to allow or disallow opening the detailed combat info menu
 	Zap.AllowCombatInfoMenuToggle.On(function(data)
 		allowDetailedCombatInfoToggle = data.allowed
+	end)
+
+	-- Listens to spawn finished event to start allowing input processing
+	Zap.SpawnFinished.On(function()
+		isInputAllowed = true
+		allowDetailedCombatInfoToggle = true
 	end)
 
 	-- Listen to input began event
@@ -78,9 +83,11 @@ function InputController.OnStart()
 			return
 		end
 
-		if actionName == "Spawn" and not spawned then
-			-- Zap.RequestSpawn.Fire()
-			-- spawned = true
+		if actionName == "Restart" then
+			-- Disable input processing
+			isInputAllowed = false
+			allowDetailedCombatInfoToggle = false
+			Zap.RestartRequested.Fire()
 			return
 		end
 

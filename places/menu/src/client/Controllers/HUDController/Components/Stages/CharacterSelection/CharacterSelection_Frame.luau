@@ -9,7 +9,7 @@ local TeleportService = game:GetService("TeleportService")
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local Zap = require(StarterPlayerScripts.Client.zap)
 --
-local CreateBlackScreen = require(StarterPlayerScripts.Client.Controllers.HUDController.Components.Global.BlackScreen)
+local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 --
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
@@ -117,7 +117,7 @@ return function(chars: { Name: string, Level: number?, Owned: boolean })
 	uIAspectRatioConstraint.Parent = returnButton
 	returnButton.Parent = stageCharacterSelectionFrame
 	returnButton.MouseButton1Click:Connect(function()
-		CreateBlackScreen(0.6, 0.4, function()
+		CreateBlackScreen(0.6, nil, 0.4, function()
 			-- Hide the character selection screen
 			stageCharacterSelectionFrame.Visible = false
 

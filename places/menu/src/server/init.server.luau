@@ -5,8 +5,7 @@ local MenuServer = script
 local Services = game:GetService("ServerScriptService").Server.Services
 local TeleportService = game:GetService("TeleportService")
 --
-local CreateBlackScreen =
-	require(game.StarterPlayer.StarterPlayerScripts.Client.Controllers.HUDController.Components.Global.BlackScreen)
+local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 --
 local Zap = require(Services.Parent.zap)
 

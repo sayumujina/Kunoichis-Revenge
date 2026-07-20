@@ -1,6 +1,6 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
-local CreateBlackScreen =
-	require(game.StarterPlayer.StarterPlayerScripts.Client.Controllers.HUDController.Components.Global.BlackScreen)
+local CreateBlackScreen = require(game.ReplicatedStorage.Shared.GlobalUIComponents.BlackScreen)
 
 local FADE_IN_DURATION = 0.6
 local FADE_OUT_DURATION = 0.4
@@ -131,7 +131,7 @@ local function createStageCard(id: string, worldId: string, name: string, descri
 			selectedStageValue.Value = id
 		end
 
-		CreateBlackScreen(FADE_IN_DURATION, FADE_OUT_DURATION, function()
+		CreateBlackScreen(FADE_IN_DURATION, nil, FADE_OUT_DURATION, function()
 			-- Hide the stage lists and world list
 			for _, child in pairs(stageListFolder:GetChildren()) do
 				if child:IsA("Frame") then

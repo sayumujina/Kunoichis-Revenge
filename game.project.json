@@ -9,6 +9,9 @@
         "$path": "places/game/src/Shared",
         "GlobalUtility": {
           "$path": "places/global/src/Shared/GlobalUtility"
+        },
+        "GlobalUIComponents": {
+          "$path": "places/global/src/Shared/GlobalUIComponents"
         }
       },
       "Packages": {

@@ -140,6 +140,17 @@ function CombatController.OnStart()
 			CombatData[localPlayer] = nil
 		end
 	end)
+
+	-- Listens to despawn event to clean up the combat data for that player
+	Zap.DespawnSuccessful.On(function(despawnEvent)
+		if despawnEvent.player == localPlayer then
+			-- Clean up the combat data for the local player
+			if CombatData[localPlayer] and CombatData[localPlayer].trove then
+				CombatData[localPlayer].trove:Destroy()
+			end
+			CombatData[localPlayer] = nil
+		end
+	end)
 end
 
 --- Handle switching primary selected targets.

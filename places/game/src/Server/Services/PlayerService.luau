@@ -61,11 +61,12 @@ function PlayerService.OnStart()
 			},
 		})
 	end)
-end
 
-function PlayerService.SpawnCharactersForPlayer(player: _TYPES.RobloxPlayerType)
-	-- Spawn player's characters
-	-- SpawnService.SpawnAllCharactersOfSide("Playable", { "Setsuna", "Setsuna" }, CHARACTER_SPAWN_OFFSET)
+	-- Listens to despawning and removes the character from the player's data
+	EventService.Events.DespawnSuccessful:Connect(function(despawnEvent)
+		local player = despawnEvent.player
+		PlayersData[player].characters = {}
+	end)
 end
 
 --- Get the associated player for a character

@@ -4,6 +4,7 @@ local rep = game:GetService("ReplicatedStorage")
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
+local PlayerService = require(Services.PlayerService)
 -- Packages
 local Trove = require(game.ReplicatedStorage.Packages.Trove)
 local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
@@ -134,6 +135,21 @@ function CharService.OnStart()
 
 	-- Initialize the chars table
 	Chars = {}
+
+	-- Listen to despawn event to clean up character data for the player
+	EventService.Events.DespawnSuccessful:Connect(function(player)
+		local playerData = PlayerService.GetPlayerData(player :: _TYPES.RobloxPlayerType)
+
+		if not playerData then
+			return
+		end
+
+		for _, char in pairs(playerData.characters) do
+			if char:IsA("Model") and char:FindFirstChild("Humanoid") then
+				Chars[char] = nil
+			end
+		end
+	end)
 end
 
 --- Load base stats of a character into the service's data structure

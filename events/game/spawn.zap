@@ -23,3 +23,24 @@ event SpawnFinished = {
 		},
 	}
 }
+
+event DespawnSuccessful = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct{
+		player: Instance.Player,
+	}
+}
+
+event RestartRequested = {
+	from: Client,
+	type: Reliable,
+	call: ManyAsync,
+}
+
+event RestartSuccessful = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+}

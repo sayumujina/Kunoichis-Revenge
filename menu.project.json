@@ -1,6 +1,6 @@
 {
   "name": "kunoichi-menu",
-   "servePlaceIds": [87694110914637, 0],
+  "servePlaceIds": [87694110914637, 0],
   "tree": {
     "$className": "DataModel",
 
@@ -9,6 +9,9 @@
         "$path": "places/menu/src/Shared",
         "GlobalUtility": {
           "$path": "places/global/src/Shared/GlobalUtility"
+        },
+        "GlobalUIComponents": {
+          "$path": "places/global/src/Shared/GlobalUIComponents"
         }
       },
       "Packages": {

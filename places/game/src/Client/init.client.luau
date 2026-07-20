@@ -1,10 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
 local Loader = require(rep.Modules.GlobalModules.Loader)
 --
-local TeleportService = game:GetService("TeleportService")
-local TweenService = game:GetService("TweenService")
-local ReplicatedFirst = game:GetService("ReplicatedFirst")
---
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local Controllers = StarterPlayerScripts.Client.Controllers
 local HUDController = require(Controllers.HUDController)

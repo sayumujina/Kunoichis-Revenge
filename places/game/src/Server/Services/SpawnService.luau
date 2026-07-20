@@ -34,7 +34,12 @@ local function getCharacterCombatService(char: _TYPES.Character): any
 end
 
 --- Called when the service starts
-function SpawnService.OnStart() end
+function SpawnService.OnStart()
+	-- Listens to restart event to despawn all characters and reset the game state
+	Zap.RestartRequested.On(function(player)
+		SpawnService.Despawn(player :: _TYPES.RobloxPlayerType, true)
+	end)
+end
 
 function SpawnService.Spawn(
 	player: _TYPES.RobloxPlayerType,
@@ -194,6 +199,38 @@ function SpawnService.SpawnAllCharactersOfSide(
 
 		SpawnService.SpawnCharacter(player, side, char, spawnPosition, index)
 	end
+end
+
+--- Despawns a player's characters and cleans up their data
+--- @within SpawnService
+--- @param player -- The player whose characters are to be despawned
+--- @param isRestart -- Optional boolean indicating if this despawn is due to a restart
+function SpawnService.Despawn(player: _TYPES.RobloxPlayerType, isRestart: boolean?)
+	-- Destroy all players' characters in the workspace
+	for _, char in pairs(workspace.Characters:GetDescendants()) do
+		if char:IsA("Model") and char:FindFirstChild("Humanoid") then
+			char:Destroy()
+		end
+	end
+
+	-- Remove all players' attributes related to the game state
+	player.ActiveCharacter:Destroy()
+
+	-- Fire the Despawn event to notify that the player has despawned
+	EventService.Events.DespawnSuccessful:Fire({
+		player = player,
+	})
+
+	-- Fire the Restart event if this despawn is due to a restart
+	if isRestart then
+		EventService.Events.RestartSuccessful:Fire({
+			player = player,
+		})
+	end
+
+	task.delay(3, function()
+		SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, { "Hayumi", "Tsuyoka", "Setsuna" }, "1-3", "World1")
+	end)
 end
 
 return SpawnService

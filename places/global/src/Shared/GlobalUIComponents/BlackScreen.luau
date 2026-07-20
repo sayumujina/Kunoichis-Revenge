@@ -3,6 +3,7 @@ local TweenService = game:GetService("TweenService")
 -- Create a black frame that covers the entire screen
 return function(
 	fadeInDur: number,
+	fadeDelay: number?,
 	fadeOutDur: number,
 	onFadeInComplete: () -> ()?,
 	onFadeOutComplete: () -> ()?,
@@ -37,17 +38,28 @@ return function(
 		if manualReverseTween then
 			return
 		end
-		local reverseTweenInfo = TweenInfo.new(fadeOutDur, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-		local reverseTween = TweenService:Create(blackFrame, reverseTweenInfo, { BackgroundTransparency = 1 })
-		reverseTween:Play()
 
-		reverseTween.Completed:Once(function()
-			if onFadeOutComplete then
-				onFadeOutComplete()
-			end
-			-- Remove the black frame after the fade-out is complete
-			screenGui:Destroy()
-		end)
+		local function playReverseTween()
+			local reverseTweenInfo = TweenInfo.new(fadeOutDur, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+			local reverseTween = TweenService:Create(blackFrame, reverseTweenInfo, { BackgroundTransparency = 1 })
+			reverseTween:Play()
+
+			reverseTween.Completed:Once(function()
+				if onFadeOutComplete then
+					onFadeOutComplete()
+				end
+				-- Remove the black frame after the fade-out is complete
+				screenGui:Destroy()
+			end)
+		end
+
+		if fadeDelay then
+			task.delay(fadeDelay, function()
+				playReverseTween()
+			end)
+		else
+			playReverseTween()
+		end
 	end)
 
 	return screenGui, forwardTween

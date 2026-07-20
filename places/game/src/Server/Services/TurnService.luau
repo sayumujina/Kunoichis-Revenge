@@ -142,6 +142,17 @@ function TurnService.OnStart()
 
 		TurnService.RemoveActiveCharacter(char, player)
 	end)
+
+	-- Listens to despawn event to remove all characters from the turn system
+	EventService.Events.DespawnSuccessful:Connect(function(event)
+		local player = event.player
+		if not Players[player] then
+			warn("Player data not found for player:", player.Name)
+			return
+		end
+
+		Players[player] = nil
+	end)
 end
 
 --- Add a character to the turn system

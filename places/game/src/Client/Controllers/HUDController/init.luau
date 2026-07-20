@@ -18,6 +18,7 @@ local Helpers = {
 -- Data
 local StagesData = require(rep.Data.data_Stages)
 -- Components
+local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 local ComponentsPath = game.StarterPlayer.StarterPlayerScripts.Client.Controllers.HUDController.Components
 local Components = {
 	Combat = {
@@ -662,6 +663,27 @@ function HUDController.OnStart()
 		task.delay(3, function()
 			warn("Hiding objective frame after 3 seconds")
 			obj.ObjectiveFrame.ToggleObjectiveFrame(false)
+		end)
+	end)
+
+	-- Listens to despawn event to clean up all UI elements
+	Zap.DespawnSuccessful.On(function(despawnEvent)
+		-- Reset the turn queue
+		turnQueue = {}
+		extraActionLayoutInfoByTurnId = {}
+
+		for _, child in pairs(playerGui:QueryDescendants("Frame")) do
+			child:Destroy()
+		end
+	end)
+
+	-- Listens to restart successful events to initialize the HUD for the player
+	Zap.RestartSuccessful.On(function()
+		-- Create a black screen
+		CreateBlackScreen(0.6, 2.6, 0.4, function() end)
+		-- Re-initialize the HUD for the player
+		task.delay(1, function()
+			HUDController.Init()
 		end)
 	end)
 end
