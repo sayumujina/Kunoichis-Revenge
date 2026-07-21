@@ -3,14 +3,15 @@ local _TYPES = require(rep.Data.data_Types)
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
 local TurnService = require(Services.TurnService)
--- Utility
-local Utility = require(rep.Shared.Modules.Utility)
+local EventService = require(Services.EventService)
 -- Packages
 local Zap = require(Services.Parent.zap)
 
 local InputService = {}
-
-local allowActions = true
+local Players = {} :: {
+	allowActions: boolean,
+	skipTurnSelected: boolean,
+}
 
 -- A list of disallowed actions during an attack animation
 local DisallowedActionsDuringAttack = {
@@ -31,12 +32,10 @@ local AllowedInputsOutsideOfTurn = {
 	"Ultimate3",
 }
 
-local skipTurnSelected = false
-
 -- Helper function to check if an action is allowed based on the current state
-local function isActionAllowed(actionName: string): boolean
+local function isActionAllowed(player: _TYPES.RobloxPlayerType, actionName: string): boolean
 	-- If the player is in the middle of an attack, only allow certain actions
-	if allowActions then
+	if Players[player].allowActions then
 		return true
 	end
 
@@ -58,11 +57,24 @@ end
 
 --- Called when the service starts
 function InputService.OnStart()
+	-- Reset isActionAllowed on spawn
+	EventService.Events.SpawnFinished:Connect(function(spawnData)
+		local player = spawnData.player
+		if not Players[player] then
+			Players[player] = {
+				allowActions = true,
+				skipTurnSelected = false,
+			}
+		end
+
+		InputService.ToggleActionsAvailability(player, true)
+	end)
+
 	-- Listen to input sent event from the client
 	Zap.InputSent.On(function(player, inputData)
 		-- Check if the action is allowed
 		local action = inputData.action
-		if not isActionAllowed(action) then
+		if not isActionAllowed(player :: _TYPES.RobloxPlayerType, action) then
 			warn("Action", action, "is not allowed at this time.")
 			return
 		end
@@ -70,15 +82,15 @@ function InputService.OnStart()
 		-- Handle the SkipTurn action separately
 		-- Only confirm the skip action if it has already been selected once
 		if action == "SkipTurn" then
-			if not skipTurnSelected then
-				skipTurnSelected = true
+			if not Players[player].skipTurnSelected then
+				Players[player].skipTurnSelected = true
 				return
 			end
 
 			-- Call the TurnService to skip the turn
 			TurnService.SkipTurn(player :: _TYPES.RobloxPlayerType)
 
-			skipTurnSelected = false
+			Players[player].skipTurnSelected = false
 			return
 		end
 		-- Get the character from the input data
@@ -105,14 +117,14 @@ function InputService.OnStart()
 		end
 
 		-- If one other action has succeeded, reset the skipTurnSelected flag to false
-		skipTurnSelected = false
+		Players[player].skipTurnSelected = false
 	end)
 end
 
 --- Disables actions for the player
 --- @param shouldEnable -- Whether to enable or disable actions
-function InputService.ToggleActionsAvailability(shouldEnable: boolean)
-	allowActions = shouldEnable
+function InputService.ToggleActionsAvailability(player: _TYPES.RobloxPlayerType, shouldEnable: boolean)
+	Players[player].allowActions = shouldEnable
 end
 
 return InputService

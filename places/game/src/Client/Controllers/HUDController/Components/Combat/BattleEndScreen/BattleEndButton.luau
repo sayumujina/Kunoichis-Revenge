@@ -1,6 +1,13 @@
+local rep = game:GetService("ReplicatedStorage")
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local SpawnController = require(StarterPlayerScripts.Client.Controllers.SpawnController)
+-- Components
+local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
+-- Services
+local TeleportService = game:GetService("TeleportService")
+-- Packages
+local Zap = require(StarterPlayerScripts.Client.zap)
 
 local RESTART_BUTTON_BG_COLOR = Color3.fromRGB(255, 255, 255)
 local RESTART_BUTTON_TEXT_COLOR = Color3.fromRGB(0, 0, 0)
@@ -25,7 +32,11 @@ return function(buttonName: "Restart" | "Return")
 		if buttonName == "Restart" then
 			SpawnController.Restart()
 		elseif buttonName == "Return" then
-			-- require(game:GetService("StarterPlayer").StarterPlayerScripts.Client.Controllers.HUDController).ReturnToMainMenu()
+			local blackScreenGui, forwardTween = CreateBlackScreen(0.6, nil, 0, function() end, nil, true)
+			forwardTween.Completed:Once(function()
+				TeleportService:SetTeleportGui(blackScreenGui)
+				Zap.RequestReturnToMenu.Fire()
+			end)
 		end
 	end)
 

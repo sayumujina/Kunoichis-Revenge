@@ -2,13 +2,18 @@ local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
 -- Services
 local Server = game:GetService("ServerScriptService").Server
+local Services = Server.Services
 local TeleportService = game:GetService("TeleportService")
-local TweenService = game:GetService("TweenService")
-local SpawnService = require(Server.Services.SpawnService)
+local SpawnService = require(Services.SpawnService)
 -- Modules
 local Loader = require(rep.Modules.GlobalModules.Loader)
+-- Packages
+local Zap = require(Services.Parent.zap)
 -- Contants
-local DEFAULT_SPAWN_CHARACTERS = { "Tsuyoka", "Hayumi", "Setsuna" }
+local MENU_PLACE_ID = 87694110914637
+local DEFAULT_SPAWN_CHARACTERS = { "Rin", "Hayumi", "Setsuna" }
+local DEFAULT_STAGE_ID = "1-3"
+local DEFAULT_WORLD_ID = "World1"
 
 -- Disable character autoload
 game.Players.CharacterAutoLoads = false
@@ -43,8 +48,20 @@ game.Players.PlayerAdded:Connect(function(player)
 
 	task.defer(function()
 		task.delay(2, function()
-			-- SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, tpData.chars, tpData.stageId, tpData.worldId)
-			SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, DEFAULT_SPAWN_CHARACTERS, "1-3", "World1")
+			local charsToSpawn = if tpData and tpData.chars then tpData.chars else DEFAULT_SPAWN_CHARACTERS
+			local stageId = if tpData and tpData.stageId then tpData.stageId else DEFAULT_STAGE_ID
+			local worldId = if tpData and tpData.worldId then tpData.worldId else DEFAULT_WORLD_ID
+			SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, charsToSpawn, stageId, worldId)
 		end)
 	end)
+end)
+
+-- Listens to request to return to menu
+Zap.RequestReturnToMenu.On(function(player)
+	local code = TeleportService:ReserveServer(MENU_PLACE_ID)
+	local tpOptions = Instance.new("TeleportOptions")
+	tpOptions.ReservedServerAccessCode = code
+	tpOptions:SetTeleportData({})
+
+	TeleportService:TeleportAsync(MENU_PLACE_ID, { player }, tpOptions)
 end)

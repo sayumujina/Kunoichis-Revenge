@@ -222,7 +222,7 @@ return function(chars: { Name: string, Level: number?, Owned: boolean })
 			return
 		end
 
-		local blackScreenGui, forwardTween = CreateBlackScreen(0.6, 0.4, function() end, nil, true)
+		local blackScreenGui, forwardTween = CreateBlackScreen(0.6, nil, 0.4, function() end, nil, true)
 
 		forwardTween.Completed:Once(function()
 			TeleportService:SetTeleportGui(blackScreenGui)

@@ -14,6 +14,8 @@ local Zap = require(Services.Parent.zap)
 local StagesData = require(rep.Data.data_Stages)
 -- Constants
 local DEFAULT_SPAWN_CHARACTERS = { "Tsuyoka", "Hayumi", "Setsuna" }
+local DEFAULT_STAGE_ID = "1-3"
+local DEFAULT_WORLD_ID = "World1"
 
 --- @class SpawnService
 --- @server
@@ -233,7 +235,9 @@ function SpawnService.Despawn(player: _TYPES.RobloxPlayerType, isRestart: boolea
 			}?
 
 			local charsToSpawn = if tpData and tpData.chars then tpData.chars else DEFAULT_SPAWN_CHARACTERS
-			SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, charsToSpawn, "1-3", "World1")
+			local stageId = if tpData and tpData.stageId then tpData.stageId else DEFAULT_STAGE_ID
+			local worldId = if tpData and tpData.worldId then tpData.worldId else DEFAULT_WORLD_ID
+			SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, charsToSpawn, stageId, worldId)
 		end)
 	end
 end

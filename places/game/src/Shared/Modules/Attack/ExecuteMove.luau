@@ -26,7 +26,7 @@ local Zap = require(Services.Parent.zap)
 local function resetAttackingState(player: _TYPES.RobloxPlayerType, enableInput: boolean?)
 	-- Re-enable input availability for actions after the attack animation is complete
 	if enableInput then
-		InputService.ToggleActionsAvailability(true)
+		InputService.ToggleActionsAvailability(player, true)
 		-- Send the allow detailed combat info toggle event to the client to enable the detailed combat info menu toggle during the attack animation
 		Zap.AllowCombatInfoMenuToggle.Fire(player :: _TYPES.RobloxPlayerType, {
 			allowed = true,
@@ -52,7 +52,7 @@ local function ExecuteMove(
 	local player = PlayerService.GetPlayerFromCharacter(char)
 
 	-- Turn off input availability for actions during the attack animation
-	InputService.ToggleActionsAvailability(false)
+	InputService.ToggleActionsAvailability(player :: _TYPES.RobloxPlayerType, false)
 	-- Mark the attack as being processed
 	CombatService.SetAttackingState(player :: _TYPES.RobloxPlayerType, true)
 	-- Send the allow detailed combat info toggle event to the client to disable the detailed combat info menu toggle during the attack animation
