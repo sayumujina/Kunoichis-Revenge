@@ -34,13 +34,5 @@ Zap.RequestSpawn.On(function(player, spawnData)
 		worldId = spawnData.worldId :: string,
 	})
 
-	warn(
-		"Teleporting player",
-		player.Name,
-		"to game place with stageId:",
-		spawnData.stageId,
-		"and worldId:",
-		spawnData.worldId
-	)
 	TeleportService:TeleportAsync(GAME_PLACE_ID, { player }, tpOptions)
 end)

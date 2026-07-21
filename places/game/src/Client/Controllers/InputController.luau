@@ -6,20 +6,24 @@ local Utility = require(game:GetService("ReplicatedStorage").Shared.Modules.Util
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local Controllers = StarterPlayerScripts.Client.Controllers
-local HUDController = require(Controllers.HUDController)
-local CombatController = require(Controllers.CombatController)
 -- HUD Components
 local Components = Controllers.HUDController.Components
 local DetailedCombatInfoScrollingFrame = require(Components.Combat.DetailedCombatInfo.DetailedCombatInfo_ScrollingFrame)
 local DetailedCombatInfoCharacterSelection =
 	require(Components.Combat.DetailedCombatInfo.DetailedCombatInfo_CharacterSelection)
---
+-- Packages
 local Zap = require(game.StarterPlayer.StarterPlayerScripts.Client.zap)
+local Signal = require(game:GetService("ReplicatedStorage").Packages.Signal)
 
 --- @class InputController
 --- @server
 --- @tag Client
 local InputController = {}
+
+--- @interface InputController
+--- @within InputController
+--- @field ToggleHUDVisibility Signal -- Fires when requesting to toggle the HUD visibility, with the gui name and whether to show or hide it
+InputController.ToggleHUDVisibility = Signal.new() :: Signal.Signal<{ guiName: string, show: boolean }>
 
 local InputToActions = {
 	-- Enemy selection
@@ -35,8 +39,6 @@ local InputToActions = {
 	[Enum.KeyCode.Z] = "SkipTurn",
 	-- Open detailed combat info menu
 	[Enum.KeyCode.C] = "OpenDetailedCombatInfo",
-	-- Restart
-	[Enum.KeyCode.R] = "Restart",
 } :: { [Enum.KeyCode | Enum.UserInputType]: string }
 
 local detailedCombatInfoOpened = false
@@ -47,27 +49,33 @@ local isInputAllowed = true
 function InputController.OnStart()
 	-- Listens to input disallowed event to disable input processing
 	Zap.ToggleInputAllowance.On(function(data)
-		isInputAllowed = data.allowed
+		InputController.ToggleInputAllowance(data.allowed)
 	end)
 
 	-- Listens to casting ultimate event to disable input processing
 	Zap.CastedUltimate.On(function(data)
 		warn("Casting ultimate, disabling input for " .. data.data.flashDuration .. " seconds")
-		isInputAllowed = false
+		InputController.ToggleInputAllowance(false)
 		task.delay(data.data.flashDuration, function()
-			isInputAllowed = true
+			InputController.ToggleInputAllowance(true)
 		end)
 	end)
 
 	-- Listen to combat info menu toggle event to allow or disallow opening the detailed combat info menu
 	Zap.AllowCombatInfoMenuToggle.On(function(data)
-		allowDetailedCombatInfoToggle = data.allowed
+		InputController.ToggleDetailedCombatInfoAllowance(data.allowed)
 	end)
 
 	-- Listens to spawn finished event to start allowing input processing
 	Zap.SpawnFinished.On(function()
-		isInputAllowed = true
-		allowDetailedCombatInfoToggle = true
+		InputController.ToggleInputAllowance(true)
+		InputController.ToggleDetailedCombatInfoAllowance(true)
+	end)
+
+	-- Disable all input upon battle completed/ failed
+	Zap.BattleEnded.On(function()
+		InputController.ToggleInputAllowance(false)
+		InputController.ToggleDetailedCombatInfoAllowance(false)
 	end)
 
 	-- Listen to input began event
@@ -83,14 +91,6 @@ function InputController.OnStart()
 			return
 		end
 
-		if actionName == "Restart" then
-			-- Disable input processing
-			isInputAllowed = false
-			allowDetailedCombatInfoToggle = false
-			Zap.RestartRequested.Fire()
-			return
-		end
-
 		-- If the action is opening the detailed combat info menu, we don't need to send it to the server
 		if actionName == "OpenDetailedCombatInfo" and allowDetailedCombatInfoToggle then
 			-- Toggle the detailed combat info menu flag
@@ -98,17 +98,26 @@ function InputController.OnStart()
 
 			if detailedCombatInfoOpened then
 				-- Toggle the detailed combat info menu visibility
-				HUDController.ToggleScreenGuiVisibility("Combat_ScreenGui", not detailedCombatInfoOpened)
-				HUDController.ToggleScreenGuiVisibility("DetailedCombatInfo_ScreenGui", detailedCombatInfoOpened)
+				InputController.ToggleHUDVisibility:Fire({
+					guiName = "Combat_ScreenGui",
+					show = not detailedCombatInfoOpened,
+				})
+				InputController.ToggleHUDVisibility:Fire({
+					guiName = "DetailedCombatInfo_ScreenGui",
+					show = detailedCombatInfoOpened,
+				})
 				DetailedCombatInfoScrollingFrame.ShowCharDetailedCombat(player.ActiveCharacter.Value)
 			else
 				-- Toggle the detailed combat info menu visibility
-				HUDController.ToggleScreenGuiVisibility("Combat_ScreenGui", not detailedCombatInfoOpened)
-				HUDController.ToggleScreenGuiVisibility("DetailedCombatInfo_ScreenGui", detailedCombatInfoOpened)
+				InputController.ToggleHUDVisibility:Fire({
+					guiName = "Combat_ScreenGui",
+					show = not detailedCombatInfoOpened,
+				})
+				InputController.ToggleHUDVisibility:Fire({
+					guiName = "DetailedCombatInfo_ScreenGui",
+					show = detailedCombatInfoOpened,
+				})
 				DetailedCombatInfoCharacterSelection.ResetSelectedLayoutOrder()
-
-				-- Reload the move preview data when closing the detailed combat info menu
-				CombatController.ReloadPreviewData()
 			end
 			return
 		elseif actionName == "PreviousTarget" or actionName == "NextTarget" then
@@ -142,6 +151,18 @@ function InputController.OnStart()
 
 		Zap.InputSent.Fire({ origin = origin, action = actionName })
 	end)
+end
+
+--- Toggles the input allowance for the player
+--- @param allowed -- Whether input is allowed or not
+function InputController.ToggleInputAllowance(allowed: boolean)
+	isInputAllowed = allowed
+end
+
+--- Toggles the allowance for opening the detailed combat info menu
+--- @param allowed -- Whether opening the detailed combat info menu is allowed or not
+function InputController.ToggleDetailedCombatInfoAllowance(allowed: boolean)
+	allowDetailedCombatInfoToggle = allowed
 end
 
 return InputController

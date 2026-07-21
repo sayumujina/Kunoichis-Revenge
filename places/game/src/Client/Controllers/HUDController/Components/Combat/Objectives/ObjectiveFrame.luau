@@ -8,19 +8,24 @@ local Tween = game:GetService("TweenService")
 
 --- Creates a frame that contains all the objective cards
 --- @param objectives -- A table of objectives, each containing a name, description, and passed state
-local function createObjectiveFrame(objectives: {
-	{
-		id: string,
-		description: string,
-		passed: boolean,
+local function createObjectiveFrame(
+	size: UDim2,
+	position: UDim2,
+	transparency: number,
+	objectives: {
+		{
+			id: string,
+			description: string,
+			passed: boolean,
+		}
 	}
-})
+)
 	local objectivesFrame = Instance.new("Frame")
 	objectivesFrame.Name = "UI_ObjectivesFrame"
 	objectivesFrame.BackgroundColor3 = Color3.new()
-	objectivesFrame.BackgroundTransparency = 0.7
-	objectivesFrame.Position = UDim2.fromScale(0.75, 0.25)
-	objectivesFrame.Size = UDim2.fromScale(0.25, 0.2)
+	objectivesFrame.BackgroundTransparency = transparency
+	objectivesFrame.Position = position
+	objectivesFrame.Size = size
 	objectivesFrame.Position = HIDDEN_POSITION
 
 	local uIListLayout = Instance.new("UIListLayout")

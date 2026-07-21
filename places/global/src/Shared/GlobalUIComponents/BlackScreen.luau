@@ -23,12 +23,23 @@ return function(
 	blackFrame.ZIndex = 100
 	blackFrame.Parent = screenGui
 
-	-- Tween the black frame to fade in
+	-- Create a tween to fade in the black frame
 	local tweenInfo = TweenInfo.new(fadeInDur, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 	local forwardTween = TweenService:Create(blackFrame, tweenInfo, { BackgroundTransparency = 0 })
-	warn("Tweening black frame to fade in with duration:", fadeInDur, "and fade out with duration:", fadeOutDur)
-	forwardTween:Play()
 
+	-- Create a tween to fade out the black frame
+	local reverseTweenInfo = TweenInfo.new(fadeOutDur, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+	local reverseTween = TweenService:Create(blackFrame, reverseTweenInfo, { BackgroundTransparency = 1 })
+	reverseTween.Completed:Once(function()
+		if onFadeOutComplete then
+			onFadeOutComplete()
+		end
+		-- Remove the black frame after the fade-out is complete
+		screenGui:Destroy()
+	end)
+
+	-- Play the forward tween to fade in the black frame
+	forwardTween:Play()
 	forwardTween.Completed:Once(function()
 		if onFadeInComplete then
 			onFadeInComplete()
@@ -39,28 +50,14 @@ return function(
 			return
 		end
 
-		local function playReverseTween()
-			local reverseTweenInfo = TweenInfo.new(fadeOutDur, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-			local reverseTween = TweenService:Create(blackFrame, reverseTweenInfo, { BackgroundTransparency = 1 })
-			reverseTween:Play()
-
-			reverseTween.Completed:Once(function()
-				if onFadeOutComplete then
-					onFadeOutComplete()
-				end
-				-- Remove the black frame after the fade-out is complete
-				screenGui:Destroy()
-			end)
-		end
-
 		if fadeDelay then
 			task.delay(fadeDelay, function()
-				playReverseTween()
+				reverseTween:Play()
 			end)
 		else
-			playReverseTween()
+			reverseTween:Play()
 		end
 	end)
 
-	return screenGui, forwardTween
+	return screenGui, forwardTween, reverseTween
 end

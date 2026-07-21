@@ -11,16 +11,8 @@ local localPlayer = game:GetService("Players").LocalPlayer
 --- @tag Client
 local EffectsController = {}
 
-local allNPC: { _TYPES.Character }
-
 --- Called when the controller starts
-function EffectsController.OnStart()
-	-- Listen to spawn finished event
-	Zap.SpawnFinished.On(function()
-		-- Get all enemies
-		allNPC = workspace.Characters.NPC:GetChildren() :: { _TYPES.Character }
-	end)
-end
+function EffectsController.OnStart() end
 
 -- Helper function to toggle the highlight effect on selected enemies
 local function toggleHighlights(target: _TYPES.Character, enable: boolean)
@@ -58,8 +50,13 @@ end
 --- Disable selection mark effects on all targets
 function EffectsController.DisableAllSelectionMark()
 	-- Toggle selection mark for all enemies
-	for _, enemy in pairs(allNPC) do
+	for _, enemy in pairs(workspace.Characters.NPC:GetChildren()) do
 		toggleHighlights(enemy, false)
+	end
+
+	-- Toggle selection mark for all playable characters
+	for _, playable in pairs(workspace.Characters.Playable:GetChildren()) do
+		toggleHighlights(playable, false)
 	end
 end
 

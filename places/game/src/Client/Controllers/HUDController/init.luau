@@ -4,7 +4,7 @@ local rep = game.ReplicatedStorage
 local _TYPES = require(rep.Data.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
-local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraController)
+local InputController = require(StarterPlayerScripts.Client.Controllers.InputController)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Helpers
@@ -62,6 +62,7 @@ local Components = {
 			ObjectiveFrame = require(ComponentsPath.Combat.Objectives.ObjectiveFrame),
 			ObjectiveCard = require(ComponentsPath.Combat.Objectives.ObjectiveCard),
 		},
+		BattleEndScreen = { CreateBattleEndScreen = require(ComponentsPath.Combat.BattleEndScreen.BattleEndScreen) },
 	},
 }
 
@@ -152,7 +153,6 @@ local function updateTurnCardsListLayout(turnCardsList: Instance)
 
 	-- Then place any post-attack extra actions immediately after the main turn card.
 	for index, extraActionCard in pairs(extraActionsAfterMainTurn) do
-		warn("Setting layout order for extra action card:", extraActionCard.Name, "to", mainTurnLayoutOrder + index)
 		extraActionCard.LayoutOrder = mainTurnLayoutOrder + index
 	end
 end
@@ -192,20 +192,27 @@ function HUDController.OnStart()
 				if objective.conditionType == "UsedActionValue" then
 					objectiveDesc = "Use less than " .. objective.value .. " action value"
 				elseif objective.conditionType == "DownedCharacters" then
-					objectiveDesc = "Have less than " .. objective.value .. " downed characters"
+					objectiveDesc = "Less than " .. objective.value .. " characters downed"
 				end
 				table.insert(objectives, { description = objectiveDesc, id = objectiveId, passed = true })
 			end
 		end
 
-		local objectivesFrame = Components.Combat.Objectives.ObjectiveFrame.CreateObjectiveFrame(objectives)
+		local OBJECTIVE_FRAME_SIZE = UDim2.fromScale(0.25, 0.2)
+		local OBJECTIVE_FRAME_POS = UDim2.fromScale(0.75, 0.25)
+		local OBJECTIVE_FRAME_TRANSPARENCY = 0.7
+		local objectivesFrame = Components.Combat.Objectives.ObjectiveFrame.CreateObjectiveFrame(
+			OBJECTIVE_FRAME_SIZE,
+			OBJECTIVE_FRAME_POS,
+			OBJECTIVE_FRAME_TRANSPARENCY,
+			objectives
+		)
 		objectivesFrame.Parent = playerGui:FindFirstChild("Combat_ScreenGui", true)
 
 		-- Show the objectives frame for a few seconds before hiding it
 		local toggle = Components.Combat.Objectives.ObjectiveFrame.ToggleObjectiveFrame
 		toggle(true)
 		task.delay(2, function()
-			warn("Hiding objectives frame after 2 seconds")
 			toggle(false)
 		end)
 	end)
@@ -607,7 +614,6 @@ function HUDController.OnStart()
 
 	-- Listens to the status removed event
 	Zap.StatusRemoved.On(function(statusRemovedEvent)
-		warn("Status removed for character:", statusRemovedEvent.char, "Status ID:", statusRemovedEvent.data.id)
 		Components.Combat.DetailedCombatInfo.StatusListFrame.RemoveStatusFromList(
 			statusRemovedEvent.char :: _TYPES.Character,
 			statusRemovedEvent.data.id
@@ -656,12 +662,10 @@ function HUDController.OnStart()
 
 		-- Mark the objective as failed and show the objective frame
 		obj.ObjectiveCard.ChangeObjectiveCardState(objectiveFailedEvent.objectiveId, false)
-		warn("Showing objective frame for failed objective:", objectiveFailedEvent.objectiveId)
 		obj.ObjectiveFrame.ToggleObjectiveFrame(true)
 
 		-- Hide again after 3 seconds
 		task.delay(3, function()
-			warn("Hiding objective frame after 3 seconds")
 			obj.ObjectiveFrame.ToggleObjectiveFrame(false)
 		end)
 	end)
@@ -675,16 +679,56 @@ function HUDController.OnStart()
 		for _, child in pairs(playerGui:QueryDescendants("Frame")) do
 			child:Destroy()
 		end
+
+		for _, child in pairs(playerGui:QueryDescendants("ScrollingFrame")) do
+			child:Destroy()
+		end
 	end)
 
 	-- Listens to restart successful events to initialize the HUD for the player
 	Zap.RestartSuccessful.On(function()
 		-- Create a black screen
-		CreateBlackScreen(0.6, 2.6, 0.4, function() end)
+		local _, _, reverseTween = CreateBlackScreen(0.6, nil, 0.4, nil, nil, true)
 		-- Re-initialize the HUD for the player
 		task.delay(1, function()
 			HUDController.Init()
 		end)
+
+		-- Clear the black screen after spawn is finished
+		local spawnFinishedConnection
+		spawnFinishedConnection = Zap.SpawnFinished.On(function()
+			reverseTween:Play()
+
+			-- Disconnect the spawn finished connection once spawn is finished
+			if spawnFinishedConnection then
+				spawnFinishedConnection()
+				spawnFinishedConnection = nil :: any
+			end
+		end)
+	end)
+
+	-- Listens to battle complete events to show the victory screen
+	Zap.BattleEnded.On(function(battleEndedEvent)
+		-- Delay the creation of the victory screen
+		task.delay(1, function()
+			local battleEndScreen = Components.Combat.BattleEndScreen.CreateBattleEndScreen(
+				battleEndedEvent.passed,
+				battleEndedEvent.successfulExtraObjectives and #battleEndedEvent.successfulExtraObjectives or 0
+			)
+
+			-- Parent the victory screen to the player's GUI
+			local battleEndScreenGui = playerGui:FindFirstChild("BattleEnd_ScreenGui")
+			if battleEndScreenGui then
+				battleEndScreen.Parent = battleEndScreenGui
+				battleEndScreenGui.Enabled = true
+			else
+				warn("BattleEnd_ScreenGui not found in PlayerGui")
+			end
+		end)
+	end)
+
+	InputController.ToggleHUDVisibility:Connect(function(event)
+		HUDController.ToggleScreenGuiVisibility(event.guiName, event.show)
 	end)
 end
 
@@ -776,6 +820,18 @@ function HUDController.Init()
 			Components.Combat.DetailedCombatInfo.CharacterSelection.SwitchCharButton("CurrentChar")
 		end)
 	end
+
+	-- Create a detailed combat info screen gui for the player if it doesn't exist
+	if not playerGui:FindFirstChild("BattleEnd_ScreenGui", true) then
+		local hud = Instance.new("ScreenGui")
+		hud.Name = "BattleEnd_ScreenGui"
+		hud.Parent = playerGui
+		hud.IgnoreGuiInset = true
+		hud.DisplayOrder = 100
+
+		-- Turn it off by default
+		hud.Enabled = false
+	end
 end
 
 --- Updates the mana preview in the HUD
@@ -793,6 +849,7 @@ function HUDController.UpdateManaPreview(previewValue: number)
 	if currentManaLabel and currentManaLabel:IsA("TextLabel") then
 		local sign = previewValue >= 0 and "+" or "-"
 		currentManaLabel.Text = sign .. tostring(math.floor(math.abs(previewValue)))
+		currentManaLabel.TextColor3 = previewValue >= 0 and Color3.fromRGB(2, 175, 255) or Color3.fromRGB(255, 0, 0)
 	end
 end
 

@@ -12,6 +12,8 @@ local Utility = require(rep.Shared.Modules.Utility)
 local Zap = require(Services.Parent.zap)
 -- Data
 local StagesData = require(rep.Data.data_Stages)
+-- Constants
+local DEFAULT_SPAWN_CHARACTERS = { "Tsuyoka", "Hayumi", "Setsuna" }
 
 --- @class SpawnService
 --- @server
@@ -41,13 +43,8 @@ function SpawnService.OnStart()
 	end)
 end
 
-function SpawnService.Spawn(
-	player: _TYPES.RobloxPlayerType,
-	chars: { _TYPES.Character },
-	stageId: string,
-	worldId: string
-)
-	local playables = chars :: { _TYPES.Character }
+function SpawnService.Spawn(player: _TYPES.RobloxPlayerType, chars: { string }, stageId: string, worldId: string)
+	local playables = chars :: { string }
 	warn(StagesData[worldId].stages)
 	local npcs = StagesData[worldId].stages[stageId].enemies :: { string }
 
@@ -221,16 +218,24 @@ function SpawnService.Despawn(player: _TYPES.RobloxPlayerType, isRestart: boolea
 		player = player,
 	})
 
-	-- Fire the Restart event if this despawn is due to a restart
+	-- If this despawn is due to a restart, respawn the player after a short delay
 	if isRestart then
 		EventService.Events.RestartSuccessful:Fire({
 			player = player,
 		})
-	end
 
-	task.delay(3, function()
-		SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, { "Hayumi", "Tsuyoka", "Setsuna" }, "1-3", "World1")
-	end)
+		local RESPAWN_DELAY = 3 -- seconds
+		task.delay(RESPAWN_DELAY, function()
+			local tpData = player:GetJoinData().TeleportData :: {
+				chars: { string },
+				stageId: string,
+				worldId: string,
+			}?
+
+			local charsToSpawn = if tpData and tpData.chars then tpData.chars else DEFAULT_SPAWN_CHARACTERS
+			SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, charsToSpawn, "1-3", "World1")
+		end)
+	end
 end
 
 return SpawnService

@@ -18,6 +18,6 @@ return function(data, char: _TYPES.Character, target: _TYPES.Character, moveName
 	-- Fire the shield provided event
 	EventService.Events.ShieldProvided:Fire({
 		origin = char,
-		data = { target = target, shieldAmount = newShieldValue },
+		data = { target = target, shieldAmount = shieldAmount },
 	})
 end

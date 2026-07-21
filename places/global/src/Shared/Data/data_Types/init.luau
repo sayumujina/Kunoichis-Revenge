@@ -22,7 +22,7 @@ export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
 -- Combat data types
 export type CharacterCombatData = CharacterCombatDataTypes.CharacterCombatData
 export type CombatCharData<I> = CharacterCombatDataTypes.CombatCharData<I>
-export type NPCCombatData = CharacterCombatDataTypes.NPCCombatData
+export type NPCServerCharData<I> = CharacterCombatDataTypes.NPCServerCharData<I>
 export type PlayerCombatData = PlayerCombatDataTypes.PlayerCombatData
 export type Sides = SidesTypes.Sides
 export type MoveType = MoveTypes.MoveType

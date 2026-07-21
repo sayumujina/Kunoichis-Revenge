@@ -188,7 +188,7 @@ function CameraController.LookAtTheirSide(origin: _TYPES.Character)
 	local middleIndex = math.ceil(numberOfTargets / 2)
 	local middleTarget
 	for _, target in pairs(folder:GetChildren()) do
-		if target:GetAttribute("Index") == middleIndex then
+		if target:GetAttribute("Index") == middleIndex or target:GetAttribute("originalIndex") == middleIndex then
 			middleTarget = target
 			break
 		end

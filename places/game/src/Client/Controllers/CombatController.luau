@@ -4,6 +4,7 @@ local _TYPES = require(rep.Data.data_Types)
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local EffectsController = require(StarterPlayerScripts.Client.Controllers.EffectsController)
 local HUDController = require(StarterPlayerScripts.Client.Controllers.HUDController)
+local InputController = require(StarterPlayerScripts.Client.Controllers.InputController)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Player
@@ -149,6 +150,12 @@ function CombatController.OnStart()
 				CombatData[localPlayer].trove:Destroy()
 			end
 			CombatData[localPlayer] = nil
+		end
+	end)
+
+	InputController.ToggleHUDVisibility:Connect(function(event)
+		if event.guiName == "DetailedCombatInfo_ScreenGui" and not event.show then
+			CombatController.ReloadPreviewData()
 		end
 	end)
 end

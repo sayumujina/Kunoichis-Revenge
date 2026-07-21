@@ -59,6 +59,16 @@ function Tsuyoka_CombatService.Init(char: _TYPES.Character)
 		end
 	end)
 
+	-- Clean up when the character is downed
+	EventService.Events.Death:Connect(function(deathData)
+		if deathData.char :: any == char then
+			if Chars[char] then
+				Chars[char].Trove:Destroy()
+				Chars[char] = nil
+			end
+		end
+	end)
+
 	-- Listens to the turn started event to reset the selected move to the default
 	EventService.Events.TurnStarted:Connect(function(turnData)
 		if turnData.data.char :: any == char then

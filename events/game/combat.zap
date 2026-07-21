@@ -217,3 +217,15 @@ event ObjectiveFailed = {
 		objectiveId: string.binary,
 	},
 }
+
+event BattleEnded= {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		passed: boolean,
+		stageId: string.binary,
+		worldId: string.binary,
+		successfulExtraObjectives: string.binary[]?,
+	}
+}

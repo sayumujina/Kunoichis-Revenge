@@ -1,13 +1,17 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
+local _TYPES_CHAR = require(rep.Data.Characters.NPC.MockEnemy.data_MockEnemy_Types)
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
 local TurnService = require(Services.TurnService)
 local PlayerService = require(Services.PlayerService)
 local CombatService = require(Services.CombatService)
+local EventService = require(Services.EventService)
 -- Utilities
 local DeterminePrimaryTargetIndex = require(rep.Shared.Modules.Attack.Utility.DeterminePrimaryTargetIndex)
+-- Packages
+local Trove = require(rep.Packages.Trove)
 
 -- Data
 local AttackPattern = require(rep.Data.Characters.NPC.MockEnemy.data_MockEnemy_AttackPattern)
@@ -20,7 +24,7 @@ local Handlers = {
 } :: { [string]: (_TYPES.Character) -> boolean }
 
 local charName = "MockEnemy"
-local Chars = {} :: { [_TYPES.Character]: { _TYPES.NPCCombatData } }
+local Chars = {} :: { [_TYPES.Character]: _TYPES_CHAR.NPCServerCharData }
 
 local MockEnemy_CombatService = {}
 
@@ -30,7 +34,11 @@ function MockEnemy_CombatService.Init(char: _TYPES.Character)
 	-- Initialize the character's combat data if it doesn't exist
 	if not Chars[char] then
 		Chars[char] = {
-			currentPatternIndex = 1,
+			CurrentPatternIndex = 1,
+			Info = {
+				selectedMove = "BasicAttack",
+			},
+			Trove = Trove.new() :: any,
 		}
 	end
 
@@ -38,6 +46,16 @@ function MockEnemy_CombatService.Init(char: _TYPES.Character)
 	char.Destroying:Connect(function()
 		if Chars[char] then
 			Chars[char] = nil
+		end
+	end)
+
+	-- Clean up when the character is downed
+	EventService.Events.Death:Connect(function(deathData)
+		if deathData.char :: any == char then
+			if Chars[char] then
+				Chars[char].Trove:Destroy()
+				Chars[char] = nil
+			end
 		end
 	end)
 end
@@ -54,7 +72,7 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 	end
 
 	-- Use the attack pattern module to determine which attack to execute based on the current action
-	local currentPatternIndex = Chars[char].currentPatternIndex
+	local currentPatternIndex = Chars[char].CurrentPatternIndex
 	if not currentPatternIndex then
 		return false
 	end
@@ -83,9 +101,9 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 
 	-- Loop back to the start of the attack pattern if we've reached the end
 	if currentPatternIndex + 1 >= #AttackPattern then
-		Chars[char].currentPatternIndex = 1
+		Chars[char].CurrentPatternIndex = 1
 	else
-		Chars[char].currentPatternIndex += 1
+		Chars[char].CurrentPatternIndex += 1
 	end
 
 	return false

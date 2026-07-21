@@ -1,5 +1,6 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
+local _TYPES_CHAR = require(rep.Data.Characters.NPC.Red_MockEnemy.data_Red_MockEnemy_Types)
 -- Services
 local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Server.Services
@@ -10,6 +11,8 @@ local StatusService = require(Services.StatusService)
 local CombatService = require(Services.CombatService)
 -- Utilities
 local DeterminePrimaryTargetIndex = require(rep.Shared.Modules.Attack.Utility.DeterminePrimaryTargetIndex)
+-- Packages
+local Trove = require(rep.Packages.Trove)
 
 -- Data
 local AttackPattern = require(rep.Data.Characters.NPC.Red_MockEnemy.data_Red_MockEnemy_AttackPattern)
@@ -23,7 +26,7 @@ local Handlers = {
 } :: { [string]: (_TYPES.Character) -> boolean }
 
 local charName = "Red_MockEnemy"
-local Chars = {} :: { [_TYPES.Character]: { _TYPES.NPCCombatData } }
+local Chars = {} :: { [_TYPES.Character]: _TYPES_CHAR.NPCServerCharData }
 
 -- Toughened status
 local toughenedStatus = {
@@ -124,7 +127,12 @@ function Red_MockEnemy_CombatService.Init(char: _TYPES.Character)
 	-- Initialize combat data for the character if it doesn't exist already
 	if not Chars[char] then
 		Chars[char] = {
-			currentPatternIndex = 1,
+			CurrentPatternIndex = 1,
+			--
+			Info = {
+				selectedMove = "BasicAttack",
+			},
+			Trove = Trove.new() :: any,
 		}
 	end
 
@@ -132,6 +140,16 @@ function Red_MockEnemy_CombatService.Init(char: _TYPES.Character)
 	char.Destroying:Connect(function()
 		if Chars[char] then
 			Chars[char] = nil
+		end
+	end)
+
+	-- Clean up when the character is downed
+	EventService.Events.Death:Connect(function(deathData)
+		if deathData.char :: any == char then
+			if Chars[char] then
+				Chars[char].Trove:Destroy()
+				Chars[char] = nil
+			end
 		end
 	end)
 end
@@ -148,7 +166,7 @@ function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Characte
 	end
 
 	-- Use the attack pattern module to determine which attack to execute based on the current action
-	local currentPatternIndex = Chars[char].currentPatternIndex
+	local currentPatternIndex = Chars[char].CurrentPatternIndex
 	if not currentPatternIndex then
 		return false
 	end
@@ -177,9 +195,9 @@ function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Characte
 
 	-- Loop back to the start of the attack pattern if we've reached the end
 	if currentPatternIndex + 1 >= #AttackPattern then
-		Chars[char].currentPatternIndex = 1
+		Chars[char].CurrentPatternIndex = 1
 	else
-		Chars[char].currentPatternIndex += 1
+		Chars[char].CurrentPatternIndex += 1
 	end
 
 	return false

@@ -26,6 +26,7 @@ local CombatData: {
 		--
 		currentStageData: {
 			stageId: string,
+			worldId: string,
 			extraObjectives: { { objectiveInfo: _TYPES.ExtraObjective, failed: boolean } }?,
 		},
 		--
@@ -68,6 +69,7 @@ function CombatService.OnStart()
 			--
 			currentStageData = {
 				stageId = spawnData.data.stageData.stageId,
+				worldId = spawnData.data.stageData.worldId,
 				extraObjectives = objectives,
 			},
 			--
@@ -107,6 +109,11 @@ function CombatService.OnStart()
 			return
 		end
 
+		local combatData = CombatData[player]
+		if not combatData then
+			return
+		end
+
 		local deadCharIndex = deadChar:GetAttribute("Index")
 
 		-- If the dead character is the npc, simply destroy it
@@ -114,7 +121,7 @@ function CombatService.OnStart()
 			deadChar:Destroy()
 
 			-- Update the indexes of the remaining npcs
-			local list = CombatData[player].npcs
+			local list = combatData.npcs
 			local index = table.find(list, deadChar)
 			if index then
 				table.remove(list, index)
@@ -131,14 +138,14 @@ function CombatService.OnStart()
 			deadChar:SetAttribute("Downed", true)
 
 			-- Add 1 to the downed characters count for the player
-			CombatData[player].downedCharacters += 1
+			combatData.downedCharacters += 1
 
 			-- Check if the player has failed the downed characters objective
-			for _, objective in pairs(CombatData[player].currentStageData.extraObjectives or {}) do
+			for _, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
 				if objective.objectiveInfo.conditionType ~= "DownedCharacters" or objective.failed then
 					continue
 				end
-				if CombatData[player].downedCharacters > objective.objectiveInfo.value then
+				if combatData.downedCharacters > objective.objectiveInfo.value then
 					objective.failed = true
 
 					-- Fire the ObjectiveFailed event to notify the client that the player has failed the objective
@@ -158,6 +165,7 @@ function CombatService.OnStart()
 			local anim = AnimationService.Play(deadChar, "Downed")
 			if not anim then
 				warn("Failed to play downed animation for character: " .. deadChar.Name)
+				return
 			end
 
 			anim.Stopped:Connect(function()
@@ -168,25 +176,46 @@ function CombatService.OnStart()
 
 		-- If the dead character was the primary selected target, switch to the next target if that index is no longer there
 		if deadChar:GetAttribute("Side") == "NPC" then
-			if deadCharIndex > #CombatData[player].npcs then
+			if deadCharIndex > #combatData.npcs then
 				CombatService.SwitchToPreviousTarget(player, deadChar:GetAttribute("Side") :: _TYPES.Sides)
 			end
 		else
-			if deadCharIndex > #CombatData[player].playables then
+			if deadCharIndex > #combatData.playables then
 				CombatService.SwitchToPreviousTarget(player, deadChar:GetAttribute("Side") :: _TYPES.Sides)
 			end
 		end
 
 		-- If one side has no more characters, the stage is completed
-		if #CombatData[player].npcs == 0 or #CombatData[player].playables == 0 then
-			warn(
-				"Stage completed for player:",
-				player.Name,
-				"in stage:",
-				CombatData[player].currentStageData.stageId,
-				"with passed objectives:",
-				CombatData[player].currentStageData.extraObjectives
-			)
+		if #combatData.npcs == 0 then
+			-- Compile the successful extra objectives for the player
+			local successfulObjectives = {}
+			for _, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
+				if not objective.failed then
+					table.insert(successfulObjectives, objective.objectiveInfo.objectiveId)
+				end
+			end
+
+			-- Fire the BattleEnded event to notify the client that the player has completed the stage
+			EventService.Events.BattleEnded:Fire({
+				player = player,
+				data = {
+					passed = true,
+					stageId = combatData.currentStageData.stageId,
+					worldId = combatData.currentStageData.worldId,
+					successfulExtraObjectives = successfulObjectives,
+				},
+			})
+		elseif combatData.downedCharacters == #combatData.playables then
+			-- Fire the BattleEnded event to notify the client that the player has completed the stage
+			EventService.Events.BattleEnded:Fire({
+				player = player,
+				data = {
+					passed = false,
+					stageId = combatData.currentStageData.stageId,
+					worldId = combatData.currentStageData.worldId,
+					successfulExtraObjectives = nil,
+				},
+			})
 		end
 	end)
 
@@ -216,10 +245,24 @@ function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType, s
 		return
 	end
 
+	-- Collect all the available indexes
 	if side == "NPC" then
 		combatData.selectedNPCIndex = math.clamp(combatData.selectedNPCIndex - 1, 1, charsCount)
 	else
-		combatData.selectedPlayableIndex = math.clamp(combatData.selectedPlayableIndex - 1, 1, charsCount)
+		local availableIndexes = {}
+		for _, char in pairs(combatData.playables) do
+			if not char:GetAttribute("Downed") then
+				table.insert(availableIndexes, char:GetAttribute("Index"))
+			end
+		end
+
+		-- Do not switch target if it can't be found
+		local newIndex = math.clamp(combatData.selectedPlayableIndex - 1, 1, charsCount)
+		warn(availableIndexes, newIndex)
+		if not table.find(availableIndexes, newIndex) then
+			return
+		end
+		combatData.selectedPlayableIndex = newIndex
 	end
 end
 
@@ -240,7 +283,20 @@ function CombatService.SwitchToNextTarget(player: _TYPES.RobloxPlayerType, side:
 	if side == "NPC" then
 		combatData.selectedNPCIndex = math.clamp(combatData.selectedNPCIndex + 1, 1, charsCount)
 	else
-		combatData.selectedPlayableIndex = math.clamp(combatData.selectedPlayableIndex + 1, 1, charsCount)
+		local availableIndexes = {}
+		for _, char in pairs(combatData.playables) do
+			if not char:GetAttribute("Downed") then
+				table.insert(availableIndexes, char:GetAttribute("Index"))
+			end
+		end
+
+		-- Do not switch target if it can't be found
+		local newIndex = math.clamp(combatData.selectedPlayableIndex + 1, 1, charsCount)
+		warn(availableIndexes, newIndex)
+		if not table.find(availableIndexes, newIndex) then
+			return
+		end
+		combatData.selectedPlayableIndex = newIndex
 	end
 end
 

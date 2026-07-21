@@ -5,8 +5,10 @@ local Server = game:GetService("ServerScriptService").Server
 local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
 local SpawnService = require(Server.Services.SpawnService)
---
+-- Modules
 local Loader = require(rep.Modules.GlobalModules.Loader)
+-- Contants
+local DEFAULT_SPAWN_CHARACTERS = { "Tsuyoka", "Hayumi", "Setsuna" }
 
 -- Disable character autoload
 game.Players.CharacterAutoLoads = false
@@ -33,13 +35,16 @@ PhysicsService:CollisionGroupSetCollidable("Chars", "Chars", false)
 
 -- Listens to player adding event
 game.Players.PlayerAdded:Connect(function(player)
-	-- Spawn the player
-	local tpData = player:GetJoinData().TeleportData
+	local tpData = player:GetJoinData().TeleportData :: {
+		chars: { string },
+		stageId: string,
+		worldId: string,
+	}?
 
 	task.defer(function()
 		task.delay(2, function()
 			-- SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, tpData.chars, tpData.stageId, tpData.worldId)
-			SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, { "Hayumi", "Tsuyoka", "Setsuna" }, "1-3", "World1")
+			SpawnService.Spawn(player :: _TYPES.RobloxPlayerType, DEFAULT_SPAWN_CHARACTERS, "1-3", "World1")
 		end)
 	end)
 end)

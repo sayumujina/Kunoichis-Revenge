@@ -13,13 +13,11 @@ local function darkensAvatarImage(char: _TYPES.Character)
 		playerGui:FindFirstChild("UI_CharacterInfoFrame", true):FindFirstChild("CharacterInfo_Card_" .. char.Name)
 
 	if not characterInfoCard then
-		warn("Character info card not found for character: " .. char.Name)
 		return
 	end
 
 	local imageLabel = characterInfoCard:FindFirstChild("CharacterInfo_Avatar", true):FindFirstChild("ImageLabel")
 	if not imageLabel then
-		warn("ImageLabel not found for character: " .. char.Name)
 		return
 	end
 

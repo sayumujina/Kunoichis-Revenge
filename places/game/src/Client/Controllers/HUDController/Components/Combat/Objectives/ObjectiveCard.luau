@@ -58,7 +58,6 @@ end
 --- @param objectiveCard -- The objective card to change the state of
 --- @param passed -- Whether the objective card is passed
 local function changeObjectiveCardState(objectiveId: string, passed: boolean)
-	warn("Changing state of objective card with ID " .. objectiveId .. " to " .. tostring(passed))
 	local playerGui = game.Players.LocalPlayer.PlayerGui
 	local objectiveFrame = playerGui.Combat_ScreenGui:FindFirstChild("UI_ObjectivesFrame")
 	if not objectiveFrame then

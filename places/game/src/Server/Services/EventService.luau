@@ -281,6 +281,20 @@ export type RestartSuccessfulEvent = {
 	player: _TYPES.RobloxPlayerType,
 }
 
+--- @type BattleEndedEvent { player: _TYPES.RobloxPlayerType, data: { passed: boolean, worldId: string, stageId: string, successfulExtraObjectives: { string }? } }
+--- @within EventService
+--- Describes the event for when a battle ended.
+--- Contains the player associated with the ended battle and the data of the world and stage.
+export type BattleEndedEvent = {
+	player: _TYPES.RobloxPlayerType,
+	data: {
+		passed: boolean,
+		stageId: string,
+		worldId: string,
+		successfulExtraObjectives: { string }?,
+	},
+}
+
 --- @type Events { [string]: Signal.Signal<any> }
 --- @within EventService
 --- A collection of events that can be fired and listened to. Refer to the specific event types for more information.
@@ -309,6 +323,7 @@ EventService.Events = {
 	ObjectiveFailed = Signal.new() :: Signal.Signal<ObjectiveFailedEvent>,
 	DespawnSuccessful = Signal.new() :: Signal.Signal<DespawnSuccessfulEvent>,
 	RestartSuccessful = Signal.new() :: Signal.Signal<RestartSuccessfulEvent>,
+	BattleEnded = Signal.new() :: Signal.Signal<BattleEndedEvent>,
 }
 --- @type ClientBlacklist { string }
 --- @within EventService
@@ -330,6 +345,7 @@ EventService.PlayerScoped = {
 	"StatusRemoved",
 	"ObjectiveFailed",
 	"RestartSuccessful",
+	"BattleEnded",
 }
 
 --- Initializes the EventService by connecting all events to the Zap event for local players.

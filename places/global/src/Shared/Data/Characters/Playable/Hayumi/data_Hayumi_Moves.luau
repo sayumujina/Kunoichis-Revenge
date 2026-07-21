@@ -55,7 +55,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 		targetSelectionType = "Blast",
 		selectedSide = "NPC",
 		--
-		manaChange = 0,
+		manaChange = -30,
 		--
 		attacks = {
 			{

@@ -32,14 +32,17 @@ export type CharacterCombatData = {
 }
 
 --- @within data_TYPES
---- @type PlayerCombatData = CharacterCombatData & { player: CharacterTypes.RobloxPlayerType }
-export type NPCCombatData = CharacterCombatData & {
-	-- NPC specific combat data can be added here in the future
-	currentPatternIndex: number, -- The index of the current action the NPC is performing in its' action list. Resets after reaching the end of the list.
+--- @type NPCServerCharData<I> = { currentPatternIndex: number, Info: I, Trove: Trove.Trove & any }
+export type NPCServerCharData<I> = {
+	-- The index of the current action the NPC is performing in its' action list. Resets after reaching the end of the list.
+	CurrentPatternIndex: number,
+	--
+	Info: I,
+	Trove: Trove.Trove & any,
 }
 
 --- @within data_TYPES
---- @type ComabtCharData<I> = { Info: I }
+--- @type CombatCharData<I> = { Info: I }
 export type CombatCharData<I> = {
 	Info: I,
 	Trove: Trove.Trove & any,

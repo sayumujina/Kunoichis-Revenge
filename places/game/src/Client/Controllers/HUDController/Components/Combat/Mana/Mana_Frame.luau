@@ -28,13 +28,14 @@ return function()
 	local manaCount = Instance.new("TextLabel")
 	manaCount.Name = "Mana_Count"
 	manaCount.BackgroundTransparency = 1
-	manaCount.Position = UDim2.fromScale(0.36, 0.3)
-	manaCount.Size = UDim2.fromScale(0.4, 0.2)
+	manaCount.Position = UDim2.fromScale(0.36, 0.2)
+	manaCount.Size = UDim2.fromScale(0.4, 0.4)
+	manaCount.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	manaCount.Text = "80/100"
 	manaCount.TextColor3 = Color3.new(1, 1, 1)
 	manaCount.TextSize = 17
 	manaCount.TextStrokeColor3 = Color3.new(1, 1, 1)
-	manaCount.TextWrapped = true
+	manaCount.TextScaled = true
 	manaCount.Parent = manaFrame
 
 	local manaBar = Instance.new("Frame")
@@ -122,13 +123,13 @@ return function()
 	local manaPreview = Instance.new("TextLabel")
 	manaPreview.Name = "Mana_PreviewLabel"
 	manaPreview.BackgroundTransparency = 1
-	manaPreview.Position = UDim2.fromScale(0.26, 0.3)
-	manaPreview.Size = UDim2.fromScale(0.2, 0.2)
+	manaPreview.Position = UDim2.fromScale(0.17, 0.28)
+	manaPreview.Size = UDim2.fromScale(0.3, 0.3)
+	manaPreview.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	manaPreview.Text = "+15"
-	manaPreview.TextColor3 = Color3.new(1, 1, 1)
 	manaPreview.TextSize = 12
 	manaPreview.TextStrokeColor3 = Color3.new(1, 1, 1)
-	manaPreview.TextWrapped = true
+	manaPreview.TextScaled = true
 	manaPreview.Parent = manaFrame
 
 	return manaFrame
