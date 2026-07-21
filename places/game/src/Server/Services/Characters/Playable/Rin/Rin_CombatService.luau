@@ -101,15 +101,12 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 	elseif action:find("Ultimate") then
 		-- If the selected move is the ultimate again, execute it
 		if charData.Info.selectedMove == "VanguardsCall" then
-			warn("Executing ultimate for Rin:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
-			Handlers.VanguardsCall(char, charData)
-
 			-- Reset the queued ultimate ID after executing the ultimate
 			charData.Info.queuedUltimateId = nil
-
 			-- Reset the selected move to the default after executing the ultimate
 			charData.Info.selectedMove = "HiddenAssistance"
-			return true
+
+			return Handlers.VanguardsCall(char, charData)
 		end
 
 		-- Check if Rin can cast her ultimate before proceeding
@@ -150,6 +147,21 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 				flashDuration = flashDuration,
 			},
 		})
+	-- Handle the confirm move action
+	elseif action == "ConfirmMove" then
+		-- Handle the input based on the action
+		if charData.Info.selectedMove == "HiddenAssistance" then
+			return Handlers.HiddenAssistance(char, charData)
+		elseif charData.Info.selectedMove == "CleansingAura" then
+			return Handlers.CleansingAura(char, charData)
+		elseif charData.Info.selectedMove == "VanguardsCall" then
+			-- Reset the queued ultimate ID after executing the ultimate
+			charData.Info.queuedUltimateId = nil
+			-- Reset the selected move to the default after executing the ultimate
+			charData.Info.selectedMove = "HiddenAssistance"
+
+			return Handlers.VanguardsCall(char, charData)
+		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		-- If ultimate is already selected, disallow switching to other moves

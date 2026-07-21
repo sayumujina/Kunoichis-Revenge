@@ -96,6 +96,14 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		CombatService.SwitchToNextTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 		return true
+	-- Handle the confirm move action
+	elseif action == "ConfirmMove" then
+		-- Handle the input based on the action
+		if charData.Info.selectedMove == "WeavingBlade" then
+			return Handlers.WeavingBlade(char, charData)
+		elseif charData.Info.selectedMove == "TwinBlades" then
+			return Handlers.TwinBlades(char, charData)
+		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		local mappedMove = ActionToMoveMap[action]

@@ -103,12 +103,10 @@ function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		if charData.Info.selectedMove == "DestructiveCriticism" then
 			-- Reset the queued ultimate ID after executing the ultimate
 			charData.Info.queuedUltimateId = nil
-
 			-- Reset the selected move to the default after executing the ultimate
 			charData.Info.selectedMove = "NoEscape"
 
-			Handlers.DestructiveCriticism(char, charData)
-			return true
+			return Handlers.DestructiveCriticism(char, charData)
 		end
 
 		-- Check if Tsuyoka's energy is full
@@ -151,7 +149,21 @@ function Tsuyoka_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 				flashDuration = flashDuration,
 			},
 		})
+	-- Handle the confirm move action
+	elseif action == "ConfirmMove" then
+		-- Handle the input based on the action
+		if charData.Info.selectedMove == "NoEscape" then
+			return Handlers.NoEscape(char, charData)
+		elseif charData.Info.selectedMove == "Solidify" then
+			return Handlers.Solidify(char, charData)
+		elseif charData.Info.selectedMove == "DestructiveCriticism" then
+			-- Reset the queued ultimate ID after executing the ultimate
+			charData.Info.queuedUltimateId = nil
 
+			-- Reset the selected move to the default after executing the ultimate
+			charData.Info.selectedMove = "NoEscape"
+			return Handlers.DestructiveCriticism(char, charData)
+		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		-- If ultimate is already selected, disallow switching to other moves

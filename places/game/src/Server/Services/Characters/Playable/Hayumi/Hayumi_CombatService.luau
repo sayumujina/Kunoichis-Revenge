@@ -134,6 +134,16 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 		CombatService.SwitchToNextTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 		return true
+	-- Handle the confirm move action
+	elseif action == "ConfirmMove" then
+		-- Handle the input based on the action
+		if charData.Info.selectedMove == "LightningArrow" then
+			return Handlers.LightningArrow(char, charData)
+		elseif charData.Info.selectedMove == "LightningRain" then
+			return Handlers.LightningRain(char, charData)
+		elseif charData.Info.selectedMove == "ArcherysVision" then
+			return Handlers.ArcherysVision(char, charData)
+		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
 		-- Handle move selection actions
