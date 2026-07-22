@@ -4,7 +4,7 @@ local CreateWorldCard = require(script.Parent.World_Card)
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
-local function createStageList(worldId: string)
+local function createStageList(worldId: string, unlockedStages: { string })
 	local stageListFrame = Instance.new("Frame")
 	stageListFrame.Name = "UI_" .. worldId .. "_StageList_Frame"
 	stageListFrame.BackgroundTransparency = 1
@@ -55,7 +55,8 @@ local function createStageList(worldId: string)
 			worldId,
 			stageData.name,
 			stageData.description,
-			stageData.stageOrder
+			stageData.stageOrder,
+			table.find(unlockedStages, stageKey) and true or false -- Whether the stage is unlocked or not
 		)
 		stageCard.Parent = stageList
 	end
@@ -63,7 +64,7 @@ local function createStageList(worldId: string)
 	return stageListFrame
 end
 
-local function createWorldList()
+local function createWorldList(unlockedWorlds: { [string]: { stages: { string } } }, unlockedChars: { string })
 	local worldListFrame = Instance.new("Frame")
 	worldListFrame.Name = "UI_WorldList_Frame"
 	worldListFrame.BackgroundTransparency = 1
@@ -118,8 +119,13 @@ local function createWorldList()
 	local firstWorldId
 
 	for worldKey, worldData in pairs(Stages) do
-		local worldCard =
-			CreateWorldCard.CreateWorldCard(worldKey, worldData.name, worldData.description, worldData.worldOrder)
+		local worldCard = CreateWorldCard.CreateWorldCard(
+			worldKey,
+			worldData.name,
+			worldData.description,
+			worldData.worldOrder,
+			unlockedWorlds[worldKey] ~= nil -- Whether the world is unlocked or not
+		)
 		worldCard.Parent = worldList
 
 		if worldData.worldOrder == 1 then
@@ -127,7 +133,10 @@ local function createWorldList()
 		end
 
 		-- Create a stage list for the world and add it to the world card
-		local stageList = createStageList(worldKey)
+		if not unlockedWorlds[worldKey] then
+			continue
+		end
+		local stageList = createStageList(worldKey, unlockedWorlds[worldKey].stages)
 		stageList.Parent = stagesFolder
 	end
 

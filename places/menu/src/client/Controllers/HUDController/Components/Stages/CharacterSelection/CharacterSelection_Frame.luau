@@ -45,7 +45,6 @@ local cardFramesByName = {} :: { [string]: Frame }
 local function toggleSelection(charName: string)
 	local stageSelectionScreenGui = playerGui.StageSelection_ScreenGui
 	local characterFrame = stageSelectionScreenGui:FindFirstChild("Character_Frame_" .. charName, true)
-	warn("Character_Frame_" .. charName)
 
 	-- If that character is already selected, deselect it
 	local selectedIndex = findCharSelectedIndex(selectedIndexes, charName)
@@ -87,10 +86,8 @@ local function toggleSelection(charName: string)
 		indexToSelect = 3
 	end
 
-	warn("Selecting character: " .. charName .. " at index: " .. indexToSelect)
 	-- Create the selection overlay for the selected index
 	selectedIndexes[indexToSelect :: number] = charName
-	warn(characterFrame)
 	CharacterCard.CreateSelectedOverlay(indexToSelect :: number).Parent = characterFrame
 
 	return selectedIndexes

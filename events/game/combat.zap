@@ -120,15 +120,6 @@ event ShieldProvided = {
 	},
 }
 
-event Warning = {
-	from: Server,
-	type: Reliable,
-	call: ManyAsync,
-	data: struct {
-		message: string.binary,
-	},
-}
-
 event StatusAdded = {
 	from: Server,
 	type: Reliable,

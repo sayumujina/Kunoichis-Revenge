@@ -1,5 +1,7 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
+-- Controllers
+local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+-- Components
 local CreateBlackScreen = require(game.ReplicatedStorage.Shared.GlobalUIComponents.BlackScreen)
 
 local FADE_IN_DURATION = 0.6
@@ -10,7 +12,14 @@ local FADE_OUT_DURATION = 0.4
 --- @param name -- The display name of the stage.
 --- @param description -- A brief description of the stage.
 --- @param order -- The layout order for the stage card.
-local function createStageCard(id: string, worldId: string, name: string, description: string, order: number)
+local function createStageCard(
+	id: string,
+	worldId: string,
+	name: string,
+	description: string,
+	order: number,
+	isUnlocked: boolean
+)
 	local stageOuterFrame = Instance.new("Frame")
 	stageOuterFrame.Name = "Stage" .. id .. "_OuterFrame"
 	stageOuterFrame.BackgroundColor3 = Color3.fromRGB(78, 59, 49)
@@ -113,42 +122,48 @@ local function createStageCard(id: string, worldId: string, name: string, descri
 
 	local invisibleButton = Instance.new("ImageButton")
 	invisibleButton.Name = "InvisibleButton"
-	invisibleButton.BackgroundTransparency = 1
+	invisibleButton.BackgroundTransparency = if isUnlocked then 1 else 0.4
+	invisibleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	invisibleButton.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 	invisibleButton.ImageTransparency = 1
 	invisibleButton.Size = UDim2.fromScale(1, 1)
 	invisibleButton.ZIndex = 10
+	invisibleButton.AutoButtonColor = false
 	invisibleButton.Parent = stageOuterFrame
 	-- Clicking on the stage card will show set the selected stage value and show the character selection screen
 	invisibleButton.MouseButton1Click:Connect(function()
-		local playerGui = game.Players.LocalPlayer.PlayerGui
-		local stageListFolder = playerGui.StageSelection_ScreenGui:FindFirstChild("Stages")
-		local stageListFrame = stageListFolder:FindFirstChild("UI_" .. worldId .. "_StageList_Frame")
+		if isUnlocked then
+			local playerGui = game.Players.LocalPlayer.PlayerGui
+			local stageListFolder = playerGui.StageSelection_ScreenGui:FindFirstChild("Stages")
+			local stageListFrame = stageListFolder:FindFirstChild("UI_" .. worldId .. "_StageList_Frame")
 
-		-- Set the selected stage value in the stage list frame
-		local selectedStageValue = stageListFrame:FindFirstChild("SelectedStage")
-		if selectedStageValue then
-			selectedStageValue.Value = id
-		end
+			-- Set the selected stage value in the stage list frame
+			local selectedStageValue = stageListFrame:FindFirstChild("SelectedStage")
+			if selectedStageValue then
+				selectedStageValue.Value = id
+			end
 
-		CreateBlackScreen(FADE_IN_DURATION, nil, FADE_OUT_DURATION, function()
-			-- Hide the stage lists and world list
-			for _, child in pairs(stageListFolder:GetChildren()) do
-				if child:IsA("Frame") then
-					child.Visible = false
+			CreateBlackScreen(FADE_IN_DURATION, nil, FADE_OUT_DURATION, function()
+				-- Hide the stage lists and world list
+				for _, child in pairs(stageListFolder:GetChildren()) do
+					if child:IsA("Frame") then
+						child.Visible = false
+					end
 				end
-			end
-			playerGui.StageSelection_ScreenGui:FindFirstChild("UI_WorldList_Frame").Visible = false
+				playerGui.StageSelection_ScreenGui:FindFirstChild("UI_WorldList_Frame").Visible = false
 
-			-- Show the character selection screen
-			local characterSelectionFrame =
-				playerGui.StageSelection_ScreenGui:FindFirstChild("UI_StageCharacterSelection_Frame")
-			if characterSelectionFrame then
-				characterSelectionFrame.Visible = true
-			end
-		end, function()
-			-- Do nothing after fade out is complete
-		end)
+				-- Show the character selection screen
+				local characterSelectionFrame =
+					playerGui.StageSelection_ScreenGui:FindFirstChild("UI_StageCharacterSelection_Frame")
+				if characterSelectionFrame then
+					characterSelectionFrame.Visible = true
+				end
+			end, function()
+				-- Do nothing after fade out is complete
+			end)
+		else
+			WarningController.DisplayWarning("This stage is locked.")
+		end
 	end)
 
 	stageFrame.Parent = stageOuterFrame

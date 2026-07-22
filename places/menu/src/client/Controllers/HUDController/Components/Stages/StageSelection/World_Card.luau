@@ -1,6 +1,9 @@
 local SELECTION_COLOR = Color3.fromRGB(43, 26, 16)
 local DEFAULT_COLOR = Color3.fromRGB(139, 111, 91)
---
+-- Controllers
+local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+-- Services
 local TweenService = game:GetService("TweenService")
 --
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -22,7 +25,7 @@ local function toggleSelection(worldFrame, worldId: string, isSelected: boolean)
 
 		-- Cancel any existing tweens to prevent overlapping animations
 		for id, tweenList in pairs(tweens) do
-			for _, tween in ipairs(tweenList.tweens) do
+			for _, tween in pairs(tweenList.tweens) do
 				tween:Cancel()
 			end
 
@@ -74,7 +77,7 @@ end
 --- @param name -- The display name of the world.
 --- @param description -- A brief description of the world.
 --- @param order -- The layout order for the world card.
-local function createWorldCard(id: string, name: string, description: string, order: number)
+local function createWorldCard(id: string, name: string, description: string, order: number, isUnlocked: boolean?)
 	local worldOuterFrame = Instance.new("Frame")
 	worldOuterFrame.Name = "World_" .. id .. "_OuterFrame"
 	worldOuterFrame.BackgroundColor3 = Color3.fromRGB(78, 59, 49)
@@ -170,41 +173,59 @@ local function createWorldCard(id: string, name: string, description: string, or
 
 	local invisibleButton = Instance.new("ImageButton")
 	invisibleButton.Name = "InvisibleButton"
-	invisibleButton.BackgroundTransparency = 1
+	invisibleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	invisibleButton.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 	invisibleButton.ImageTransparency = 1
 	invisibleButton.Size = UDim2.fromScale(1, 1)
 	invisibleButton.ZIndex = 10
+	invisibleButton.AutoButtonColor = false
 	invisibleButton.Parent = worldOuterFrame
+	invisibleButton.BackgroundTransparency = if isUnlocked then 1 else 0.4
 	invisibleButton.MouseButton1Click:Connect(function()
-		-- Do nothing if this world is already selected
-		local worldListFrame =
-			game.Players.LocalPlayer.PlayerGui.StageSelection_ScreenGui:FindFirstChild("UI_WorldList_Frame")
-
-		warn("World List Frame: ", worldListFrame)
-		if not worldListFrame then
-			return
-		end
-
-		local previouslySelectedWorldValue = worldListFrame:FindFirstChild("SelectedWorld")
-
-		if previouslySelectedWorldValue then
+		-- Handle the selection logic only if the world is unlocked
+		if isUnlocked then
 			-- Do nothing if this world is already selected
-			if previouslySelectedWorldValue.Value == id then
+			local worldListFrame =
+				game.Players.LocalPlayer.PlayerGui.StageSelection_ScreenGui:FindFirstChild("UI_WorldList_Frame")
+
+			if not worldListFrame then
 				return
-			elseif previouslySelectedWorldValue.Value ~= "" then
-				local previouslySelectedWorldCard =
-					worldListFrame:FindFirstChild("World_" .. previouslySelectedWorldValue.Value .. "_OuterFrame", true)
-				toggleSelection(previouslySelectedWorldCard.World_Frame, previouslySelectedWorldValue.Value, false)
 			end
+
+			local previouslySelectedWorldValue = worldListFrame:FindFirstChild("SelectedWorld")
+
+			if previouslySelectedWorldValue then
+				-- Do nothing if this world is already selected
+				if previouslySelectedWorldValue.Value == id then
+					return
+				elseif previouslySelectedWorldValue.Value ~= "" then
+					local previouslySelectedWorldCard = worldListFrame:FindFirstChild(
+						"World_" .. previouslySelectedWorldValue.Value .. "_OuterFrame",
+						true
+					)
+					toggleSelection(previouslySelectedWorldCard.World_Frame, previouslySelectedWorldValue.Value, false)
+				end
+			end
+
+			-- Mark this world as selected
+			toggleSelection(worldFrame, id, true)
+
+			-- Update the SelectedWorld value
+			previouslySelectedWorldValue.Value = id
+		-- Create a warning popup if the world is locked
+		else
+			WarningController.DisplayWarning("This world is locked.")
 		end
-
-		-- Mark this world as selected
-		toggleSelection(worldFrame, id, true)
-
-		-- Update the SelectedWorld value
-		previouslySelectedWorldValue.Value = id
 	end)
+
+	local uICorner4 = Instance.new("UICorner")
+	uICorner4.Name = "UICorner"
+	uICorner4.BottomLeftRadius = UDim.new(0, 12)
+	uICorner4.BottomRightRadius = UDim.new(0, 12)
+	uICorner4.CornerRadius = UDim.new(0, 12)
+	uICorner4.TopLeftRadius = UDim.new(0, 12)
+	uICorner4.TopRightRadius = UDim.new(0, 12)
+	uICorner4.Parent = invisibleButton
 
 	worldFrame.Parent = worldOuterFrame
 

@@ -1,5 +1,8 @@
--- Utility
 local rep = game:GetService("ReplicatedStorage")
+-- Controllers
+local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+-- Utility
 local GetAvatarImageForCharacter = require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
 
 local function createSelectedOverlay(index: number)
@@ -95,7 +98,7 @@ local function createCharacterCard(owned: boolean, charName: string, charLevel: 
 				onActivated(charName)
 			end
 		else
-			warn("Character " .. charName .. " is locked and cannot be selected.")
+			WarningController.DisplayWarning("This character is locked.")
 		end
 	end)
 	invisibleImageButton.Parent = characterFrame

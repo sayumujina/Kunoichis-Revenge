@@ -64,4 +64,30 @@ function Loader.LoadDescendants(parent: Instance, predicate: PredicateFn?): { [s
 	return modules
 end
 
+--[=[
+	Similar to `Loader.SpawnAll`, but allows passing in arguments
+	to the method being called.
+
+	```lua
+	local MyModules = ReplicatedStorage.MyModules
+
+	-- Load all modules under MyModules and then call their OnStart methods with arguments:
+	Loader.SpawnAllWithArgs(Loader.LoadDescendants(MyModules), "OnStart", arg1, arg2, arg3)
+	```
+
+	@param ... any -- Additional arguments to add to the method
+]=]
+function Loader.SpawnAllWithArgs(loadedModules: { [string]: any }, methodName: string, ...)
+	local args = { ... }
+	for name, mod in loadedModules do
+		local method = mod[methodName]
+		if type(method) == "function" then
+			task.spawn(function()
+				debug.setmemorycategory(name)
+				method(table.unpack(args))
+			end)
+		end
+	end
+end
+
 return Loader

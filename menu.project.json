@@ -51,6 +51,9 @@
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Client": {
+          "GlobalControllers": {
+            "$path": "places/global/src/Client/Controllers"
+          },
           "$path": "places/menu/src/Client"
         }
       }

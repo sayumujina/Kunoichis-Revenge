@@ -13,7 +13,6 @@ local Helpers = {
 	UpdateCharacterStatValue = require(script.Helper.UpdateCharacterStatValue),
 	UpdateCurrentManaValue = require(script.Helper.UpdateCurrentManaValue),
 	UpdateDamageUI = require(script.Helper.UpdateDamageUI),
-	DisplayWarning = require(script.Helper.DisplayWarning),
 }
 -- Data
 local StagesData = require(rep.Data.data_Stages)
@@ -596,11 +595,6 @@ function HUDController.OnStart()
 		Helpers.QueueUIUtility.UpdateTurnQueueUI(turnQueue)
 	end)
 
-	-- Listens to warning events
-	Zap.Warning.On(function(warningEvent)
-		Helpers.DisplayWarning(playerGui, warningEvent.message)
-	end)
-
 	-- Listens to the status added event
 	Zap.StatusAdded.On(function(statusAddedEvent)
 		task.defer(function()
@@ -746,7 +740,14 @@ end
 
 --- Initializes the HUD for the player
 function HUDController.Init()
-	-- Create a screen GUI for the player if it doesn't exist
+	-- Create a global screen GUI for the player if it doesn't exist
+	if not playerGui:FindFirstChild("Global_ScreenGui", true) then
+		local hud = Instance.new("ScreenGui")
+		hud.Name = "Global_ScreenGui"
+		hud.Parent = playerGui
+	end
+
+	-- Create a combat screen GUI for the player if it doesn't exist
 	if not playerGui:FindFirstChild("Combat_ScreenGui", true) then
 		local hud = Instance.new("ScreenGui")
 		hud.Name = "Combat_ScreenGui"
