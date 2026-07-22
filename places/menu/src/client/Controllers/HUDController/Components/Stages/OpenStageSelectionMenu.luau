@@ -68,6 +68,6 @@ return function(unlockedWorldData: { [string]: { stages: { string } } }, ownedCh
 		return a.Owned
 	end)
 
-	local characterSelectionFrameInstance = CreateCharacterSelectionFrame(charactersInfo)
-	characterSelectionFrameInstance.Parent = stageSelectionGui
+	local characterSelectionFrame = CreateCharacterSelectionFrame(charactersInfo)
+	characterSelectionFrame.Parent = stageSelectionGui
 end

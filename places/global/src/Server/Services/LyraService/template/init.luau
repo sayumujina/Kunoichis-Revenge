@@ -24,6 +24,10 @@ local data: _TYPES.PlayerStoreData = {
 						ClearedExtraObjectives = { "Objective1" },
 					},
 					["1-2"] = {
+						Cleared = true,
+						ClearedExtraObjectives = {},
+					},
+					["1-3"] = {
 						Cleared = false,
 						ClearedExtraObjectives = {},
 					},

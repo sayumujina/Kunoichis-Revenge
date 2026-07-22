@@ -114,9 +114,16 @@ return function(chars: { Name: string, Level: number?, Owned: boolean })
 	uIAspectRatioConstraint.Parent = returnButton
 	returnButton.Parent = stageCharacterSelectionFrame
 	returnButton.MouseButton1Click:Connect(function()
+		-- Create a black screen transition and hide the character selection screen
 		CreateBlackScreen(0.6, nil, 0.4, function()
 			-- Hide the character selection screen
 			stageCharacterSelectionFrame.Visible = false
+
+			-- Destroy the stage details frame if it exists
+			local stageDetailsFrame = playerGui.StageSelection_ScreenGui:FindFirstChild("UI_StageDetails_Frame")
+			if stageDetailsFrame then
+				stageDetailsFrame:Destroy()
+			end
 
 			-- Show the stage lists and world list
 			local stageListFolder = playerGui.StageSelection_ScreenGui:FindFirstChild("Stages")

@@ -34,6 +34,13 @@ event RequestDatastoreData = {
 	call: ManyAsync,
 }
 
+event DatastoreDataResponse = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: PlayerDatastore
+}
+
 event PlayerDatastoreLoaded = {
 	from: Server,
 	type: Reliable,

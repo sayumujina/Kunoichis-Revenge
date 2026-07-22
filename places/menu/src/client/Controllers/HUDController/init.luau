@@ -45,9 +45,10 @@ function HUDController.Init()
 		Zap.RequestDatastoreData.Fire()
 
 		local receiveDataConnection
-		receiveDataConnection = Zap.PlayerDatastoreChanged.On(function(data)
+		receiveDataConnection = Zap.DatastoreDataResponse.On(function(data)
 			local unlockedWorldData = buildUnlockedWorldData(data.UnlockedStages)
 
+			warn("Received unlocked world data: ", unlockedWorldData)
 			local OpenStageSelectionMenu = require(script.Components.Stages.OpenStageSelectionMenu)
 			OpenStageSelectionMenu(unlockedWorldData, data.OwnedCharacters)
 

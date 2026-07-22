@@ -1,19 +1,28 @@
+local rep = game:GetService("ReplicatedStorage")
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+local HUDController = StarterPlayerScripts.Client.Controllers.HUDController
 -- Components
-local CreateBlackScreen = require(game.ReplicatedStorage.Shared.GlobalUIComponents.BlackScreen)
+local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
+local StageDetailsScreen = require(HUDController.Components.Stages.StageSelection.Stage_Details)
+-- Packages
+local Zap = require(StarterPlayerScripts.Client.zap)
+-- Data
+local Stages = require(rep.Data.data_Stages)
 
 local FADE_IN_DURATION = 0.6
 local FADE_OUT_DURATION = 0.4
 
 --- Creates a stage card UI element with the given parameters.
---- @param id -- The unique identifier for the stage.
+--- @param stageId -- The unique identifier for the stage.
+--- @param worldId -- The unique identifier for the world the stage belongs to.
 --- @param name -- The display name of the stage.
 --- @param description -- A brief description of the stage.
 --- @param order -- The layout order for the stage card.
+--- @param isUnlocked -- Whether the stage is unlocked.
 local function createStageCard(
-	id: string,
+	stageId: string,
 	worldId: string,
 	name: string,
 	description: string,
@@ -21,7 +30,7 @@ local function createStageCard(
 	isUnlocked: boolean
 )
 	local stageOuterFrame = Instance.new("Frame")
-	stageOuterFrame.Name = "Stage" .. id .. "_OuterFrame"
+	stageOuterFrame.Name = "Stage" .. stageId .. "_OuterFrame"
 	stageOuterFrame.BackgroundColor3 = Color3.fromRGB(78, 59, 49)
 	stageOuterFrame.Size = UDim2.fromScale(0.23, 0.93)
 	stageOuterFrame.LayoutOrder = order
@@ -29,7 +38,7 @@ local function createStageCard(
 
 	local associatedStageId = Instance.new("StringValue")
 	associatedStageId.Name = "AssociatedStageId"
-	associatedStageId.Value = id
+	associatedStageId.Value = stageId
 	associatedStageId.Parent = stageOuterFrame
 
 	local uICorner = Instance.new("UICorner")
@@ -130,7 +139,7 @@ local function createStageCard(
 	invisibleButton.ZIndex = 10
 	invisibleButton.AutoButtonColor = false
 	invisibleButton.Parent = stageOuterFrame
-	-- Clicking on the stage card will show set the selected stage value and show the character selection screen
+	-- Clicking on the stage card will set the selected stage value and show the character selection screen
 	invisibleButton.MouseButton1Click:Connect(function()
 		if isUnlocked then
 			local playerGui = game.Players.LocalPlayer.PlayerGui
@@ -140,9 +149,10 @@ local function createStageCard(
 			-- Set the selected stage value in the stage list frame
 			local selectedStageValue = stageListFrame:FindFirstChild("SelectedStage")
 			if selectedStageValue then
-				selectedStageValue.Value = id
+				selectedStageValue.Value = stageId
 			end
 
+			-- Create a black screen transition and show the character selection screen
 			CreateBlackScreen(FADE_IN_DURATION, nil, FADE_OUT_DURATION, function()
 				-- Hide the stage lists and world list
 				for _, child in pairs(stageListFolder:GetChildren()) do
@@ -158,8 +168,28 @@ local function createStageCard(
 				if characterSelectionFrame then
 					characterSelectionFrame.Visible = true
 				end
-			end, function()
-				-- Do nothing after fade out is complete
+
+				Zap.RequestDatastoreData.Fire()
+
+				local requestDataConnection
+				requestDataConnection = Zap.DatastoreDataResponse.On(function(data)
+					if not data then
+						return
+					end
+
+					local passedObjectives = data.UnlockedStages.Worlds[worldId].Stages[stageId].ClearedExtraObjectives
+					if not passedObjectives then
+						return
+					end
+
+					-- Create the stage details frame with the new information
+					local stageSelectionGui = playerGui.StageSelection_ScreenGui
+					StageDetailsScreen.CreateStageDetailsFrame(worldId, stageId, description, passedObjectives).Parent =
+						stageSelectionGui
+
+					-- Disconnect the connection after receiving the data
+					requestDataConnection()
+				end)
 			end)
 		else
 			WarningController.DisplayWarning("This stage is locked.")

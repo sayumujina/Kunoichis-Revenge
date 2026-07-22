@@ -142,7 +142,7 @@ function LyraService.OnStart()
 		local playerData = store:getAsync(player)
 		warn("[LyraService] Player Data:", playerData)
 		--
-		Zap.PlayerDatastoreChanged.Fire(player, playerData)
+		Zap.DatastoreDataResponse.Fire(player, playerData)
 	end)
 
 	-- Ensure data is saved when the server shuts down

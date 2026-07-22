@@ -3,6 +3,7 @@
 export type ExtraObjective = {
 	objectiveId: string,
 	conditionType: "DownedCharacters" | "UsedActionValue",
+	description: string,
 	value: string,
 }
 

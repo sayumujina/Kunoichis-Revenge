@@ -68,7 +68,6 @@ local function toggleSelection(worldFrame, worldId: string, isSelected: boolean)
 
 	-- Hide the associated stage list for the previously selected world
 	local stageListFrame = stageListFolder:FindFirstChild("UI_" .. worldId .. "_StageList_Frame")
-	warn("Toggling stage list visibility for worldId: ", worldId, " to ", isSelected)
 	toggleStageListVisibility(stageListFrame, isSelected)
 end
 

@@ -17,16 +17,19 @@ local stages = {
 					{
 						objectiveId = "Objective1",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 900 action value",
 						value = 900,
 					},
 					{
 						objectiveId = "Objective2",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 1500 action value",
 						value = 1500,
 					},
 					{
 						objectiveId = "Objective3",
 						conditionType = "DownedCharacters",
+						description = "Have less than 1 character(s) downed",
 						value = 1,
 					},
 				},
@@ -62,16 +65,19 @@ local stages = {
 					{
 						objectiveId = "Objective1",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 900 action value",
 						value = 900,
 					},
 					{
 						objectiveId = "Objective2",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 1500 action value",
 						value = 1500,
 					},
 					{
 						objectiveId = "Objective3",
 						conditionType = "DownedCharacters",
+						description = "Have less than 1 character(s) downed",
 						value = 1,
 					},
 				},
@@ -107,16 +113,19 @@ local stages = {
 					{
 						objectiveId = "Objective1",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 750 action value",
 						value = 750,
 					},
 					{
 						objectiveId = "Objective2",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 1200 action value",
 						value = 1200,
 					},
 					{
 						objectiveId = "Objective3",
 						conditionType = "DownedCharacters",
+						description = "Have no characters downed",
 						value = 0,
 					},
 				},
@@ -159,16 +168,19 @@ local stages = {
 					{
 						objectiveId = "Objective1",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 900 action value",
 						value = 900,
 					},
 					{
 						objectiveId = "Objective2",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 1500 action value",
 						value = 1500,
 					},
 					{
 						objectiveId = "Objective3",
 						conditionType = "DownedCharacters",
+						description = "Have less than 1 character(s) downed",
 						value = 1,
 					},
 				},
@@ -204,16 +216,19 @@ local stages = {
 					{
 						objectiveId = "Objective1",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 900 action value",
 						value = 900,
 					},
 					{
 						objectiveId = "Objective2",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 1500 action value",
 						value = 1500,
 					},
 					{
 						objectiveId = "Objective3",
 						conditionType = "DownedCharacters",
+						description = "Have less than 1 character(s) downed",
 						value = 1,
 					},
 				},
@@ -249,16 +264,19 @@ local stages = {
 					{
 						objectiveId = "Objective1",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 750 action value",
 						value = 750,
 					},
 					{
 						objectiveId = "Objective2",
 						conditionType = "UsedActionValue",
+						description = "Consume less than 1200 action value",
 						value = 1200,
 					},
 					{
 						objectiveId = "Objective3",
 						conditionType = "DownedCharacters",
+						description = "Have no characters downed",
 						value = 0,
 					},
 				},

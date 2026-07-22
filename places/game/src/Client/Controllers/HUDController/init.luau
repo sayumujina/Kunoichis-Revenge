@@ -187,14 +187,10 @@ function HUDController.OnStart()
 		-- Store a copy of the extra objectives for the stage along with a failed flag for each objective
 		if stageData and stageData.extraObjectives then
 			for _, objective in pairs(stageData.extraObjectives) do
-				local objectiveId = objective.objectiveId
-				local objectiveDesc
-				if objective.conditionType == "UsedActionValue" then
-					objectiveDesc = "Use less than " .. objective.value .. " action value"
-				elseif objective.conditionType == "DownedCharacters" then
-					objectiveDesc = "Less than " .. objective.value .. " characters downed"
-				end
-				table.insert(objectives, { description = objectiveDesc, id = objectiveId, passed = true })
+				table.insert(
+					objectives,
+					{ description = objective.description, id = objective.objectiveId, passed = true }
+				)
 			end
 		end
 

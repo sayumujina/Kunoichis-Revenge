@@ -1,6 +1,13 @@
 local TweenService = game:GetService("TweenService")
 
--- Create a black frame that covers the entire screen
+--- Create a black frame that covers the entire screen
+--- @param fadeInDur -- Duration of the fade-in effect in seconds
+--- @param fadeDelay -- Optional delay before starting the fade-out effect in seconds
+--- @param fadeOutDur -- Duration of the fade-out effect in seconds
+--- @param onFadeInComplete -- Optional callback function to be called after the fade-in is complete
+--- @param onFadeOutComplete -- Optional callback function to be called after the fade-out is complete
+--- @param manualReverseTween -- Optional boolean to indicate if the reverse tween should be manually triggered
+--- @return ScreenGui, Tween, Tween -- Returns the created ScreenGui, forward tween, and reverse tween
 return function(
 	fadeInDur: number,
 	fadeDelay: number?,
@@ -39,7 +46,6 @@ return function(
 	end)
 
 	-- Play the forward tween to fade in the black frame
-	forwardTween:Play()
 	forwardTween.Completed:Once(function()
 		if onFadeInComplete then
 			onFadeInComplete()
@@ -58,6 +64,7 @@ return function(
 			reverseTween:Play()
 		end
 	end)
+	forwardTween:Play()
 
 	return screenGui, forwardTween, reverseTween
 end
