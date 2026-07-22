@@ -295,6 +295,17 @@ export type BattleEndedEvent = {
 	},
 }
 
+--- @type ActionValueElapsedEvent { char: _TYPES.Character, data: { actionValueElapsed: number } }
+--- @within EventService
+--- Describes the event for when a character's action value has elapsed.
+--- Contains the character whose action value has elapsed and the amount of action value that has elapsed.
+export type ActionValueElapsedEvent = {
+	player: _TYPES.RobloxPlayerType,
+	data: {
+		currentTotalActionValue: number,
+	},
+}
+
 --- @type Events { [string]: Signal.Signal<any> }
 --- @within EventService
 --- A collection of events that can be fired and listened to. Refer to the specific event types for more information.
@@ -324,7 +335,9 @@ EventService.Events = {
 	DespawnSuccessful = Signal.new() :: Signal.Signal<DespawnSuccessfulEvent>,
 	RestartSuccessful = Signal.new() :: Signal.Signal<RestartSuccessfulEvent>,
 	BattleEnded = Signal.new() :: Signal.Signal<BattleEndedEvent>,
+	ActionValueElapsed = Signal.new() :: Signal.Signal<ActionValueElapsedEvent>,
 }
+
 --- @type ClientBlacklist { string }
 --- @within EventService
 --- A list of events that do not need to be replicated to clients.
@@ -346,6 +359,7 @@ EventService.PlayerScoped = {
 	"ObjectiveFailed",
 	"RestartSuccessful",
 	"BattleEnded",
+	"ActionValueElapsed",
 }
 
 --- Initializes the EventService by connecting all events to the Zap event for local players.

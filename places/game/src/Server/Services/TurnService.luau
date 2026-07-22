@@ -343,6 +343,12 @@ function TurnService.StartTurn(player: _TYPES.RobloxPlayerType)
 		return
 	end
 
+	-- Return if battle is already finished
+	local combatData = CombatService.GetCombatData(player)
+	if not combatData or combatData.battleFinished then
+		return
+	end
+
 	-- Normalise the turn queue after removing the completed turn
 	local normalisedResult = Utility.NormaliseTurnQueue(playerData.turnQueue)
 	playerData.turnQueue = normalisedResult.normalisedQueue

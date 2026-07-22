@@ -2,7 +2,7 @@ local TweenService = game:GetService("TweenService")
 --
 local CreateBattleEndButtons = require(script.Parent.BattleEndButtons)
 
-local VICTORY_OBJECTIVE_POSITION = UDim2.fromScale(0.35, 0.25)
+local VICTORY_OBJECTIVE_POSITION = UDim2.fromScale(0.35, 0.32)
 local VICTORY_OBJECTIVE_SIZE = UDim2.fromScale(0.3, 0.24)
 --
 local VICTORY_GRADIENT = ColorSequence.new({
@@ -89,6 +89,35 @@ local function createBattleEndScreen(passed: boolean, numberOfSuccessfulExtraObj
 				table.insert(tweens, imageLabelTween)
 			end
 		end
+
+		local consumedActionValue = Instance.new("Frame")
+		consumedActionValue.Name = "UI_ConsumedActionValue"
+		consumedActionValue.BackgroundTransparency = 1
+		consumedActionValue.Position = UDim2.fromScale(0.3, 0.25)
+		consumedActionValue.Size = UDim2.fromScale(0.4, 0.03)
+
+		-- Get the elapsed action value
+		local elapsedActionValueFrame = playerGui:FindFirstChild("UI_ElapsedActionValue", true)
+		local elapsedActionValueValue = elapsedActionValueFrame:FindFirstChild("ElapsedActionValue_Value")
+		local value = elapsedActionValueValue and elapsedActionValueValue.Value or 0
+
+		local consumedActionValueLabel = Instance.new("TextLabel")
+		consumedActionValueLabel.Name = "TextLabel"
+		consumedActionValueLabel.BackgroundTransparency = 1
+		consumedActionValueLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
+		consumedActionValueLabel.Size = UDim2.fromScale(1, 1)
+		consumedActionValueLabel.Text = "Consumed Action Value: " .. math.ceil(value)
+		consumedActionValueLabel.TextColor3 = Color3.new(1, 1, 1)
+		consumedActionValueLabel.TextScaled = true
+		consumedActionValueLabel.Parent = consumedActionValue
+		consumedActionValue.Parent = battleEndScreen
+
+		local consumedActionValueTween = TweenService:Create(
+			consumedActionValueLabel,
+			TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
+			{ TextTransparency = 0 }
+		)
+		table.insert(tweens, consumedActionValueTween)
 	end
 
 	for _, tween in pairs(tweens) do

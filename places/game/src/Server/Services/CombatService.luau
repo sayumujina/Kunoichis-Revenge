@@ -21,6 +21,7 @@ local CombatData: {
 		selectedNPCIndex: number, -- The main enemy index (for blast attacks)
 		selectedPlayableIndex: number, -- The main playable index (for blast attacks)
 		--
+		battleFinished: boolean, -- Whether the battle has finished for the player
 		elapsedActionValue: number, -- The total action value used by the player in the current stage
 		downedCharacters: number, -- The total number of downed characters in the current stage
 		--
@@ -64,6 +65,7 @@ function CombatService.OnStart()
 			selectedNPCIndex = 0,
 			selectedPlayableIndex = 0,
 			--
+			battleFinished = false,
 			elapsedActionValue = 0,
 			downedCharacters = 0,
 			--
@@ -174,7 +176,7 @@ function CombatService.OnStart()
 			end)
 		end
 
-		-- If the dead character was the primary selected target, switch to the next target if that index is no longer there
+		-- If the dead character was the primary selected target, switch to the previous target if that index is no longer there
 		if deadChar:GetAttribute("Side") == "NPC" then
 			if deadCharIndex > #combatData.npcs then
 				CombatService.SwitchToPreviousTarget(player, deadChar:GetAttribute("Side") :: _TYPES.Sides)
@@ -186,6 +188,10 @@ function CombatService.OnStart()
 		end
 
 		-- If one side has no more characters, the stage is completed
+		if #combatData.playables == 0 or #combatData.npcs == 0 then
+			combatData.battleFinished = true
+		end
+
 		if #combatData.npcs == 0 then
 			-- Compile the successful extra objectives for the player
 			local successfulObjectives = {}
@@ -389,6 +395,16 @@ function CombatService.IncrementElapsedActionValue(player: _TYPES.RobloxPlayerTy
 	end
 
 	combatData.elapsedActionValue += value
+
+	-- Fire the ActionValueElapsed event to notify the client of the updated elapsed action value
+	EventService.Events.ActionValueElapsed:Fire({
+		player = player :: _TYPES.RobloxPlayerType,
+		data = {
+			currentTotalActionValue = combatData.elapsedActionValue,
+		},
+	})
+
+	--
 
 	-- If the elapsed action value exceeds the extra objective values, mark that objective as failed
 	for _, objective in pairs(combatData.currentStageData.extraObjectives or {}) do

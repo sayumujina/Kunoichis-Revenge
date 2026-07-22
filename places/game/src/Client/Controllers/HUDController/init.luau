@@ -43,6 +43,7 @@ local Components = {
 			CreateExtraActionCard = require(ComponentsPath.Combat.Turns.ExtraAction_Card),
 			CreateMainTurnCard = require(ComponentsPath.Combat.Turns.MainTurn_Card),
 			CreateTurnCardsList = require(ComponentsPath.Combat.Turns.Turn_Cards_List),
+			CreateElapsedActionValue = require(ComponentsPath.Combat.Turns.ElapsedActionValue_Frame),
 		},
 		DetailedCombatInfo = {
 			CharacterSelection = require(
@@ -727,6 +728,17 @@ function HUDController.OnStart()
 		end)
 	end)
 
+	-- Listens to elapsed action value event
+	Zap.ActionValueElapsed.On(function(actionValueEvent)
+		local actionValueFrame = playerGui:FindFirstChild("UI_ElapsedActionValue", true)
+		if actionValueFrame then
+			local actionValueValue = actionValueFrame:FindFirstChild("ElapsedActionValue_Value", true)
+			if actionValueValue and actionValueValue:IsA("NumberValue") then
+				actionValueValue.Value = actionValueEvent.currentTotalActionValue
+			end
+		end
+	end)
+
 	InputController.ToggleHUDVisibility:Connect(function(event)
 		HUDController.ToggleScreenGuiVisibility(event.guiName, event.show)
 	end)
@@ -787,6 +799,11 @@ function HUDController.Init()
 	if not combatScreenGui:FindFirstChild("UI_DamageCard", true) then
 		local damageCard = Components.Combat.Damage.CreateDamageCard()
 		damageCard.Parent = playerUIFolder
+	end
+
+	if not combatScreenGui:FindFirstChild("UI_ElapsedActionValue", true) then
+		local elapsedActionValueFrame = Components.Combat.Turns.CreateElapsedActionValue()
+		elapsedActionValueFrame.Parent = playerUIFolder
 	end
 
 	-- Create a detailed combat info screen gui for the player if it doesn't exist

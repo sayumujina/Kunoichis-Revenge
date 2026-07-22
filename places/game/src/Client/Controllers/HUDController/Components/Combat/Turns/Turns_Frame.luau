@@ -1,10 +1,12 @@
+local CreateElapsedActionValue = require(script.Parent.ElapsedActionValue_Frame)
+
 -- Helper function to create the turn card container
 return function()
 	local uiTurnsFrame = Instance.new("Frame")
 	uiTurnsFrame.Name = "UI_TurnsFrame"
 	uiTurnsFrame.Active = true
 	uiTurnsFrame.BackgroundTransparency = 1
-	uiTurnsFrame.Position = UDim2.fromScale(0.02, 0.02)
+	uiTurnsFrame.Position = UDim2.fromScale(0.02, 0.07)
 	uiTurnsFrame.Size = UDim2.fromScale(0.2, 0.6)
 	uiTurnsFrame.ClipsDescendants = true
 

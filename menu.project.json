@@ -41,6 +41,9 @@
 
     "ServerScriptService": {
       "Server": {
+        "GlobalServices": {
+          "$path": "places/global/src/Server/Services"
+        },
         "$path": "places/menu/src/Server"
       }
     },

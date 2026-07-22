@@ -15,6 +15,7 @@ local KnockbackTypes = require(script.Combat.type_Knockback)
 local InputDataTypes = require(script.Combat.type_InputData)
 local DamageTypes = require(script.Combat.type_Damage)
 local StageTypes = require(script.type_Stage)
+local PlayerStoreTypes = require(script.type_PlayerStore)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
@@ -64,5 +65,8 @@ export type BuffingConsumables = ConsumablesTypes.BuffingConsumables
 
 -- Stage
 export type ExtraObjective = StageTypes.ExtraObjective
+
+-- Player store
+export type PlayerStoreData = PlayerStoreTypes.PlayerStoreData
 
 return nil

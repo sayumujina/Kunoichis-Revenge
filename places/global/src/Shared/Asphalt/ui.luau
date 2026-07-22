@@ -5,6 +5,7 @@ local ui = {
 	avatar = {
 		UI_Avatar_Hayumi = "rbxassetid://78955618330522",
 		UI_Avatar_MockEnemy = "rbxassetid://94755245176665",
+		UI_Avatar_Red_MockEnemy = "rbxassetid://90215688476668",
 		UI_Avatar_Rin = "rbxassetid://128491292290387",
 		UI_Avatar_Setsuna = "rbxassetid://101808487975409",
 		UI_Avatar_Tsuyoka = "rbxassetid://120122220992427",

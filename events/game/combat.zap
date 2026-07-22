@@ -218,7 +218,7 @@ event ObjectiveFailed = {
 	},
 }
 
-event BattleEnded= {
+event BattleEnded = {
 	from: Server,
 	type: Reliable,
 	call: ManyAsync,
@@ -228,4 +228,13 @@ event BattleEnded= {
 		worldId: string.binary,
 		successfulExtraObjectives: string.binary[]?,
 	}
+}
+
+event ActionValueElapsed = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		currentTotalActionValue: f32,
+	},
 }
