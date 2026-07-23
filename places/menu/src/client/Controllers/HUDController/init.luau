@@ -1,32 +1,20 @@
+local rep = game:GetService("ReplicatedStorage")
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
+-- Components
+local CreateTopBar = require(script.Components.Global.TopBar)
+local StageSelectionMenu = require(script.Components.Stages.StageSelectionMenu)
 
 local HUDController = {}
 
-local function buildUnlockedWorldData(unlockedStages)
-	local unlockedWorldData = {}
-
-	for worldId, worldInfo in pairs(unlockedStages.Worlds) do
-		local unlockedStageIds = {}
-
-		for stageId in pairs(worldInfo.Stages) do
-			table.insert(unlockedStageIds, stageId)
-		end
-
-		unlockedWorldData[worldId] = {
-			stages = unlockedStageIds,
-		}
-	end
-
-	return unlockedWorldData
-end
-
 --- Called when the controller starts
-function HUDController.OnStart() end
+function HUDController.OnStart()
+	CreateTopBar()
+end
 
 --- Initializes the HUDController
 function HUDController.Init()
@@ -41,21 +29,8 @@ function HUDController.Init()
 
 	local globalScreenGui = playerGui:FindFirstChild("Global_ScreenGui", true)
 
-	task.delay(2, function()
-		Zap.RequestDatastoreData.Fire()
-
-		local receiveDataConnection
-		receiveDataConnection = Zap.DatastoreDataResponse.On(function(data)
-			local unlockedWorldData = buildUnlockedWorldData(data.UnlockedStages)
-
-			warn("Received unlocked world data: ", unlockedWorldData)
-			local OpenStageSelectionMenu = require(script.Components.Stages.OpenStageSelectionMenu)
-			OpenStageSelectionMenu(unlockedWorldData, data.OwnedCharacters)
-
-			-- Disconnect the connections after receiving the data
-			receiveDataConnection()
-		end)
-	end)
+	-- Initialize the stage selection menu
+	StageSelectionMenu.InitStageSelectionMenu()
 end
 
 return HUDController

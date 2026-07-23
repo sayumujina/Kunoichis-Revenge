@@ -4,7 +4,7 @@ local ui = require(game.ReplicatedStorage.Assets.Asphalt.UI)
 --- @param text -- The new text to set for the top bar label
 local function changeTopBarLabel(text: string)
 	local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-	local topBarFrame = playerGui:FindFirstChild("Global_ScreenGui", true):FindFirstChild("TopBar_Frame", true)
+	local topBarFrame = playerGui:FindFirstChild("Global_ScreenGui", true):FindFirstChild("TopInfoBar_Frame", true)
 	if topBarFrame then
 		local topBarLabel = topBarFrame:FindFirstChild("TextLabel", true)
 		if topBarLabel then
@@ -15,19 +15,19 @@ end
 
 --- Creates a new top bar frame with the specified text
 --- @param text -- The text to display on the top bar
-local function createTopBar(text: string)
+local function createTopInfoBar(text: string)
 	local topBarFrame = Instance.new("Frame")
-	topBarFrame.Name = "TopBar_Frame"
+	topBarFrame.Name = "TopInfoBar_Frame"
 	topBarFrame.BackgroundTransparency = 1
 	topBarFrame.Size = UDim2.fromScale(1, 0.187)
 	topBarFrame.ZIndex = 2
 
-	local bG = Instance.new("ImageLabel")
-	bG.Name = "BG"
-	bG.BackgroundTransparency = 1
-	bG.Image = ui.hud.Menu.UI_Menu_TopBar
-	bG.Size = UDim2.fromScale(1, 1)
-	bG.Parent = topBarFrame
+	local bg = Instance.new("ImageLabel")
+	bg.Name = "BG"
+	bg.BackgroundTransparency = 1
+	bg.Image = ui.hud.Menu.UI_Menu_TopBar
+	bg.Size = UDim2.fromScale(1, 1)
+	bg.Parent = topBarFrame
 
 	local topBarLabel = Instance.new("TextLabel")
 	topBarLabel.Name = "TextLabel"
@@ -49,5 +49,5 @@ end
 
 return {
 	ChangeTopBarLabel = changeTopBarLabel,
-	CreateTopBar = createTopBar,
+	CreateTopInfoBar = createTopInfoBar,
 }

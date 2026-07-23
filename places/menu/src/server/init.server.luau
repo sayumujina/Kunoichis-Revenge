@@ -13,7 +13,7 @@ local Zap = require(Services.Parent.zap)
 local GAME_PLACE_ID = 137371455542351
 
 -- Disable character autoload
-game.Players.CharacterAutoLoads = false
+-- game.Players.CharacterAutoLoads = false
 
 -- Load all services
 Loader.SpawnAll(

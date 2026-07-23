@@ -41,6 +41,7 @@ local function findFirstAvailableIndex(): number?
 end
 
 local cardFramesByName = {} :: { [string]: Frame }
+
 -- Toggle the selection of a character card
 local function toggleSelection(charName: string)
 	local stageSelectionScreenGui = playerGui.StageSelection_ScreenGui
@@ -93,7 +94,40 @@ local function toggleSelection(charName: string)
 	return selectedIndexes
 end
 
-return function(chars: { Name: string, Level: number?, Owned: boolean })
+--- Exits the character selection screen and returns to the stage selection screen
+--- @param fade boolean? -- Whether to fade out the character selection screen (default: true)
+local function exitCharacterSelection(fade: boolean?)
+	local function hide()
+		-- Hide the character selection screen
+		playerGui.StageSelection_ScreenGui:FindFirstChild("UI_StageCharacterSelection_Frame").Visible = false
+
+		-- Destroy the stage details frame if it exists
+		local stageDetailsFrame = playerGui.StageSelection_ScreenGui:FindFirstChild("UI_StageDetails_Frame")
+		if stageDetailsFrame then
+			stageDetailsFrame:Destroy()
+		end
+
+		-- Show the stage lists and world list
+		local stageListFolder = playerGui.StageSelection_ScreenGui:FindFirstChild("Stages")
+		for _, child in pairs(stageListFolder:GetChildren()) do
+			if child:IsA("Frame") then
+				child.Visible = true
+			end
+		end
+		playerGui.StageSelection_ScreenGui:FindFirstChild("UI_WorldList_Frame").Visible = true
+	end
+
+	-- If fade is false, hide immediately; otherwise, create a black screen transition before hiding
+	if fade then
+		CreateBlackScreen(0.6, nil, 0.4, hide)
+	else
+		hide()
+	end
+end
+
+--- Creates the character selection frame with the given characters
+--- @param chars -- The list of characters to display in the selection frame
+local function createCharacterSelectionFrame(chars: { Name: string, Level: number?, Owned: boolean })
 	local stageCharacterSelectionFrame = Instance.new("Frame")
 	stageCharacterSelectionFrame.Name = "UI_StageCharacterSelection_Frame"
 	stageCharacterSelectionFrame.BackgroundTransparency = 1
@@ -114,28 +148,7 @@ return function(chars: { Name: string, Level: number?, Owned: boolean })
 	uIAspectRatioConstraint.Parent = returnButton
 	returnButton.Parent = stageCharacterSelectionFrame
 	returnButton.MouseButton1Click:Connect(function()
-		-- Create a black screen transition and hide the character selection screen
-		CreateBlackScreen(0.6, nil, 0.4, function()
-			-- Hide the character selection screen
-			stageCharacterSelectionFrame.Visible = false
-
-			-- Destroy the stage details frame if it exists
-			local stageDetailsFrame = playerGui.StageSelection_ScreenGui:FindFirstChild("UI_StageDetails_Frame")
-			if stageDetailsFrame then
-				stageDetailsFrame:Destroy()
-			end
-
-			-- Show the stage lists and world list
-			local stageListFolder = playerGui.StageSelection_ScreenGui:FindFirstChild("Stages")
-			for _, child in pairs(stageListFolder:GetChildren()) do
-				if child:IsA("Frame") then
-					child.Visible = true
-				end
-			end
-			playerGui.StageSelection_ScreenGui:FindFirstChild("UI_WorldList_Frame").Visible = true
-		end, function()
-			-- Do nothing after fade out is complete
-		end)
+		exitCharacterSelection(true)
 	end)
 
 	local characterList = Instance.new("ScrollingFrame")
@@ -256,3 +269,8 @@ return function(chars: { Name: string, Level: number?, Owned: boolean })
 
 	return stageCharacterSelectionFrame
 end
+
+return {
+	CreateCharacterSelectionFrame = createCharacterSelectionFrame,
+	ExitCharacterSelection = exitCharacterSelection,
+}

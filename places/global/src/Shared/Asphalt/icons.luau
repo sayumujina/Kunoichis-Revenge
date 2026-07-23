@@ -4,6 +4,9 @@ local icons = {
 	items = {
 		UI_Icons_Koban = "rbxassetid://120649062703664",
 	},
+	menu = {
+		UI_Icons_Campaign = "rbxassetid://140091561566202",
+	},
 }
 
 return icons
