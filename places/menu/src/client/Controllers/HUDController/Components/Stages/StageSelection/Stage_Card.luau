@@ -182,9 +182,16 @@ local function createStageCard(
 						return
 					end
 
+					local stageCleared = data.UnlockedStages.Worlds[worldId].Stages[stageId].Cleared
 					-- Create the stage details frame with the new information
 					local stageSelectionGui = playerGui.StageSelection_ScreenGui
-					StageDetailsScreen.CreateStageDetailsFrame(worldId, stageId, description, passedObjectives).Parent =
+					StageDetailsScreen.CreateStageDetailsFrame(
+						worldId,
+						stageId,
+						description,
+						stageCleared,
+						passedObjectives
+					).Parent =
 						stageSelectionGui
 
 					-- Disconnect the connection after receiving the data

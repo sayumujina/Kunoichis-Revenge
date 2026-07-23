@@ -28,7 +28,7 @@ local CombatData: {
 		currentStageData: {
 			stageId: string,
 			worldId: string,
-			extraObjectives: { { objectiveInfo: _TYPES.ExtraObjective, failed: boolean } }?,
+			extraObjectives: { [string]: { objectiveInfo: _TYPES.ExtraObjective, failed: boolean } }?,
 		},
 		--
 		isProcessingAttack: boolean, -- Whether the player is currently processing an attack
@@ -54,7 +54,7 @@ function CombatService.OnStart()
 		-- Store a copy of the extra objectives for the stage along with a failed flag for each objective
 		if stageData and stageData.extraObjectives then
 			for _, objective in pairs(stageData.extraObjectives) do
-				table.insert(objectives, { objectiveInfo = objective, failed = false })
+				objectives[objective.objectiveId] = { objectiveInfo = objective, failed = false }
 			end
 		end
 
@@ -143,17 +143,17 @@ function CombatService.OnStart()
 			combatData.downedCharacters += 1
 
 			-- Check if the player has failed the downed characters objective
-			for _, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
-				if objective.objectiveInfo.conditionType ~= "DownedCharacters" or objective.failed then
+			for objectiveId, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
+				if objective.conditionType ~= "DownedCharacters" or objective.failed then
 					continue
 				end
-				if combatData.downedCharacters > objective.objectiveInfo.value then
+				if combatData.downedCharacters > objective.value then
 					objective.failed = true
 
 					-- Fire the ObjectiveFailed event to notify the client that the player has failed the objective
 					EventService.Events.ObjectiveFailed:Fire({
 						player = player,
-						data = { objectiveId = objective.objectiveInfo.objectiveId },
+						data = { objectiveId = objectiveId },
 					})
 				end
 			end
@@ -195,9 +195,9 @@ function CombatService.OnStart()
 		if #combatData.npcs == 0 then
 			-- Compile the successful extra objectives for the player
 			local successfulObjectives = {}
-			for _, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
+			for objectiveId, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
 				if not objective.failed then
-					table.insert(successfulObjectives, objective.objectiveInfo.objectiveId)
+					table.insert(successfulObjectives, objectiveId)
 				end
 			end
 
@@ -407,7 +407,7 @@ function CombatService.IncrementElapsedActionValue(player: _TYPES.RobloxPlayerTy
 	--
 
 	-- If the elapsed action value exceeds the extra objective values, mark that objective as failed
-	for _, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
+	for objectiveId, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
 		-- Skip if the objective is not of type "UsedActionValue" or if it has already been marked as failed
 		if objective.objectiveInfo.conditionType ~= "UsedActionValue" or objective.failed then
 			continue
@@ -420,7 +420,7 @@ function CombatService.IncrementElapsedActionValue(player: _TYPES.RobloxPlayerTy
 			-- Fire the ObjectiveFailed event to notify the client that the player has failed the objective
 			EventService.Events.ObjectiveFailed:Fire({
 				player = player,
-				data = { objectiveId = objective.objectiveInfo.objectiveId },
+				data = { objectiveId = objectiveId },
 			})
 		end
 	end

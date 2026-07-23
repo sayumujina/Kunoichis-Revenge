@@ -14,20 +14,20 @@ local stages = {
 				enemies = { "MockEnemy", "MockEnemy" },
 				--
 				extraObjectives = {
-					{
-						objectiveId = "Objective1",
+					["Objective1"] = {
+						objectiveOrder = 1,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 900 action value",
 						value = 900,
 					},
-					{
-						objectiveId = "Objective2",
+					["Objective2"] = {
+						objectiveOrder = 2,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 1500 action value",
 						value = 1500,
 					},
-					{
-						objectiveId = "Objective3",
+					["Objective3"] = {
+						objectiveOrder = 3,
 						conditionType = "DownedCharacters",
 						description = "Have less than 1 character(s) downed",
 						value = 1,
@@ -62,20 +62,20 @@ local stages = {
 				enemies = { "MockEnemy", "MockEnemy", "MockEnemy" },
 				--
 				extraObjectives = {
-					{
-						objectiveId = "Objective1",
+					["Objective1"] = {
+						objectiveOrder = 1,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 900 action value",
 						value = 900,
 					},
-					{
-						objectiveId = "Objective2",
+					["Objective2"] = {
+						objectiveOrder = 2,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 1500 action value",
 						value = 1500,
 					},
-					{
-						objectiveId = "Objective3",
+					["Objective3"] = {
+						objectiveOrder = 3,
 						conditionType = "DownedCharacters",
 						description = "Have less than 1 character(s) downed",
 						value = 1,
@@ -110,20 +110,20 @@ local stages = {
 				enemies = { "Red_MockEnemy", "MockEnemy", "Red_MockEnemy", "MockEnemy" },
 				--
 				extraObjectives = {
-					{
-						objectiveId = "Objective1",
+					["Objective1"] = {
+						objectiveOrder = 1,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 750 action value",
 						value = 750,
 					},
-					{
-						objectiveId = "Objective2",
+					["Objective2"] = {
+						objectiveOrder = 2,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 1200 action value",
 						value = 1200,
 					},
-					{
-						objectiveId = "Objective3",
+					["Objective3"] = {
+						objectiveOrder = 3,
 						conditionType = "DownedCharacters",
 						description = "Have no characters downed",
 						value = 0,
@@ -133,20 +133,20 @@ local stages = {
 				firstClearReward = {
 					clear = {
 						rewardName = "Koban",
-						rewardValue = "100",
+						rewardValue = "200",
 					},
 					extraObjectives = {
 						["Objective1"] = {
 							rewardName = "Koban",
-							rewardValue = "100",
+							rewardValue = "160",
 						},
 						["Objective2"] = {
 							rewardName = "Koban",
-							rewardValue = "50",
+							rewardValue = "80",
 						},
 						["Objective3"] = {
 							rewardName = "Koban",
-							rewardValue = "20",
+							rewardValue = "60",
 						},
 					},
 				},
@@ -165,20 +165,20 @@ local stages = {
 				enemies = { "MockEnemy", "MockEnemy" },
 				--
 				extraObjectives = {
-					{
-						objectiveId = "Objective1",
+					["Objective1"] = {
+						objectiveOrder = 1,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 900 action value",
 						value = 900,
 					},
-					{
-						objectiveId = "Objective2",
+					["Objective2"] = {
+						objectiveOrder = 2,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 1500 action value",
 						value = 1500,
 					},
-					{
-						objectiveId = "Objective3",
+					["Objective3"] = {
+						objectiveOrder = 3,
 						conditionType = "DownedCharacters",
 						description = "Have less than 1 character(s) downed",
 						value = 1,
@@ -213,20 +213,20 @@ local stages = {
 				enemies = { "MockEnemy", "MockEnemy", "MockEnemy" },
 				--
 				extraObjectives = {
-					{
-						objectiveId = "Objective1",
+					["Objective1"] = {
+						objectiveOrder = 1,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 900 action value",
 						value = 900,
 					},
-					{
-						objectiveId = "Objective2",
+					["Objective2"] = {
+						objectiveOrder = 2,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 1500 action value",
 						value = 1500,
 					},
-					{
-						objectiveId = "Objective3",
+					["Objective3"] = {
+						objectiveOrder = 3,
 						conditionType = "DownedCharacters",
 						description = "Have less than 1 character(s) downed",
 						value = 1,
@@ -261,20 +261,20 @@ local stages = {
 				enemies = { "Red_MockEnemy", "MockEnemy", "Red_MockEnemy", "MockEnemy" },
 				--
 				extraObjectives = {
-					{
-						objectiveId = "Objective1",
+					["Objective1"] = {
+						objectiveOrder = 1,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 750 action value",
 						value = 750,
 					},
-					{
-						objectiveId = "Objective2",
+					["Objective2"] = {
+						objectiveOrder = 2,
 						conditionType = "UsedActionValue",
 						description = "Consume less than 1200 action value",
 						value = 1200,
 					},
-					{
-						objectiveId = "Objective3",
+					["Objective3"] = {
+						objectiveOrder = 3,
 						conditionType = "DownedCharacters",
 						description = "Have no characters downed",
 						value = 0,
@@ -284,20 +284,20 @@ local stages = {
 				firstClearReward = {
 					clear = {
 						rewardName = "Koban",
-						rewardValue = "100",
+						rewardValue = "200",
 					},
 					extraObjectives = {
 						["Objective1"] = {
 							rewardName = "Koban",
-							rewardValue = "100",
+							rewardValue = "160",
 						},
 						["Objective2"] = {
 							rewardName = "Koban",
-							rewardValue = "50",
+							rewardValue = "80",
 						},
 						["Objective3"] = {
 							rewardName = "Koban",
-							rewardValue = "20",
+							rewardValue = "60",
 						},
 					},
 				},

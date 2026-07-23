@@ -52,6 +52,7 @@ local function createWarningLabel(message: string)
 	warningLabel.Text = message
 	warningLabel.TextColor3 = Color3.new(1, 1, 1)
 	warningLabel.TextScaled = true
+	warningLabel.ZIndex = warningPopup.ZIndex + 1
 	warningLabel.Parent = warningPopup
 
 	return warningPopup
@@ -94,7 +95,7 @@ function WarningController.DisplayWarning(message: string)
 
 		--
 		if warningLabel then
-			warningLabel:Destroy()
+			warningPopup:Destroy()
 		end
 	end)
 end

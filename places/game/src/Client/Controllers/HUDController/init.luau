@@ -186,11 +186,8 @@ function HUDController.OnStart()
 		local objectives = {}
 		-- Store a copy of the extra objectives for the stage along with a failed flag for each objective
 		if stageData and stageData.extraObjectives then
-			for _, objective in pairs(stageData.extraObjectives) do
-				table.insert(
-					objectives,
-					{ description = objective.description, id = objective.objectiveId, passed = true }
-				)
+			for objectiveId, objective in pairs(stageData.extraObjectives) do
+				table.insert(objectives, { description = objective.description, id = objectiveId, passed = true })
 			end
 		end
 

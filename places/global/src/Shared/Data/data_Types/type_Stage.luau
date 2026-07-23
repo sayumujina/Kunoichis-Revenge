@@ -1,7 +1,7 @@
 --- @within data_TYPES
---- @type ExtraObjective = { condition: string, value: string }
+--- @type ExtraObjective = { objectiveOrder: number, conditionType: "DownedCharacters" | "UsedActionValue", description: string, value: string }
 export type ExtraObjective = {
-	objectiveId: string,
+	objectiveOrder: number,
 	conditionType: "DownedCharacters" | "UsedActionValue",
 	description: string,
 	value: string,

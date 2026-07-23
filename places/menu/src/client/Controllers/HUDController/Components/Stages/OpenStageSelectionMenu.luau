@@ -31,6 +31,7 @@ return function(unlockedWorldData: { [string]: { stages: { string } } }, ownedCh
 		local background = Instance.new("Frame")
 		background.Name = "BG"
 		background.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+		background.BackgroundTransparency = 0.2
 		background.Size = UDim2.fromScale(1, 1)
 		background.Parent = globalScreenGui
 

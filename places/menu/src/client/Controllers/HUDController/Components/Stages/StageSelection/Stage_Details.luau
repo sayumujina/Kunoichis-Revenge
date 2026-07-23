@@ -1,6 +1,7 @@
 local rep = game:GetService("ReplicatedStorage")
 local Stages = require(rep.Data.data_Stages)
 local GetAvatarImageForCharacter = require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
+local GetIconImageForItem = require(rep.Shared.GlobalUtility.GetIconImageForItem)
 local ui = require(rep.Assets.Asphalt.UI)
 
 local PASSED_OBJECTIVE_COLOR = ColorSequence.new({
@@ -71,7 +72,7 @@ local function createObjectiveList(worldId: string, stageId: string, passedObjec
 	local objectivesFrame = Instance.new("Frame")
 	objectivesFrame.Name = "Objectives_Frame"
 	objectivesFrame.BackgroundTransparency = 1
-	objectivesFrame.Position = UDim2.fromScale(0.05, 0.22)
+	objectivesFrame.Position = UDim2.fromScale(0.05, 0.265)
 	objectivesFrame.Size = UDim2.fromScale(0.9, 0.15)
 
 	local uIListLayout = Instance.new("UIListLayout")
@@ -82,12 +83,15 @@ local function createObjectiveList(worldId: string, stageId: string, passedObjec
 	uIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	uIListLayout.Parent = objectivesFrame
 
-	local objectiveList = Stages[worldId].stages[stageId].extraObjectives
-	local function createObjectiveFrame(objectiveName: string, description: string, passed: boolean)
+	local stageInfo = Stages[worldId].stages[stageId]
+	local objectiveList = stageInfo.extraObjectives
+	warn(objectiveList)
+	local function createObjectiveFrame(objectiveId: string, passed: boolean)
 		local objective = Instance.new("Frame")
-		objective.Name = objectiveName
+		objective.Name = objectiveId
 		objective.BackgroundTransparency = 1
 		objective.Size = UDim2.fromScale(1, 0.3)
+		objective.LayoutOrder = objectiveList[objectiveId].objectiveOrder
 
 		local objectiveIcon = Instance.new("ImageLabel")
 		objectiveIcon.Name = "ObjectiveIcon"
@@ -113,25 +117,135 @@ local function createObjectiveList(worldId: string, stageId: string, passedObjec
 		objectiveDesc.BackgroundTransparency = 1
 		objectiveDesc.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 		objectiveDesc.Position = UDim2.fromScale(0.06, 0.1)
-		objectiveDesc.Size = UDim2.fromScale(0.93, 0.8)
-		objectiveDesc.Text = description
+		objectiveDesc.Size = UDim2.fromScale(0.6, 0.8)
+		objectiveDesc.Text = objectiveList[objectiveId].description
 		objectiveDesc.TextColor3 = Color3.new(1, 1, 1)
 		objectiveDesc.TextScaled = true
 		objectiveDesc.TextXAlignment = Enum.TextXAlignment.Left
 		objectiveDesc.Parent = objective
 
+		local objectiveRewards = Instance.new("Frame")
+		objectiveRewards.Name = "ObjectiveRewards"
+		objectiveRewards.AnchorPoint = Vector2.new(1, 0)
+		objectiveRewards.BackgroundTransparency = 1
+		objectiveRewards.Position = UDim2.fromScale(1, 0.1)
+		objectiveRewards.Size = UDim2.fromScale(0.3, 0.8)
+
+		local rewardsAmountLabel = Instance.new("TextLabel")
+		rewardsAmountLabel.Name = "RewardsAmount_Label"
+		rewardsAmountLabel.AutomaticSize = Enum.AutomaticSize.Y
+		rewardsAmountLabel.BackgroundTransparency = 1
+		rewardsAmountLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
+		rewardsAmountLabel.LayoutOrder = 1
+		rewardsAmountLabel.Size = UDim2.fromScale(0.2, 1)
+		rewardsAmountLabel.Text = stageInfo.firstClearReward.extraObjectives[objectiveId].rewardValue
+		rewardsAmountLabel.TextColor3 = Color3.new(1, 1, 1)
+		rewardsAmountLabel.TextScaled = true
+		rewardsAmountLabel.TextXAlignment = Enum.TextXAlignment.Right
+		rewardsAmountLabel.TextTransparency = if passed then 0.5 else 0
+		rewardsAmountLabel.Parent = objectiveRewards
+
+		local rewardsIcon = Instance.new("ImageLabel")
+		rewardsIcon.Name = "RewardsIcon"
+		rewardsIcon.BackgroundTransparency = 1
+		rewardsIcon.Image = GetIconImageForItem(stageInfo.firstClearReward.extraObjectives[objectiveId].rewardName)
+		rewardsIcon.ImageTransparency = if passed then 0.5 else 0
+		rewardsIcon.LayoutOrder = 2
+		rewardsIcon.Position = UDim2.fromScale(1, 0)
+		rewardsIcon.Size = UDim2.fromScale(1, 1)
+
+		local rewardsIconspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+		rewardsIconspectRatioConstraint.Name = "UIAspectRatioConstraint"
+		rewardsIconspectRatioConstraint.Parent = rewardsIcon
+		rewardsIcon.Parent = objectiveRewards
+
+		local rewardsIconUIListLayout = Instance.new("UIListLayout")
+		rewardsIconUIListLayout.Name = "UIListLayout"
+		rewardsIconUIListLayout.FillDirection = Enum.FillDirection.Horizontal
+		rewardsIconUIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+		rewardsIconUIListLayout.Padding = UDim.new(0.02, 0)
+		rewardsIconUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		rewardsIconUIListLayout.Parent = objectiveRewards
+		--
+		objectiveRewards.Parent = objective
+
 		objective.Parent = objectivesFrame
 	end
 
-	for _, objectiveData in pairs(objectiveList) do
-		createObjectiveFrame(
-			objectiveData.objectiveId,
-			objectiveData.description,
-			table.find(passedObjectives, objectiveData.objectiveId) ~= nil
-		)
+	for objectiveId, objectiveData in pairs(objectiveList) do
+		createObjectiveFrame(objectiveId, table.find(passedObjectives, objectiveId) ~= nil)
 	end
 
 	return objectivesFrame
+end
+
+local function createFirstClearRewardsFrame(worldId: string, stageId: string, stageCleared: boolean)
+	local firstClearRewardFrame = Instance.new("Frame")
+	firstClearRewardFrame.Name = "FirstClearReward_Frame"
+	firstClearRewardFrame.BackgroundTransparency = 1
+	firstClearRewardFrame.Position = UDim2.fromScale(0.05, 0.22)
+	firstClearRewardFrame.Size = UDim2.fromScale(0.9, 0.045)
+
+	local firstClearRewardLabel = Instance.new("TextLabel")
+	firstClearRewardLabel.Name = "FirstClearReward_Label"
+	firstClearRewardLabel.BackgroundTransparency = 1
+	firstClearRewardLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
+	firstClearRewardLabel.Position = UDim2.fromScale(0.06, 0.1)
+	firstClearRewardLabel.Size = UDim2.fromScale(0.6, 0.8)
+	firstClearRewardLabel.Text = "First clear"
+	firstClearRewardLabel.TextColor3 = Color3.new(1, 1, 1)
+	firstClearRewardLabel.TextScaled = true
+	firstClearRewardLabel.TextXAlignment = Enum.TextXAlignment.Left
+	firstClearRewardLabel.Parent = firstClearRewardFrame
+
+	local firstClearReward = Instance.new("Frame")
+	firstClearReward.Name = "FirstClearReward"
+	firstClearReward.AnchorPoint = Vector2.new(1, 0)
+	firstClearReward.BackgroundTransparency = 1
+	firstClearReward.Position = UDim2.fromScale(1, 0.1)
+	firstClearReward.Size = UDim2.fromScale(0.3, 0.8)
+
+	local stageInfo = Stages[worldId].stages[stageId]
+	local rewardsAmountLabel = Instance.new("TextLabel")
+	rewardsAmountLabel.Name = "RewardsAmount_Label"
+	rewardsAmountLabel.AutomaticSize = Enum.AutomaticSize.Y
+	rewardsAmountLabel.BackgroundTransparency = 1
+	rewardsAmountLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
+	rewardsAmountLabel.LayoutOrder = 1
+	rewardsAmountLabel.Size = UDim2.fromScale(0.2, 1)
+	rewardsAmountLabel.Text = stageInfo.firstClearReward.clear.rewardValue
+	rewardsAmountLabel.TextColor3 = Color3.new(1, 1, 1)
+	rewardsAmountLabel.TextScaled = true
+	rewardsAmountLabel.TextXAlignment = Enum.TextXAlignment.Right
+	rewardsAmountLabel.TextTransparency = if stageCleared then 0.5 else 0
+	rewardsAmountLabel.Parent = firstClearReward
+
+	local rewardsIcon = Instance.new("ImageLabel")
+	rewardsIcon.Name = "RewardsIcon"
+	rewardsIcon.BackgroundTransparency = 1
+	rewardsIcon.Image = GetIconImageForItem(stageInfo.firstClearReward.clear.rewardName)
+	rewardsIcon.ImageTransparency = if stageCleared then 0.5 else 0
+	rewardsIcon.LayoutOrder = 2
+	rewardsIcon.Position = UDim2.fromScale(1, 0)
+	rewardsIcon.Size = UDim2.fromScale(1, 1)
+
+	local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+	uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+	uIAspectRatioConstraint.Parent = rewardsIcon
+
+	rewardsIcon.Parent = firstClearReward
+
+	local uIListLayout = Instance.new("UIListLayout")
+	uIListLayout.Name = "UIListLayout"
+	uIListLayout.FillDirection = Enum.FillDirection.Horizontal
+	uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	uIListLayout.Padding = UDim.new(0.02, 0)
+	uIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	uIListLayout.Parent = firstClearReward
+
+	firstClearReward.Parent = firstClearRewardFrame
+
+	return firstClearRewardFrame
 end
 
 --- Creates the stage details frame for a given stage, including the objectives and enemies list.
@@ -143,6 +257,7 @@ local function createStageDetailsFrame(
 	worldId: string,
 	stageId: string,
 	stageDescription: string,
+	stageCleared: boolean,
 	passedObjectives: { string }
 )
 	local stageDetailsFrame = Instance.new("Frame")
@@ -208,6 +323,10 @@ local function createStageDetailsFrame(
 	enemiesLabel.TextScaled = true
 	enemiesLabel.Parent = stageDetailsFrame
 
+	-- Create the first clear rewards frame and add it to the stage details frame
+	createFirstClearRewardsFrame(worldId, stageId, stageCleared).Parent = stageDetailsFrame
+
+	-- Create the objectives list frame and add it to the stage details frame
 	createObjectiveList(worldId, stageId, passedObjectives).Parent = stageDetailsFrame
 
 	-- Get the enemies list for the stage
