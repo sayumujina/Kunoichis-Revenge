@@ -1,5 +1,6 @@
 local _TYPES = require(game.ReplicatedStorage.Data.data_Types)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Stats = game:GetService("Stats")
 local rep = game:GetService("ReplicatedStorage")
 -- Services
 local Services = game:GetService("ServerScriptService").Server.Services
@@ -8,6 +9,8 @@ local PlayerService = require(Services.PlayerService)
 -- Packages
 local Trove = require(game.ReplicatedStorage.Packages.Trove)
 local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
+-- Data
+local LevelInfoData = require(rep.Data.data_CharacterLevelInfo)
 
 local CharService = {}
 
@@ -112,9 +115,21 @@ local function importCharacterStatsFromSource(char: _TYPES.Character, side: _TYP
 	for statName, stat in pairs(dataSource.baseStats) do
 		-- Verify with the base stats
 		if Chars[char].baseStats[statName] then
-			Chars[char].baseStats[statName] = stat
+			-- Take the character's level into account when calculating the real stats
+			local charLevel = char:GetAttribute("Level") :: number
+			local baseStat = stat
+			local finalisedStat
+			local levelInfoForStat = LevelInfoData[char.Name] and LevelInfoData[char.Name].statsChangePerLevel[statName]
+				or nil
+			if levelInfoForStat then
+				finalisedStat = baseStat + (levelInfoForStat * (charLevel - 1))
+				warn("Finalised stat for " .. statName .. " at level " .. charLevel .. ": " .. finalisedStat)
+			end
+
+			Chars[char].baseStats[statName] = finalisedStat or baseStat
+
 			-- Since the real stats table is identical, we can copy the base stats to the real stats
-			Chars[char].realStats[statName] = stat
+			Chars[char].realStats[statName] = finalisedStat or baseStat
 		end
 	end
 
@@ -125,6 +140,9 @@ local function importCharacterStatsFromSource(char: _TYPES.Character, side: _TYP
 			Chars[char].currentStats[statName] = stat
 		end
 	end
+
+	-- For hp specifically, always start the character at full health, regardless of the starting stat
+	Chars[char].currentStats["hp"] = Chars[char].realStats["hp"] or 1
 
 	return
 end
