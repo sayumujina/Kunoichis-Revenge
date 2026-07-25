@@ -26,7 +26,6 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 		data.Info.archerysVisionTarget = nil
 		return true
 	else
-		warn("Failed to execute move: " .. moveName)
 		return false
 	end
 end

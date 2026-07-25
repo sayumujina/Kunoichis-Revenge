@@ -281,7 +281,7 @@ export type RestartSuccessfulEvent = {
 	player: _TYPES.RobloxPlayerType,
 }
 
---- @type BattleEndedEvent { player: _TYPES.RobloxPlayerType, data: { passed: boolean, worldId: string, stageId: string, successfulExtraObjectives: { string }? } }
+--- @type BattleEndedEvent { player: _TYPES.RobloxPlayerType, data: { passed: boolean, previouslyCleared: boolean, stageId: string, worldId: string, previouslyClearedExtraObjectives: { string }?, successfulExtraObjectives: { string }? } }
 --- @within EventService
 --- Describes the event for when a battle ended.
 --- Contains the player associated with the ended battle and the data of the world and stage.
@@ -289,6 +289,7 @@ export type BattleEndedEvent = {
 	player: _TYPES.RobloxPlayerType,
 	data: {
 		passed: boolean,
+		isFirstClear: boolean,
 		stageId: string,
 		worldId: string,
 		previouslyClearedExtraObjectives: { string }?,

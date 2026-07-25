@@ -1,11 +1,13 @@
 -- Services
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
-local Services = game:GetService("ServerScriptService").Server.Services
+local Server = game:GetService("ServerScriptService").Server
+local Services = Server.Services
 local EventService = require(Services.EventService)
 local TurnService = require(Services.TurnService)
 local CharService = require(Services.CharService)
 local AnimationService = require(Services.AnimationService)
+local LyraService = require(Server.GlobalServices.LyraService)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
@@ -49,6 +51,7 @@ function SpawnService.Spawn(player: _TYPES.RobloxPlayerType, chars: { string }, 
 	local playables = chars :: { string }
 	warn(StagesData[worldId].stages)
 	local npcs = StagesData[worldId].stages[stageId].enemies :: { string }
+	warn(table.concat(npcs, ","))
 
 	-- Initialise the player entry in the turn system
 	if not TurnService.GetPlayerTurnData(player :: _TYPES.RobloxPlayerType) then
@@ -114,6 +117,11 @@ function SpawnService.SpawnCharacter(
 			part:SetAttribute("originallyTransparent", true)
 		end
 	end
+
+	-- Get the character's level from the player's data
+	local playerData = LyraService.GetData(player :: _TYPES.RobloxPlayerType)
+	local characterLevel = playerData.OwnedCharacters[char.Name] and playerData.OwnedCharacters[char.Name].Level or 20
+	char:SetAttribute("Level", characterLevel)
 
 	-- Create a index attribute to mark the character's index
 	-- Used to determine the selected character/enemy index
@@ -232,6 +240,7 @@ function SpawnService.Despawn(player: _TYPES.RobloxPlayerType, isRestart: boolea
 				chars: { string },
 				stageId: string,
 				worldId: string,
+				previouslyCleared: boolean,
 				previouslyClearedExtraObjectives: { string }?,
 			}?
 

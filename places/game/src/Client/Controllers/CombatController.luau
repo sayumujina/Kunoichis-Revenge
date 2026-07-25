@@ -42,7 +42,9 @@ function CombatController.OnStart()
 			return
 		end
 
-		require(combatController).Init(char)
+		if combatController.Init then
+			require(combatController).Init(char)
+		end
 	end)
 
 	-- Listens to sucessful move events

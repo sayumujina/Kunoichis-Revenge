@@ -1,15 +1,18 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
 -- Services
-local Services = game:GetService("ServerScriptService").Server.Services
+local Server = game:GetService("ServerScriptService").Server
+local Services = Server.Services
 local EventService = require(Services.EventService)
 local AnimationService = require(Services.AnimationService)
 local PlayerService = require(Services.PlayerService)
+local LyraService = require(Server.GlobalServices.LyraService)
 local TeleportService = game:GetService("TeleportService")
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
 local Zap = require(Services.Parent.zap)
+local TableUtil = require(rep.Packages.TableUtil)
 -- Data
 local Stages = require(rep.Data.data_Stages)
 
@@ -30,6 +33,7 @@ local CombatData: {
 			stageId: string,
 			worldId: string,
 			previouslyClearedExtraObjectives: { string }?,
+			previouslyCleared: boolean,
 			extraObjectives: { [string]: { objectiveInfo: _TYPES.ExtraObjective, failed: boolean } }?,
 		},
 		--
@@ -65,7 +69,6 @@ function CombatService.OnStart()
 			chars: { string },
 			stageId: string,
 			worldId: string,
-			previouslyClearedExtraObjectives: { string },
 		}?
 		local previouslyClearedExtraObjectives = tpData and tpData.previouslyClearedExtraObjectives or {}
 
@@ -83,7 +86,8 @@ function CombatService.OnStart()
 			currentStageData = {
 				stageId = spawnData.data.stageData.stageId,
 				worldId = spawnData.data.stageData.worldId,
-				previouslyClearedExtraObjectives = previouslyClearedExtraObjectives,
+				previouslyCleared = false,
+				previouslyClearedExtraObjectives = {},
 				extraObjectives = objectives :: any,
 			},
 			--
@@ -96,6 +100,19 @@ function CombatService.OnStart()
 		local playableCount = #CombatData[player].playables
 		CombatData[player].selectedNPCIndex = math.ceil(enemyCount / 2)
 		CombatData[player].selectedPlayableIndex = math.ceil(playableCount / 2)
+
+		-- Get the cleared status of the player of that stage
+		local playerData = LyraService.GetData(player)
+		if playerData then
+			local copiedData = TableUtil.Copy(playerData, true)
+
+			local data =
+				copiedData.UnlockedStages.Worlds[spawnData.data.stageData.worldId].Stages[spawnData.data.stageData.stageId]
+			if stageData then
+				CombatData[player].currentStageData.previouslyCleared = data.Cleared
+				CombatData[player].currentStageData.previouslyClearedExtraObjectives = data.ClearedExtraObjectives or {}
+			end
+		end
 	end)
 
 	-- Listens to turn started event
@@ -218,18 +235,146 @@ function CombatService.OnStart()
 				player = player,
 				data = {
 					passed = true,
+					isFirstClear = not combatData.currentStageData.previouslyCleared,
 					stageId = combatData.currentStageData.stageId,
 					worldId = combatData.currentStageData.worldId,
 					previouslyClearedExtraObjectives = combatData.currentStageData.previouslyClearedExtraObjectives,
 					successfulExtraObjectives = successfulObjectives,
 				},
 			})
+
+			local playerStore = LyraService.GetPlayerStore()
+			local playerData = playerStore:getAsync(player)
+			local stageData = combatData.currentStageData
+			local stageInfo = Stages[combatData.currentStageData.worldId].stages[combatData.currentStageData.stageId]
+
+			if not playerData then
+				return
+			end
+
+			-- Update cleared stage, objectives and currencies for the player
+			playerStore:updateImmutableAsync(player, function(oldData)
+				-- Clone the old data to avoid mutating it directly
+				local newData = TableUtil.Copy(oldData, true)
+
+				newData.UnlockedStages.Worlds[stageData.worldId].Stages[stageData.stageId] = {
+					Cleared = true,
+					ClearedExtraObjectives = successfulObjectives,
+				}
+
+				-- If this is the first time the player has cleared the stage, add first clear rewards to their currencies
+				if not stageData.previouslyCleared then
+					stageData.previouslyCleared = true
+
+					-- Add the rewards for clearing the stage to the player's currencies
+					local currencyType = stageInfo.firstClearReward.clear.rewardName
+					local rewardAmount = stageInfo.firstClearReward.clear.rewardValue
+					newData.Currencies[currencyType] = (newData.Currencies[currencyType] or 0) + rewardAmount
+
+					-- Check if the player has cleared all stages in the world to unlock the next world
+					local worldInfo = Stages[stageData.worldId]
+					if not worldInfo then
+						return oldData
+					end
+
+					local allStagesCleared = true
+					for stageId, _ in pairs(worldInfo.stages) do
+						if
+							not newData.UnlockedStages.Worlds[stageData.worldId].Stages[stageId]
+							or not newData.UnlockedStages.Worlds[stageData.worldId].Stages[stageId].Cleared
+						then
+							allStagesCleared = false
+							break
+						end
+					end
+
+					-- If all stages in the world are cleared, unlock the next world for the player along with the first stage of that world
+					if allStagesCleared then
+						local currentWorldOrder = worldInfo.worldOrder
+						local nextWorldId = nil
+
+						for worldId, world in pairs(Stages) do
+							if world.worldOrder == currentWorldOrder + 1 then
+								nextWorldId = worldId
+								break
+							end
+						end
+
+						-- Ignore if the next world is already unlocked for the player
+						if newData.UnlockedStages.Worlds[nextWorldId] then
+							return newData
+						end
+
+						for stageId, info in pairs(Stages[nextWorldId].stages) do
+							if info.stageOrder ~= 1 then
+								continue
+							end
+
+							newData.UnlockedStages.Worlds[nextWorldId] = {
+								Stages = {
+									[stageId] = {
+										Cleared = false,
+										ClearedExtraObjectives = {},
+									},
+								},
+							}
+
+							break
+						end
+					-- If not all stages are cleared, unlock the next stage if the condition is clearing the previous stage
+					else
+						local currentStageOrder = stageInfo.stageOrder
+
+						for stageId, stage in pairs(worldInfo.stages) do
+							if stage.stageOrder ~= currentStageOrder + 1 then
+								continue
+							end
+
+							-- Ignore if the next stage can't be unlocked by clearing the previous stage
+							if Stages[stageData.worldId].stages[stageId].unlockCondition ~= "CompletePreviousStage" then
+								break
+							end
+
+							warn("Unlocking next stage for player: " .. player.Name .. " - " .. stageId)
+
+							newData.UnlockedStages.Worlds[stageData.worldId].Stages[stageId] = {
+								Cleared = false,
+								ClearedExtraObjectives = {},
+							}
+							break
+						end
+					end
+				end
+
+				local clearedExtraObjectives = stageData.previouslyClearedExtraObjectives
+				if not clearedExtraObjectives then
+					return oldData
+				end
+
+				-- If this is the first time the player has cleared an extra objective, add the rewards for that objective to their currencies
+				for _, objectiveId in pairs(successfulObjectives) do
+					if table.find(clearedExtraObjectives, objectiveId) then
+						continue
+					end
+
+					warn(clearedExtraObjectives)
+					table.insert(clearedExtraObjectives, objectiveId)
+
+					-- Add the rewards for the extra objective to the player's currencies
+					local currencyType = stageInfo.firstClearReward.extraObjectives[objectiveId].rewardName
+					local rewardAmount = stageInfo.firstClearReward.extraObjectives[objectiveId].rewardValue
+					newData.Currencies[currencyType] = (newData.Currencies[currencyType] or 0) + rewardAmount
+				end
+
+				return newData
+			end)
 		elseif combatData.downedCharacters == #combatData.playables then
 			-- Fire the BattleEnded event to notify the client that the player has completed the stage
 			EventService.Events.BattleEnded:Fire({
 				player = player,
 				data = {
 					passed = false,
+					isFirstClear = not combatData.currentStageData.previouslyCleared,
 					stageId = combatData.currentStageData.stageId,
 					worldId = combatData.currentStageData.worldId,
 					previouslyClearedExtraObjectives = nil,

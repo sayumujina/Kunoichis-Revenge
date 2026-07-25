@@ -17,6 +17,7 @@ local DamageTypes = require(script.Combat.type_Damage)
 local StageTypes = require(script.type_Stage)
 local PlayerStoreTypes = require(script.type_PlayerStore)
 local GlobalDataStoreTypes = require(script.type_GlobalDataStore)
+local CharacterLevelTypes = require(script.type_CharacterLevelInfo)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
@@ -33,6 +34,7 @@ export type MoveData = MoveTypes.MoveData
 -- Character data types
 export type CharacterStats = CharacterDataTypes.CharacterStats
 export type CharacterInfo = CharacterDataTypes.CharacterInfo
+export type CharacterLevelInfo = CharacterLevelTypes.CharacterLevelInfo
 
 -- Turn types
 export type TurnEntry = TurnTypes.TurnEntry

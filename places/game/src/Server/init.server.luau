@@ -13,8 +13,8 @@ local Zap = require(Services.Parent.zap)
 -- Contants
 local MENU_PLACE_ID = 87694110914637
 local DEFAULT_SPAWN_CHARACTERS = { "Rin", "Hayumi", "Setsuna" }
-local DEFAULT_STAGE_ID = "1-3"
-local DEFAULT_WORLD_ID = "World1"
+local DEFAULT_STAGE_ID = "2-1"
+local DEFAULT_WORLD_ID = "World2"
 
 -- Disable character autoload
 game.Players.CharacterAutoLoads = false
@@ -47,8 +47,13 @@ game.Players.PlayerAdded:Connect(function(player)
 		chars: { string },
 		stageId: string,
 		worldId: string,
-		previouslyClearedExtraObjectives: { string },
 	}?
+
+	-- local tpData = {
+	-- 	chars = DEFAULT_SPAWN_CHARACTERS,
+	-- 	stageId = DEFAULT_STAGE_ID,
+	-- 	worldId = DEFAULT_WORLD_ID,
+	-- }
 
 	task.defer(function()
 		task.delay(2, function()

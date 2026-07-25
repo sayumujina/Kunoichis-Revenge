@@ -701,10 +701,12 @@ function HUDController.OnStart()
 	Zap.BattleEnded.On(function(battleEndedEvent)
 		-- Delay the creation of the victory screen
 		task.delay(1, function()
+			warn(battleEndedEvent.previouslyClearedExtraObjectives)
 			local battleEndScreen = Components.Combat.BattleEndScreen.CreateBattleEndScreen(
+				battleEndedEvent.passed,
+				false,
 				battleEndedEvent.worldId,
 				battleEndedEvent.stageId,
-				battleEndedEvent.passed,
 				battleEndedEvent.successfulExtraObjectives or {},
 				battleEndedEvent.previouslyClearedExtraObjectives or {}
 			)

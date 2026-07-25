@@ -25,11 +25,11 @@ local stages: {
 				firstClearReward: {
 					clear: {
 						rewardName: string,
-						rewardValue: string,
+						rewardValue: number,
 					},
 					extraObjectives: { [string]: {
 						rewardName: string,
-						rewardValue: string,
+						rewardValue: number,
 					} },
 				},
 			},
@@ -74,20 +74,20 @@ local stages: {
 					firstClearReward = {
 						clear = {
 							rewardName = "Koban",
-							rewardValue = "100",
+							rewardValue = 100,
 						},
 						extraObjectives = {
 							["Objective1"] = {
 								rewardName = "Koban",
-								rewardValue = "100",
+								rewardValue = 100,
 							},
 							["Objective2"] = {
 								rewardName = "Koban",
-								rewardValue = "50",
+								rewardValue = 50,
 							},
 							["Objective3"] = {
 								rewardName = "Koban",
-								rewardValue = "20",
+								rewardValue = 20,
 							},
 						},
 					},
@@ -123,20 +123,20 @@ local stages: {
 					firstClearReward = {
 						clear = {
 							rewardName = "Koban",
-							rewardValue = "100",
+							rewardValue = 100,
 						},
 						extraObjectives = {
 							["Objective1"] = {
 								rewardName = "Koban",
-								rewardValue = "100",
+								rewardValue = 100,
 							},
 							["Objective2"] = {
 								rewardName = "Koban",
-								rewardValue = "50",
+								rewardValue = 50,
 							},
 							["Objective3"] = {
 								rewardName = "Koban",
-								rewardValue = "20",
+								rewardValue = 20,
 							},
 						},
 					},
@@ -172,20 +172,20 @@ local stages: {
 					firstClearReward = {
 						clear = {
 							rewardName = "Koban",
-							rewardValue = "200",
+							rewardValue = 200,
 						},
 						extraObjectives = {
 							["Objective1"] = {
 								rewardName = "Koban",
-								rewardValue = "160",
+								rewardValue = 160,
 							},
 							["Objective2"] = {
 								rewardName = "Koban",
-								rewardValue = "80",
+								rewardValue = 80,
 							},
 							["Objective3"] = {
 								rewardName = "Koban",
-								rewardValue = "60",
+								rewardValue = 60,
 							},
 						},
 					},
@@ -229,20 +229,20 @@ local stages: {
 					firstClearReward = {
 						clear = {
 							rewardName = "Koban",
-							rewardValue = "100",
+							rewardValue = 100,
 						},
 						extraObjectives = {
 							["Objective1"] = {
 								rewardName = "Koban",
-								rewardValue = "100",
+								rewardValue = 100,
 							},
 							["Objective2"] = {
 								rewardName = "Koban",
-								rewardValue = "50",
+								rewardValue = 50,
 							},
 							["Objective3"] = {
 								rewardName = "Koban",
-								rewardValue = "20",
+								rewardValue = 20,
 							},
 						},
 					},
@@ -278,20 +278,20 @@ local stages: {
 					firstClearReward = {
 						clear = {
 							rewardName = "Koban",
-							rewardValue = "100",
+							rewardValue = 100,
 						},
 						extraObjectives = {
 							["Objective1"] = {
 								rewardName = "Koban",
-								rewardValue = "100",
+								rewardValue = 100,
 							},
 							["Objective2"] = {
 								rewardName = "Koban",
-								rewardValue = "50",
+								rewardValue = 50,
 							},
 							["Objective3"] = {
 								rewardName = "Koban",
-								rewardValue = "20",
+								rewardValue = 20,
 							},
 						},
 					},
@@ -327,20 +327,20 @@ local stages: {
 					firstClearReward = {
 						clear = {
 							rewardName = "Koban",
-							rewardValue = "200",
+							rewardValue = 200,
 						},
 						extraObjectives = {
 							["Objective1"] = {
 								rewardName = "Koban",
-								rewardValue = "160",
+								rewardValue = 160,
 							},
 							["Objective2"] = {
 								rewardName = "Koban",
-								rewardValue = "80",
+								rewardValue = 80,
 							},
 							["Objective3"] = {
 								rewardName = "Koban",
-								rewardValue = "60",
+								rewardValue = 60,
 							},
 						},
 					},

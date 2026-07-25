@@ -51,6 +51,11 @@
       }
     },
 
+    "ReplicatedFirst": {
+      "$path": "places/game/src/ReplicatedFirst"
+    },
+
+    
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Client": {

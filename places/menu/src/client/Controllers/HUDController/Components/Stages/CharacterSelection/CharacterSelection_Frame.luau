@@ -2,6 +2,7 @@ local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
 --
 local CharacterCard = require(script.Parent.Character_Card)
+local StageDetails = require(script.Parent.Parent.StageSelection.Stage_Details)
 local ui = require(game.ReplicatedStorage.Assets.Asphalt.UI)
 --
 local TeleportService = game:GetService("TeleportService")
@@ -107,12 +108,12 @@ local function exitCharacterSelection(fade: boolean?)
 			stageDetailsFrame:Destroy()
 		end
 
-		-- Show the stage lists and world list
+		-- Show the stage lists of the selected world and world list
 		local stageListFolder = playerGui.StageSelection_ScreenGui:FindFirstChild("Stages")
-		for _, child in pairs(stageListFolder:GetChildren()) do
-			if child:IsA("Frame") then
-				child.Visible = true
-			end
+		local selectedWorldValue = playerGui.StageSelection_ScreenGui.UI_WorldList_Frame.SelectedWorld.Value
+		local selectedStageListFrame = stageListFolder:FindFirstChild("UI_" .. selectedWorldValue .. "_StageList_Frame")
+		if selectedStageListFrame then
+			selectedStageListFrame.Visible = true
 		end
 		playerGui.StageSelection_ScreenGui:FindFirstChild("UI_WorldList_Frame").Visible = true
 	end
@@ -247,7 +248,10 @@ local function createCharacterSelectionFrame(chars: { Name: string, Level: numbe
 			local selectedWorldFrameName = "UI_" .. selectedWorldValue .. "_StageList_Frame"
 			local selectedStageValue =
 				playerGui.StageSelection_ScreenGui.Stages[selectedWorldFrameName].SelectedStage.Value
-			warn("Selected Stage: ", selectedStageValue, " Selected World: ", selectedWorldValue, spawnChars)
+			--
+			local isCleared = playerGui.StageSelection_ScreenGui.UI_StageDetails_Frame.StageCleared_Value.Value
+
+			warn(selectedStageValue, selectedWorldValue, spawnChars, isCleared, clearedObjectives)
 			Zap.RequestSpawn.Fire({
 				stageId = selectedStageValue,
 				worldId = selectedWorldValue,

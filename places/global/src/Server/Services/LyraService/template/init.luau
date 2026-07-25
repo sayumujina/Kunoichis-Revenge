@@ -33,6 +33,14 @@ local data: _TYPES.PlayerStoreData = {
 					},
 				},
 			},
+			["World2"] = {
+				Stages = {
+					["2-1"] = {
+						Cleared = false,
+						ClearedExtraObjectives = {},
+					},
+				},
+			},
 		},
 	},
 	--

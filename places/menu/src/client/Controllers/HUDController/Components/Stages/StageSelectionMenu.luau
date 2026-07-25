@@ -90,6 +90,7 @@ local function createStageSelectionMenu(unlockedWorldData: { [string]: { stages:
 		return a.Owned
 	end)
 
+	warn(debug.traceback())
 	local characterSelectionFrame = CharacterSelectionFrame.CreateCharacterSelectionFrame(charactersInfo)
 	characterSelectionFrame.Parent = stageSelectionGui
 end
@@ -109,6 +110,13 @@ local function init()
 	receiveDataConnection = Zap.PlayerstoreDataResponse.On(function(data)
 		local unlockedWorldData = buildUnlockedWorldData(data.UnlockedStages)
 
+		local playerGui = game.Players.LocalPlayer.PlayerGui
+		local stageSelectionGui = playerGui:FindFirstChild("StageSelection_ScreenGui", true)
+		if stageSelectionGui then
+			warn("Destroying stage selection menu due to datastore change")
+			stageSelectionGui:Destroy()
+		end
+
 		createStageSelectionMenu(unlockedWorldData, data.OwnedCharacters)
 
 		-- Disconnect the connections after receiving the data
@@ -122,6 +130,7 @@ local function init()
 		local playerGui = game.Players.LocalPlayer.PlayerGui
 		local stageSelectionGui = playerGui:FindFirstChild("StageSelection_ScreenGui", true)
 		if stageSelectionGui then
+			warn("Destroying stage selection menu due to datastore change")
 			stageSelectionGui:Destroy()
 		end
 		createStageSelectionMenu(unlockedWorldData, data.OwnedCharacters)

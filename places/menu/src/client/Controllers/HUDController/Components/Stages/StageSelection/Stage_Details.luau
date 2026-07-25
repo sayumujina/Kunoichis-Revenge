@@ -15,6 +15,8 @@ local UNPASSED_OBJECTIVE_COLOR = ColorSequence.new({
 	ColorSequenceKeypoint.new(1, Color3.fromRGB(118, 118, 118)),
 })
 
+local previouslyClearedObjectives = {}
+
 local function createEnemiesList(enemies: { string })
 	local enemiesList = Instance.new("Frame")
 	enemiesList.Name = "EnemiesList"
@@ -138,7 +140,7 @@ local function createObjectiveList(worldId: string, stageId: string, passedObjec
 		rewardsAmountLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 		rewardsAmountLabel.LayoutOrder = 1
 		rewardsAmountLabel.Size = UDim2.fromScale(0.2, 1)
-		rewardsAmountLabel.Text = stageInfo.firstClearReward.extraObjectives[objectiveId].rewardValue
+		rewardsAmountLabel.Text = tostring(stageInfo.firstClearReward.extraObjectives[objectiveId].rewardValue)
 		rewardsAmountLabel.TextColor3 = Color3.new(1, 1, 1)
 		rewardsAmountLabel.TextScaled = true
 		rewardsAmountLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -213,7 +215,7 @@ local function createFirstClearRewardsFrame(worldId: string, stageId: string, st
 	rewardsAmountLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
 	rewardsAmountLabel.LayoutOrder = 1
 	rewardsAmountLabel.Size = UDim2.fromScale(0.2, 1)
-	rewardsAmountLabel.Text = stageInfo.firstClearReward.clear.rewardValue
+	rewardsAmountLabel.Text = tostring(stageInfo.firstClearReward.clear.rewardValue)
 	rewardsAmountLabel.TextColor3 = Color3.new(1, 1, 1)
 	rewardsAmountLabel.TextScaled = true
 	rewardsAmountLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -266,6 +268,13 @@ local function createStageDetailsFrame(
 	stageDetailsFrame.Position = UDim2.fromScale(0.02, 0.155)
 	stageDetailsFrame.Size = UDim2.fromScale(0.59, 0.82)
 	stageDetailsFrame.Visible = true
+
+	local stageClearedValue = Instance.new("BoolValue")
+	stageClearedValue.Name = "StageCleared_Value"
+	stageClearedValue.Value = stageCleared
+	stageClearedValue.Parent = stageDetailsFrame
+
+	previouslyClearedObjectives = passedObjectives
 
 	local bG = Instance.new("ImageLabel")
 	bG.Name = "BG"
@@ -336,6 +345,11 @@ local function createStageDetailsFrame(
 	return stageDetailsFrame
 end
 
+local function getPreviouslyClearedObjectives()
+	return previouslyClearedObjectives
+end
+
 return {
 	CreateStageDetailsFrame = createStageDetailsFrame,
+	GetPreviouslyClearedObjectives = getPreviouslyClearedObjectives,
 }

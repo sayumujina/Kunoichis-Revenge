@@ -215,6 +215,7 @@ event BattleEnded = {
 	call: ManyAsync,
 	data: struct {
 		passed: boolean,
+		isFirstClear: boolean,
 		stageId: string.binary,
 		worldId: string.binary,
 		previouslyClearedExtraObjectives: string.binary[]?,

@@ -53,14 +53,6 @@ local function cloneObjectiveFrameFromCombatScreen(
 		-- 1. If objective is passed for the first time, display the rewards amount
 		-- 2. If objective is passed but has been previously cleared, display "Claimed"
 		-- 3. If objective is not passed, do not display the rewards amount
-		warn(
-			"Objective Name: ",
-			objectiveName,
-			" | Passed: ",
-			objectivePassed,
-			" | Previously Cleared: ",
-			objectivePreviouslyCleared
-		)
 		if objectivePassed then
 			if objectivePreviouslyCleared then
 				rewardText = "Claimed"
@@ -158,15 +150,17 @@ local function cloneObjectiveFrameFromCombatScreen(
 end
 
 --- Creates a battle end screen with the given parameters.
+--- @param passed -- Whether the player passed the challenge.
+--- @param firstClear -- Whether the player cleared the challenge for the first time.
 --- @param worldId -- The ID of the world where the battle took place.
 --- @param stageId -- The ID of the stage where the battle took place.
---- @param passed -- Whether the player passed the challenge.
 --- @param clearedExtraObjectives -- The list of extra objectives that were cleared by the player.
 --- @param previouslyClearedExtraObjectives -- The list of extra objectives that were previously cleared by the player.
 local function createBattleEndScreen(
+	passed: boolean,
+	firstClear: boolean,
 	worldId: string,
 	stageId: string,
-	passed: boolean,
 	clearedExtraObjectives: { string }?,
 	previouslyClearedExtraObjectives: { string }?
 )
@@ -183,7 +177,7 @@ local function createBattleEndScreen(
 	local battleEndScreenTween = TweenService:Create(
 		battleEndScreen,
 		TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
-		{ BackgroundTransparency = 0.05 }
+		{ BackgroundTransparency = 0.1 }
 	)
 	table.insert(tweens, battleEndScreenTween)
 
@@ -256,6 +250,68 @@ local function createBattleEndScreen(
 			{ TextTransparency = 0 }
 		)
 		table.insert(tweens, consumedActionValueTween)
+
+		-- Display first clear rewards if the player cleared the challenge for the first time
+		if firstClear then
+			local firstClearRewards = Instance.new("Frame")
+			firstClearRewards.Name = "FirstClearRewards"
+			firstClearRewards.AnchorPoint = Vector2.new(1, 0)
+			firstClearRewards.BackgroundTransparency = 1
+			firstClearRewards.Position = UDim2.fromScale(0.7, 0.6)
+			firstClearRewards.Size = UDim2.fromScale(0.4, 0.04)
+
+			local rewardsAmountLabel = Instance.new("TextLabel")
+			rewardsAmountLabel.Name = "RewardsAmount_Label"
+			rewardsAmountLabel.AutomaticSize = Enum.AutomaticSize.Y
+			rewardsAmountLabel.BackgroundTransparency = 1
+			rewardsAmountLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
+			rewardsAmountLabel.LayoutOrder = 1
+			rewardsAmountLabel.Size = UDim2.fromScale(0.5, 1)
+			rewardsAmountLabel.Text = "First Clear Reward: "
+				.. Stages[worldId].stages[stageId].firstClearReward.clear.rewardValue
+			rewardsAmountLabel.TextColor3 = Color3.new(1, 1, 1)
+			rewardsAmountLabel.TextScaled = true
+			rewardsAmountLabel.Parent = firstClearRewards
+
+			local rewardsIcon = Instance.new("ImageLabel")
+			rewardsIcon.Name = "RewardsIcon"
+			rewardsIcon.BackgroundTransparency = 1
+			rewardsIcon.Image = "rbxassetid://99648493271139"
+			rewardsIcon.LayoutOrder = 2
+			rewardsIcon.Position = UDim2.fromScale(1, 0)
+			rewardsIcon.Size = UDim2.fromScale(1, 1)
+
+			local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+			uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+			uIAspectRatioConstraint.Parent = rewardsIcon
+
+			rewardsIcon.Parent = firstClearRewards
+
+			local uIListLayout = Instance.new("UIListLayout")
+			uIListLayout.Name = "UIListLayout"
+			uIListLayout.FillDirection = Enum.FillDirection.Horizontal
+			uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			uIListLayout.Padding = UDim.new(0.02, 0)
+			uIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			uIListLayout.Parent = firstClearRewards
+
+			firstClearRewards.Parent = battleEndScreen
+
+			-- Tween the first clear rewards label
+			local firstClearRewardsTween = TweenService:Create(
+				rewardsAmountLabel,
+				TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
+				{ TextTransparency = 0 }
+			)
+			table.insert(tweens, firstClearRewardsTween)
+
+			local firstClearRewardsIconTween = TweenService:Create(
+				rewardsIcon,
+				TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
+				{ ImageTransparency = 0 }
+			)
+			table.insert(tweens, firstClearRewardsIconTween)
+		end
 	end
 
 	for _, tween in pairs(tweens) do
