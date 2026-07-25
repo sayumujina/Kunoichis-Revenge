@@ -117,13 +117,12 @@ local function importCharacterStatsFromSource(char: _TYPES.Character, side: _TYP
 		if Chars[char].baseStats[statName] then
 			-- Take the character's level into account when calculating the real stats
 			local charLevel = char:GetAttribute("Level") :: number
-			local baseStat = stat
+			local baseStat = stat :: number
 			local finalisedStat
 			local levelInfoForStat = LevelInfoData[char.Name] and LevelInfoData[char.Name].statsChangePerLevel[statName]
 				or nil
 			if levelInfoForStat then
 				finalisedStat = baseStat + (levelInfoForStat * (charLevel - 1))
-				warn("Finalised stat for " .. statName .. " at level " .. charLevel .. ": " .. finalisedStat)
 			end
 
 			Chars[char].baseStats[statName] = finalisedStat or baseStat
