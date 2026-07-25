@@ -291,6 +291,7 @@ export type BattleEndedEvent = {
 		passed: boolean,
 		stageId: string,
 		worldId: string,
+		previouslyClearedExtraObjectives: { string }?,
 		successfulExtraObjectives: { string }?,
 	},
 }

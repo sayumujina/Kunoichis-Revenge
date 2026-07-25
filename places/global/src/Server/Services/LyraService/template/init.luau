@@ -37,7 +37,7 @@ local data: _TYPES.PlayerStoreData = {
 	},
 	--
 	Currencies = {
-		Koban = 1000,
+		Koban = 10000,
 	},
 }
 

@@ -232,6 +232,7 @@ function SpawnService.Despawn(player: _TYPES.RobloxPlayerType, isRestart: boolea
 				chars: { string },
 				stageId: string,
 				worldId: string,
+				previouslyClearedExtraObjectives: { string }?,
 			}?
 
 			local charsToSpawn = if tpData and tpData.chars then tpData.chars else DEFAULT_SPAWN_CHARACTERS

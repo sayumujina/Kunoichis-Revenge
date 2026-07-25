@@ -195,6 +195,8 @@ function HUDController.OnStart()
 		local OBJECTIVE_FRAME_POS = UDim2.fromScale(0.75, 0.25)
 		local OBJECTIVE_FRAME_TRANSPARENCY = 0.7
 		local objectivesFrame = Components.Combat.Objectives.ObjectiveFrame.CreateObjectiveFrame(
+			spawnData.stageData.worldId,
+			spawnData.stageData.stageId,
 			OBJECTIVE_FRAME_SIZE,
 			OBJECTIVE_FRAME_POS,
 			OBJECTIVE_FRAME_TRANSPARENCY,
@@ -700,8 +702,11 @@ function HUDController.OnStart()
 		-- Delay the creation of the victory screen
 		task.delay(1, function()
 			local battleEndScreen = Components.Combat.BattleEndScreen.CreateBattleEndScreen(
+				battleEndedEvent.worldId,
+				battleEndedEvent.stageId,
 				battleEndedEvent.passed,
-				battleEndedEvent.successfulExtraObjectives and #battleEndedEvent.successfulExtraObjectives or 0
+				battleEndedEvent.successfulExtraObjectives or {},
+				battleEndedEvent.previouslyClearedExtraObjectives or {}
 			)
 
 			-- Parent the victory screen to the player's GUI

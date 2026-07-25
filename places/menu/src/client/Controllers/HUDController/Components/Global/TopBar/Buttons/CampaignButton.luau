@@ -2,11 +2,11 @@ local rep = game:GetService("ReplicatedStorage")
 local icons = require(rep.Assets.Asphalt.Icons)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local HUDController = StarterPlayerScripts.Client.Controllers.HUDController
 -- Packages
 local TopBarIcons = require(rep.Packages.topbarplus)
-local Zap = require(StarterPlayerScripts.Client.zap)
 -- Components
-local StageSelectionMenu = require(script.Parent.Parent.Stages.StageSelectionMenu)
+local StageSelectionMenu = require(HUDController.Components.Stages.StageSelectionMenu)
 local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 local CharacterSelectionFrame = require(
 	StarterPlayerScripts.Client.Controllers.HUDController.Components.Stages.CharacterSelection.CharacterSelection_Frame

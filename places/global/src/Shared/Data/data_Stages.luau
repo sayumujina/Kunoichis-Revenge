@@ -164,7 +164,7 @@ local stages: {
 						["Objective3"] = {
 							objectiveOrder = 3,
 							conditionType = "DownedCharacters",
-							description = "Have no characters downed",
+							description = "Have no more than 0 character(s) downed",
 							value = 0,
 						},
 					},
@@ -319,7 +319,7 @@ local stages: {
 						["Objective3"] = {
 							objectiveOrder = 3,
 							conditionType = "DownedCharacters",
-							description = "Have no characters downed",
+							description = "Have no more than 0 character(s) downed",
 							value = 0,
 						},
 					},

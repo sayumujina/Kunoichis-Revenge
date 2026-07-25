@@ -169,10 +169,10 @@ local function createStageCard(
 					characterSelectionFrame.Visible = true
 				end
 
-				Zap.RequestDatastoreData.Fire()
+				Zap.RequestPlayerstoreData.Fire()
 
 				local requestDataConnection
-				requestDataConnection = Zap.DatastoreDataResponse.On(function(data)
+				requestDataConnection = Zap.PlayerstoreDataResponse.On(function(data)
 					if not data then
 						return
 					end

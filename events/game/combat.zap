@@ -217,6 +217,7 @@ event BattleEnded = {
 		passed: boolean,
 		stageId: string.binary,
 		worldId: string.binary,
+		previouslyClearedExtraObjectives: string.binary[]?,
 		successfulExtraObjectives: string.binary[]?,
 	}
 }

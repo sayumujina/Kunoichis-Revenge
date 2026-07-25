@@ -24,7 +24,7 @@ function LyraController.OnStart()
 		LyraController.Loaded = true
 	end)
 
-	Zap.RequestDatastoreData.Fire()
+	Zap.RequestPlayerstoreData.Fire()
 end
 
 return LyraController

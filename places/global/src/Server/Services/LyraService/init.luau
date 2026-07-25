@@ -43,7 +43,12 @@ local function createPlayerStore()
 				end
 				-- Fires the entire player data changed event.
 				-- TODO: This is not efficient for large data, consider diffing changes.
-				warn("Player data changed for " .. player.Name .. ": " .. key)
+				warn(
+					"Player data changed for "
+						.. player.Name
+						.. ": "
+						.. game:GetService("HttpService"):JSONEncode(newData)
+				)
 				Zap.PlayerDatastoreChanged.Fire(player, newData :: { [string]: any })
 			end,
 		},
@@ -100,21 +105,6 @@ function LyraService.OnStart()
 			player:Kick("Error loading your data:" .. err)
 		end)
 
-		-- Add a shade for testing purposes
-		-- playerStore:updateImmutableAsync(player, function(data)
-		-- 	if data.Decks then
-		-- 		print("Adding test shade to player: " .. player.Name)
-		-- 		local newData = TableUtil.Copy(data, true)
-		-- 		--
-		-- 		newData.Decks = {
-		-- 			ActiveDeckId = 1,
-		-- 			Saved = mocks.EmptyDecksData,
-		-- 		}
-		-- 		return newData
-		-- 	end
-		-- 	return false
-		-- end)
-
 		-- DEBUG: Reset data for testing
 		-- store:updateImmutableAsync(player, function(data)
 		-- 	if data then
@@ -138,11 +128,11 @@ function LyraService.OnStart()
 		store:unloadAsync(player)
 	end)
 
-	Zap.RequestDatastoreData.On(function(player)
+	Zap.RequestPlayerstoreData.On(function(player)
 		local playerData = store:getAsync(player)
 		warn("[LyraService] Player Data:", playerData)
 		--
-		Zap.DatastoreDataResponse.Fire(player, playerData)
+		Zap.PlayerstoreDataResponse.Fire(player, playerData)
 	end)
 
 	-- Ensure data is saved when the server shuts down

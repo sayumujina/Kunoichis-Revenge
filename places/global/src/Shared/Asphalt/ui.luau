@@ -9,6 +9,7 @@ local ui = {
 		UI_Avatar_Rin = "rbxassetid://128491292290387",
 		UI_Avatar_Setsuna = "rbxassetid://101808487975409",
 		UI_Avatar_Tsuyoka = "rbxassetid://120122220992427",
+		UI_Avatar_YouAintBuyingThisLilBro = "rbxassetid://130239872624485",
 	},
 	avatarSilhouettes = {
 		UI_Avatar_Hayumi_Silhouette = "rbxassetid://72818897912577",

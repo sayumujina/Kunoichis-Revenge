@@ -1,9 +1,14 @@
 local TweenService = game:GetService("TweenService")
 --
+local rep = game:GetService("ReplicatedStorage")
+local Stages = require(rep.Data.data_Stages)
+--
 local CreateBattleEndButtons = require(script.Parent.BattleEndButtons)
 
-local VICTORY_OBJECTIVE_POSITION = UDim2.fromScale(0.35, 0.32)
-local VICTORY_OBJECTIVE_SIZE = UDim2.fromScale(0.3, 0.24)
+local VICTORY_OBJECTIVE_POSITION = UDim2.fromScale(0.27, 0.32)
+local VICTORY_OBJECTIVE_SIZE = UDim2.fromScale(0.46, 0.2)
+local VICTORY_OBJECTIVEDESC_SIZE = UDim2.fromScale(0.6, 0.8)
+local VICTORY_OBJECTIVEDESC_POSITION = UDim2.fromScale(0.1, 0.1)
 --
 local VICTORY_GRADIENT = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(253, 246, 140)),
@@ -15,7 +20,156 @@ local FAILED_GRADIENT = ColorSequence.new({
 	ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 27, 28)),
 })
 
-local function createBattleEndScreen(passed: boolean, numberOfSuccessfulExtraObjectives: number)
+local function cloneObjectiveFrameFromCombatScreen(
+	worldId: string,
+	stageId: string,
+	playerGui,
+	battleEndScreen,
+	tweens,
+	previouslyClearedExtraObjectives,
+	clearedObjectives
+)
+	local clonedObjectiveFrame =
+		playerGui:FindFirstChild("Combat_ScreenGui"):FindFirstChild("UI_ObjectivesFrame"):Clone()
+	clonedObjectiveFrame.Name = "UI_BattleEnd_ObjectivesFrame"
+	clonedObjectiveFrame.Position = VICTORY_OBJECTIVE_POSITION
+	clonedObjectiveFrame.Size = VICTORY_OBJECTIVE_SIZE
+	clonedObjectiveFrame.Parent = battleEndScreen
+	clonedObjectiveFrame.BackgroundTransparency = 1
+	--
+	for _, child in pairs(clonedObjectiveFrame:GetChildren()) do
+		-- Reset the size of the objective labels to fit within the new frame
+		local objectiveDesc = child:FindFirstChild("ObjectiveDesc")
+		if objectiveDesc then
+			objectiveDesc.Size = VICTORY_OBJECTIVEDESC_SIZE
+			objectiveDesc.Position = VICTORY_OBJECTIVEDESC_POSITION
+		end
+
+		-- Get the objective name from the child name by removing the "_Card" suffix
+		local objectiveName = string.gsub(child.Name, "_Card", "")
+		local objectivePassed = table.find(clearedObjectives, objectiveName)
+		local objectivePreviouslyCleared = table.find(previouslyClearedExtraObjectives, objectiveName)
+		local rewardText
+		-- 1. If objective is passed for the first time, display the rewards amount
+		-- 2. If objective is passed but has been previously cleared, display "Claimed"
+		-- 3. If objective is not passed, do not display the rewards amount
+		warn(
+			"Objective Name: ",
+			objectiveName,
+			" | Passed: ",
+			objectivePassed,
+			" | Previously Cleared: ",
+			objectivePreviouslyCleared
+		)
+		if objectivePassed then
+			if objectivePreviouslyCleared then
+				rewardText = "Claimed"
+
+			-- If the objective passed this run and has been previously cleared, display the reward value in a lower opacity
+			else
+				rewardText = tostring(
+					Stages[worldId].stages[stageId].firstClearReward.extraObjectives[objectiveName].rewardValue
+				)
+			end
+		else
+			-- If the objective failed this run, but has already been cleared in a previous run, treat iut as passed
+			if objectivePreviouslyCleared then
+				rewardText = "Claimed"
+
+			-- Otherwise, if the objective failed this run and has not been cleared in a previous run, display "Failed"
+			else
+				rewardText = "Failed"
+			end
+		end
+
+		-- Add the objective rewards frame to each objective
+		local objectiveRewards = Instance.new("Frame")
+		objectiveRewards.Name = "ObjectiveRewards"
+		objectiveRewards.AnchorPoint = Vector2.new(1, 0)
+		objectiveRewards.BackgroundTransparency = 1
+		objectiveRewards.Position = UDim2.fromScale(1, 0.2)
+		objectiveRewards.Size = UDim2.fromScale(0.2, 0.6)
+
+		local rewardsAmountLabel = Instance.new("TextLabel")
+		rewardsAmountLabel.Name = "RewardsAmount_Label"
+		rewardsAmountLabel.AutomaticSize = Enum.AutomaticSize.Y
+		rewardsAmountLabel.BackgroundTransparency = 1
+		rewardsAmountLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
+		rewardsAmountLabel.LayoutOrder = 1
+		rewardsAmountLabel.Size = UDim2.fromScale(0.5, 1)
+
+		rewardsAmountLabel.Text = rewardText
+		rewardsAmountLabel.TextTransparency = 0
+		rewardsAmountLabel.TextColor3 = Color3.new(1, 1, 1)
+		rewardsAmountLabel.TextScaled = true
+		rewardsAmountLabel.TextXAlignment = Enum.TextXAlignment.Right
+		rewardsAmountLabel.Parent = objectiveRewards
+
+		-- Only show the rewards icon if the objective has not been previously cleared
+		if objectivePassed and not objectivePreviouslyCleared then
+			local rewardsIcon = Instance.new("ImageLabel")
+			rewardsIcon.Name = "RewardsIcon"
+			rewardsIcon.BackgroundTransparency = 1
+			rewardsIcon.Image = "rbxassetid://99648493271139"
+			rewardsIcon.LayoutOrder = 2
+			rewardsIcon.Position = UDim2.fromScale(1, 0)
+			rewardsIcon.Size = UDim2.fromScale(1, 1)
+
+			local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+			uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+			uIAspectRatioConstraint.Parent = rewardsIcon
+
+			rewardsIcon.Parent = objectiveRewards
+		end
+
+		local uIListLayout = Instance.new("UIListLayout")
+		uIListLayout.Name = "UIListLayout"
+		uIListLayout.FillDirection = Enum.FillDirection.Horizontal
+		uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+		uIListLayout.Padding = UDim.new(0.02, 0)
+		uIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		uIListLayout.Parent = objectiveRewards
+		--
+		objectiveRewards.Parent = child
+
+		rewardsAmountLabel.FontFace = Font.new("rbxasset://fonts/families/Balthazar.json")
+		rewardsAmountLabel.LayoutOrder = 1
+
+		if child:IsA("TextLabel") then
+			child.TextTransparency = 1
+			local textLabelTween = TweenService:Create(
+				child,
+				TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
+				{ TextTransparency = 0 }
+			)
+			table.insert(tweens, textLabelTween)
+		elseif child:IsA("ImageLabel") then
+			child.ImageTransparency = 1
+			local imageLabelTween = TweenService:Create(
+				child,
+				TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
+				{ ImageTransparency = 0 }
+			)
+			table.insert(tweens, imageLabelTween)
+		end
+	end
+
+	return clonedObjectiveFrame
+end
+
+--- Creates a battle end screen with the given parameters.
+--- @param worldId -- The ID of the world where the battle took place.
+--- @param stageId -- The ID of the stage where the battle took place.
+--- @param passed -- Whether the player passed the challenge.
+--- @param clearedExtraObjectives -- The list of extra objectives that were cleared by the player.
+--- @param previouslyClearedExtraObjectives -- The list of extra objectives that were previously cleared by the player.
+local function createBattleEndScreen(
+	worldId: string,
+	stageId: string,
+	passed: boolean,
+	clearedExtraObjectives: { string }?,
+	previouslyClearedExtraObjectives: { string }?
+)
 	local tweens = {}
 	local battleEndScreen = Instance.new("Frame")
 	battleEndScreen.Name = "UI_BattleEnd_Screen"
@@ -63,32 +217,16 @@ local function createBattleEndScreen(passed: boolean, numberOfSuccessfulExtraObj
 	-- Clone the objective frame from the combat screen and add it to the victory screen
 	local clonedObjectiveFrame
 	if passed then
-		clonedObjectiveFrame = playerGui:FindFirstChild("Combat_ScreenGui"):FindFirstChild("UI_ObjectivesFrame"):Clone()
-		clonedObjectiveFrame.Name = "UI_BattleEnd_ObjectivesFrame"
-		clonedObjectiveFrame.Position = VICTORY_OBJECTIVE_POSITION
-		clonedObjectiveFrame.Size = VICTORY_OBJECTIVE_SIZE
+		clonedObjectiveFrame = cloneObjectiveFrameFromCombatScreen(
+			worldId,
+			stageId,
+			playerGui,
+			battleEndScreen,
+			tweens,
+			previouslyClearedExtraObjectives,
+			clearedExtraObjectives
+		)
 		clonedObjectiveFrame.Parent = battleEndScreen
-		clonedObjectiveFrame.BackgroundTransparency = 1
-		--
-		for _, child in pairs(clonedObjectiveFrame:GetDescendants()) do
-			if child:IsA("TextLabel") then
-				child.TextTransparency = 1
-				local textLabelTween = TweenService:Create(
-					child,
-					TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
-					{ TextTransparency = 0 }
-				)
-				table.insert(tweens, textLabelTween)
-			elseif child:IsA("ImageLabel") then
-				child.ImageTransparency = 1
-				local imageLabelTween = TweenService:Create(
-					child,
-					TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
-					{ ImageTransparency = 0 }
-				)
-				table.insert(tweens, imageLabelTween)
-			end
-		end
 
 		local consumedActionValue = Instance.new("Frame")
 		consumedActionValue.Name = "UI_ConsumedActionValue"
@@ -136,7 +274,7 @@ local function createBattleEndScreen(passed: boolean, numberOfSuccessfulExtraObj
 		end
 
 		-- Show return if challenge was successful with all extra objectives completed
-		if numberOfSuccessfulExtraObjectives == numberOfExtraObjectives then
+		if clearedExtraObjectives and #clearedExtraObjectives == numberOfExtraObjectives then
 			CreateBattleEndButtons({ "Return" }).Parent = battleEndScreen
 		-- Show restart and return if not all extra objectives were completed
 		else

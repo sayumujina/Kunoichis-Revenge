@@ -36,7 +36,7 @@ local function createTopInfoBar(text: string)
 		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 	topBarLabel.Position = UDim2.fromScale(0.105, 0.23)
 	topBarLabel.Size = UDim2.fromScale(0.7, 0.4)
-	topBarLabel.Text = "CAMPAIGN"
+	topBarLabel.Text = text
 	topBarLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	topBarLabel.TextScaled = true
 	topBarLabel.TextStrokeColor3 = Color3.fromRGB(139, 111, 91)

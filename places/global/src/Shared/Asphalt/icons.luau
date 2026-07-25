@@ -6,6 +6,7 @@ local icons = {
 	},
 	menu = {
 		UI_Icons_Campaign = "rbxassetid://140091561566202",
+		UI_Icons_Store = "rbxassetid://131481974783594",
 	},
 }
 

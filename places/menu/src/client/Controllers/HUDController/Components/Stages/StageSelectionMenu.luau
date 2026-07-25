@@ -58,7 +58,7 @@ local function createStageSelectionMenu(unlockedWorldData: { [string]: { stages:
 
 		return background
 	end
-	createBackground().Parent = stageSelectionGui
+	createBackground()
 
 	-- Create the stage selection frame and add it to the player's GUI
 	local stageSelectionFrame = CreateWorldList.CreateWorldList(unlockedWorldData)
@@ -103,16 +103,28 @@ local function toggleStageSelectionMenu(visible: boolean)
 end
 
 local function init()
-	Zap.RequestDatastoreData.Fire()
+	Zap.RequestPlayerstoreData.Fire()
 
 	local receiveDataConnection
-	receiveDataConnection = Zap.DatastoreDataResponse.On(function(data)
+	receiveDataConnection = Zap.PlayerstoreDataResponse.On(function(data)
 		local unlockedWorldData = buildUnlockedWorldData(data.UnlockedStages)
 
 		createStageSelectionMenu(unlockedWorldData, data.OwnedCharacters)
 
 		-- Disconnect the connections after receiving the data
 		receiveDataConnection()
+	end)
+
+	-- If datastore changed, destroy the stage selection menu and re-create it with the updated data
+	Zap.PlayerDatastoreChanged.On(function(data)
+		local unlockedWorldData = buildUnlockedWorldData(data.UnlockedStages)
+		toggleStageSelectionMenu(false)
+		local playerGui = game.Players.LocalPlayer.PlayerGui
+		local stageSelectionGui = playerGui:FindFirstChild("StageSelection_ScreenGui", true)
+		if stageSelectionGui then
+			stageSelectionGui:Destroy()
+		end
+		createStageSelectionMenu(unlockedWorldData, data.OwnedCharacters)
 	end)
 end
 

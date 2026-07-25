@@ -1,3 +1,4 @@
+local Stages = require(game.ReplicatedStorage.Data.data_Stages)
 local ObjectiveCard = require(script.Parent.ObjectiveCard)
 
 local HIDDEN_POSITION = UDim2.fromScale(1, 0.25)
@@ -7,8 +8,15 @@ local pendingTween: Tween | nil = nil
 local Tween = game:GetService("TweenService")
 
 --- Creates a frame that contains all the objective cards
+--- @param worldId -- The ID of the world
+--- @param stageId -- The ID of the stage
+--- @param size -- The size of the frame
+--- @param position -- The position of the frame
+--- @param transparency -- The transparency of the frame
 --- @param objectives -- A table of objectives, each containing a name, description, and passed state
 local function createObjectiveFrame(
+	worldId: string,
+	stageId: string,
 	size: UDim2,
 	position: UDim2,
 	transparency: number,
@@ -39,6 +47,7 @@ local function createObjectiveFrame(
 	for _, objective in pairs(objectives) do
 		local objectiveCard = ObjectiveCard.CreateObjectiveCard(objective.id, objective.description, objective.passed)
 		objectiveCard.Parent = objectivesFrame
+		objectiveCard.LayoutOrder = Stages[worldId].stages[stageId].extraObjectives[objective.id].objectiveOrder
 	end
 
 	return objectivesFrame

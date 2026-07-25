@@ -5,7 +5,7 @@ local info = {
 	description = "",
 	-- Base stats
 	baseStats = {
-		atk = 200,
+		atk = 600,
 		def = 140,
 		hp = 12000,
 		spd = 60,
@@ -32,7 +32,7 @@ local info = {
 	},
 	-- Starting stats
 	startingStats = {
-		hp = 1200,
+		hp = 120,
 		energy = 0,
 		shield = 0,
 		--

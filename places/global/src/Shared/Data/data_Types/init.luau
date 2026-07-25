@@ -16,6 +16,7 @@ local InputDataTypes = require(script.Combat.type_InputData)
 local DamageTypes = require(script.Combat.type_Damage)
 local StageTypes = require(script.type_Stage)
 local PlayerStoreTypes = require(script.type_PlayerStore)
+local GlobalDataStoreTypes = require(script.type_GlobalDataStore)
 
 export type Character = CharacterTypes.Character
 export type RobloxPlayerType = CharacterTypes.RobloxPlayerType
@@ -68,5 +69,8 @@ export type ExtraObjective = StageTypes.ExtraObjective
 
 -- Player store
 export type PlayerStoreData = PlayerStoreTypes.PlayerStoreData
+
+-- Global data store
+export type GlobalDataStore = GlobalDataStoreTypes.GlobalDataStore
 
 return nil

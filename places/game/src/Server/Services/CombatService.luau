@@ -5,6 +5,7 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local EventService = require(Services.EventService)
 local AnimationService = require(Services.AnimationService)
 local PlayerService = require(Services.PlayerService)
+local TeleportService = game:GetService("TeleportService")
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Packages
@@ -28,6 +29,7 @@ local CombatData: {
 		currentStageData: {
 			stageId: string,
 			worldId: string,
+			previouslyClearedExtraObjectives: { string }?,
 			extraObjectives: { [string]: { objectiveInfo: _TYPES.ExtraObjective, failed: boolean } }?,
 		},
 		--
@@ -53,10 +55,19 @@ function CombatService.OnStart()
 		local objectives = {}
 		-- Store a copy of the extra objectives for the stage along with a failed flag for each objective
 		if stageData and stageData.extraObjectives then
-			for _, objective in pairs(stageData.extraObjectives) do
-				objectives[objective.objectiveId] = { objectiveInfo = objective, failed = false }
+			for objectiveId, objective in pairs(stageData.extraObjectives) do
+				objectives[objectiveId] = { objectiveInfo = objective, failed = false }
 			end
 		end
+
+		-- Get previously cleared extra objectives from the spawn data
+		local tpData = player:GetJoinData().TeleportData :: {
+			chars: { string },
+			stageId: string,
+			worldId: string,
+			previouslyClearedExtraObjectives: { string },
+		}?
+		local previouslyClearedExtraObjectives = tpData and tpData.previouslyClearedExtraObjectives or {}
 
 		-- Initialize combat data for the player
 		CombatData[player] = {
@@ -72,7 +83,8 @@ function CombatService.OnStart()
 			currentStageData = {
 				stageId = spawnData.data.stageData.stageId,
 				worldId = spawnData.data.stageData.worldId,
-				extraObjectives = objectives,
+				previouslyClearedExtraObjectives = previouslyClearedExtraObjectives,
+				extraObjectives = objectives :: any,
 			},
 			--
 			isProcessingAttack = false,
@@ -208,6 +220,7 @@ function CombatService.OnStart()
 					passed = true,
 					stageId = combatData.currentStageData.stageId,
 					worldId = combatData.currentStageData.worldId,
+					previouslyClearedExtraObjectives = combatData.currentStageData.previouslyClearedExtraObjectives,
 					successfulExtraObjectives = successfulObjectives,
 				},
 			})
@@ -219,6 +232,7 @@ function CombatService.OnStart()
 					passed = false,
 					stageId = combatData.currentStageData.stageId,
 					worldId = combatData.currentStageData.worldId,
+					previouslyClearedExtraObjectives = nil,
 					successfulExtraObjectives = nil,
 				},
 			})

@@ -51,9 +51,6 @@
 
     "ServerScriptService": {
       "Server": {
-        "GlobalServices": {
-          "$path": "places/global/src/Server/Services"
-        },
         "$path": "places/game/src/Server"
       }
     },

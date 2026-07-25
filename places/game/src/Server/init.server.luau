@@ -5,6 +5,7 @@ local Server = game:GetService("ServerScriptService").Server
 local Services = Server.Services
 local TeleportService = game:GetService("TeleportService")
 local SpawnService = require(Services.SpawnService)
+-- local GlobalDataStoreService = require(Server.GlobalServices.GlobalDataStoreService)
 -- Modules
 local Loader = require(rep.Modules.GlobalModules.Loader)
 -- Packages
@@ -17,6 +18,8 @@ local DEFAULT_WORLD_ID = "World1"
 
 -- Disable character autoload
 game.Players.CharacterAutoLoads = false
+
+-- GlobalDataStoreService.Init()
 
 -- Load all services
 Loader.SpawnAll(
@@ -44,6 +47,7 @@ game.Players.PlayerAdded:Connect(function(player)
 		chars: { string },
 		stageId: string,
 		worldId: string,
+		previouslyClearedExtraObjectives: { string },
 	}?
 
 	task.defer(function()

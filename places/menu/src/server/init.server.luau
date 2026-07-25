@@ -2,8 +2,10 @@ local rep = game:GetService("ReplicatedStorage")
 local Loader = require(rep.Modules.GlobalModules.Loader)
 -- Services
 local MenuServer = script
-local Services = game:GetService("ServerScriptService").Server.Services
+local Server = game:GetService("ServerScriptService").Server
+local Services = Server.Services
 local TeleportService = game:GetService("TeleportService")
+local GlobalDataStoreService = require(Server.GlobalServices.GlobalDataStoreService)
 --
 local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 --
@@ -14,6 +16,8 @@ local GAME_PLACE_ID = 137371455542351
 
 -- Disable character autoload
 -- game.Players.CharacterAutoLoads = false
+
+GlobalDataStoreService.Init()
 
 -- Load all services
 Loader.SpawnAll(
