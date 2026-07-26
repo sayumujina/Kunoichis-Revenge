@@ -44,16 +44,16 @@ function GlobalDataStoreService.OnStart()
 	-- Listen for player leaving to save global data if needed
 	game.Players.PlayerRemoving:Connect(function(_)
 		-- DEBUG: Reset the global data to the template on server shutdown for testing purposes.
-		-- local success, updatedStore = pcall(function()
-		-- 	return globalStore:UpdateAsync(DATASTORE_VERSION, function(_)
-		-- 		return template
-		-- 	end)
-		-- end)
-		-- if success then
-		-- 	warn("Global data saved successfully.", updatedStore)
-		-- else
-		-- 	warn("Failed to save global data: " .. tostring(updatedStore))
-		-- end
+		local success, updatedStore = pcall(function()
+			return globalStore:UpdateAsync(DATASTORE_VERSION, function(_)
+				return template
+			end)
+		end)
+		if success then
+			warn("Global data saved successfully.", updatedStore)
+		else
+			warn("Failed to save global data: " .. tostring(updatedStore))
+		end
 	end)
 
 	-- Listen for requests to fetch global data from clients
@@ -84,8 +84,19 @@ function GlobalDataStoreService.OnStart()
 			return
 		end
 
+		local playerData = LyraService.GetData(player)
+		if not playerData then
+			Zap.PurchaseResponse.Fire(player, {
+				itemId = itemId,
+				success = false,
+				purchasesLeft = itemData.PurchaseLimit,
+			})
+			return
+		end
+
 		-- Check if the player has any purchases left for this item
-		local playerPurchasedItems = shopData.PurchasedPlayers[tostring(player.UserId)] or {}
+		local purchasedItemsFromShops = playerData.PurchasedItemsFromShops or {}
+		local playerPurchasedItems = purchasedItemsFromShops[shopId] or {}
 		local purchasesLeft = itemData.PurchaseLimit - (playerPurchasedItems[itemId] or 0)
 		if purchasesLeft <= 0 then
 			Zap.PurchaseResponse.Fire(player, {
@@ -99,7 +110,7 @@ function GlobalDataStoreService.OnStart()
 		-- Check if the player has enough currency to make the purchase
 		local itemCurrencyType = itemData.CurrencyType
 		local itemPrice = itemData.Price
-		local playerCurrency = LyraService.GetData(player).Currencies[itemCurrencyType] or 0
+		local playerCurrency = playerData.Currencies[itemCurrencyType] or 0
 
 		-- If the player doesn't have enough currency, send a failure response
 		if playerCurrency < itemPrice then
@@ -108,47 +119,53 @@ function GlobalDataStoreService.OnStart()
 				success = false,
 				purchasesLeft = purchasesLeft,
 			})
-		-- Else, update the player's currency and the global data to reflect the purchase
+		-- Else, update the player's currency and shop purchase history in the player store
 		else
 			local playerStore = LyraService.GetPlayerStore()
-			playerStore:updateImmutableAsync(player, function(playerData)
-				local newData = TableUtil.Copy(playerData, true)
+			local success, _ = pcall(function()
+				playerStore:updateImmutableAsync(player, function(currentPlayerData)
+					local newData = TableUtil.Copy(currentPlayerData, true)
 
-				-- Subtract the item price from the player's currency
-				newData.Currencies[itemCurrencyType] = newData.Currencies[itemCurrencyType] - itemPrice
+					newData.PurchasedItemsFromShops = newData.PurchasedItemsFromShops or {}
+					newData.PurchasedItemsFromShops[shopId] = newData.PurchasedItemsFromShops[shopId] or {}
 
-				-- Add to owned characters if the item is a character
-				if itemData.Type == "Character" then
-					local newCharacterInfo = {
-						Level = 1,
-						Experience = 0,
-						AscensionStage = 0,
-					}
-					newData.OwnedCharacters[itemData.Name] = newCharacterInfo
-				end
+					-- Subtract the item price from the player's currency
+					newData.Currencies[itemCurrencyType] = newData.Currencies[itemCurrencyType] - itemPrice
 
-				return newData
+					-- Record the purchase against the player's shop history
+					newData.PurchasedItemsFromShops[shopId][itemId] = (
+						newData.PurchasedItemsFromShops[shopId][itemId] or 0
+					) + 1
+
+					-- Add to owned characters if the item is a character
+					if itemData.Type == "Character" then
+						local newCharacterInfo = {
+							Level = 1,
+							Experience = 0,
+							AscensionStage = 0,
+						}
+						newData.OwnedCharacters[itemData.Name] = newCharacterInfo
+					end
+
+					return newData
+				end)
 			end)
 
-			-- Append the purchase of the player to the global data store
-			globalStore:UpdateAsync(DATASTORE_VERSION, function(oldData)
-				local newData = TableUtil.Copy(oldData, true)
-				local purchasedPlayersData = newData[DATASTORE_VERSION].Shops[shopId].PurchasedPlayers
-				--
-				purchasedPlayersData[tostring(player.UserId)] = purchasedPlayersData[tostring(player.UserId)] or {}
-				purchasedPlayersData[tostring(player.UserId)][itemId] = (
-					purchasedPlayersData[tostring(player.UserId)][itemId] or 0
-				) + 1
-				return newData
-			end)
-
-			-- Send a success response back to the player with the updated number of purchases left
-			Zap.PurchaseResponse.Fire(player, {
-				itemId = itemId,
-				success = true,
-				purchasesLeft = purchasesLeft - 1,
-			})
-			warn("[GlobalDataStoreService] Player purchased ItemId:", itemId, "Remaining purchases:", purchasesLeft - 1)
+			if success then
+				-- Send a success response back to the player with the updated number of purchases left
+				Zap.PurchaseResponse.Fire(player, {
+					itemId = itemId,
+					success = true,
+					purchasesLeft = purchasesLeft - 1,
+				})
+			else
+				-- If the update to the global data store failed, send a failure response back to the player
+				Zap.PurchaseResponse.Fire(player, {
+					itemId = itemId,
+					success = false,
+					purchasesLeft = purchasesLeft,
+				})
+			end
 		end
 	end)
 end

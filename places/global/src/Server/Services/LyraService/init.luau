@@ -43,12 +43,7 @@ local function createPlayerStore()
 				end
 				-- Fires the entire player data changed event.
 				-- TODO: This is not efficient for large data, consider diffing changes.
-				warn(
-					"Player data changed for "
-						.. player.Name
-						.. ": "
-						.. game:GetService("HttpService"):JSONEncode(newData)
-				)
+				warn("Player data changed for ", player.Name, " with new data: ", newData)
 				Zap.PlayerDatastoreChanged.Fire(player, newData :: { [string]: any })
 			end,
 		},
@@ -106,14 +101,13 @@ function LyraService.OnStart()
 		end)
 
 		-- DEBUG: Reset data for testing
-		-- store:updateImmutableAsync(player, function(data)
-		-- 	if data then
-		-- 		print("Resetting data for player: " .. player.Name)
-		-- 		warn(template)
-		-- 		return template
-		-- 	end
-		-- 	return false
-		-- end)
+		store:updateImmutableAsync(player, function(data)
+			if data then
+				warn(template)
+				return template
+			end
+			return false
+		end)
 	end
 
 	-- Listens to player joining event

@@ -26,6 +26,12 @@ export type PlayerStoreData = {
 	Currencies: {
 		Koban: number,
 	},
+	-- Purchased items from shops
+	PurchasedItemsFromShops: {
+		[string]: {
+			[string]: number,
+		},
+	},
 }
 
 return nil

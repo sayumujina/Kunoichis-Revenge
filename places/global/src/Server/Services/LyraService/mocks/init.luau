@@ -47,6 +47,12 @@ local data: _TYPES.PlayerStoreData = {
 	Currencies = {
 		Koban = 10000,
 	},
+	-- Purchased items from shops
+	PurchasedItemsFromShops = {
+		["CharacterShop"] = {
+			["Setsuna"] = 1,
+		},
+	},
 }
 
 return data

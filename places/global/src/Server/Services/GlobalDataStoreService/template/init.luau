@@ -43,11 +43,6 @@ local data = {
 						PurchaseLimit = 1,
 					},
 				},
-				PurchasedPlayers = {
-					["7409186113"] = {
-						["Setsuna"] = 1,
-					},
-				},
 			},
 		},
 	},

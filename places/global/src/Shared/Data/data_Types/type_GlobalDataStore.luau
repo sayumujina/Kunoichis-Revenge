@@ -1,5 +1,5 @@
 --- @within data_TYPES
---- @type GlobalDataStore = { Shops: { [string]: { Items: { string }, PurchasedPlayers: { [string]: { [string]: number } } } } }
+--- @type GlobalDataStore = { Shops: { [string]: { Items: { string } } } }
 export type GlobalDataStore = {
 	Shops: {
 		[string]: {
@@ -12,11 +12,6 @@ export type GlobalDataStore = {
 					Price: number,
 					CurrencyType: string,
 					PurchaseLimit: number,
-				},
-			},
-			PurchasedPlayers: {
-				[string]: {
-					[string]: number,
 				},
 			},
 		},
