@@ -11,19 +11,22 @@ local Zap = require(StarterPlayerScripts.Client.zap)
 local ShopFrame = require(HUDController.Components.Shop.Shop_Frame)
 local ShopMenu = require(HUDController.Components.Shop.ShopMenu)
 local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
+local SelectionState = require(script.Parent.SelectionState)
 
-return function()
+local shopIcon = TopBarIcons.new()
+
+--- Creates the shop button in the top bar
+local function createShopButton()
 	-- Create a campaign icon
-	local shopIcon = TopBarIcons.new()
 	shopIcon:setImage(icons.menu.UI_Icons_Store)
 	shopIcon:setLabel("Shop")
 	shopIcon:align("Right")
 	shopIcon:modifyTheme({ "IconLabel", "FontFace", Font.new("rbxasset://fonts/families/Balthazar.json") })
+	SelectionState.Register(shopIcon)
 	shopIcon.selected:Connect(function()
 		SoundController.Play("Sound_UniversalClick")
 
-		-- Lock the icon
-		shopIcon:lock()
+		SelectionState.LockAll()
 
 		-- Create a black screen
 		CreateBlackScreen(0.6, 1, 0.4, function()
@@ -73,22 +76,36 @@ return function()
 			Zap.RequestGlobalstoreData.Fire()
 			Zap.RequestPlayerstoreData.Fire()
 
-			shopIcon:unlock()
+			SelectionState.ApplySelectionLocks()
 		end, nil)
 	end)
 
 	shopIcon.deselected:Connect(function()
 		SoundController.Play("Sound_UniversalClick")
 
-		-- Lock the icon
-		shopIcon:lock()
+		SelectionState.LockAll()
 
 		-- Create a black screen
 		CreateBlackScreen(0.6, 1, 0.4, function()
 			-- Hide the shop screen GUI when the shop icon is deselected
 			ShopMenu.ToggleShopScreenGui(false)
 
-			shopIcon:unlock()
+			SelectionState.ApplySelectionLocks()
 		end, nil)
 	end)
 end
+
+--- Toggles the shop button's selection state
+--- @param select -- Whether to select or deselect the shop button
+local function toggleShopButton(select: boolean)
+	if select then
+		shopIcon:select()
+	else
+		shopIcon:deselect()
+	end
+end
+
+return {
+	CreateShopButton = createShopButton,
+	ToggleShopButton = toggleShopButton,
+}
