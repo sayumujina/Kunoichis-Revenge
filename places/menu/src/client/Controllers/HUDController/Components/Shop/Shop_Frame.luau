@@ -232,13 +232,12 @@ local function updateKobanAmount(amount)
 		return
 	end
 
-	local shopFrame = shopScreenGui:WaitForChild("UI_Shop_Frame", true)
+	local shopFrame = shopScreenGui:FindFirstChild("UI_Shop_Frame", true)
 	if not shopFrame then
-		warn("Shop frame not found in the player's GUI. Cannot update Koban amount.")
 		return
 	end
 
-	local currentKoban = shopFrame:WaitForChild("UI_Koban_Frame"):WaitForChild("CurrentKoban_Label")
+	local currentKoban = shopFrame:FindFirstChild("UI_Koban_Frame"):FindFirstChild("CurrentKoban_Label")
 	if currentKoban then
 		warn("Current Koban label found. Updating text to:", amount)
 		currentKoban.Text = tostring(amount)

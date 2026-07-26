@@ -6,9 +6,7 @@ local HUDController = StarterPlayerScripts.Client.Controllers.HUDController
 local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Packages
 local TopBarIcons = require(rep.Packages.topbarplus)
-local Zap = require(StarterPlayerScripts.Client.zap)
 -- Components
-local ShopFrame = require(HUDController.Components.Shop.Shop_Frame)
 local ShopMenu = require(HUDController.Components.Shop.ShopMenu)
 local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 local SelectionState = require(script.Parent.SelectionState)
@@ -30,52 +28,7 @@ local function createShopButton()
 
 		-- Create a black screen
 		CreateBlackScreen(0.6, 1, 0.4, function()
-			local pendingGlobalData
-			local pendingPlayerData
-			local receiveGlobalDataConnection
-			local receivePlayerDataConnection
-
-			local function tryCreateShop()
-				if not pendingGlobalData or not pendingPlayerData then
-					return
-				end
-
-				local shopScreenGui =
-					game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("Shop_ScreenGui", true)
-				if not shopScreenGui then
-					return
-				end
-
-				-- Create the shop frame with the received data
-				local shopFrame = shopScreenGui:FindFirstChild("UI_Shop_Frame", true)
-				if shopFrame then
-					ShopMenu.ToggleShopScreenGui(true)
-				else
-					ShopFrame.CreateShopFrame(
-						"CharacterShop",
-						pendingGlobalData.Shops["CharacterShop"],
-						pendingPlayerData
-					).Parent =
-						shopScreenGui
-				end
-
-				receiveGlobalDataConnection()
-				receivePlayerDataConnection()
-			end
-
-			receiveGlobalDataConnection = Zap.GlobalstoreDataResponse.On(function(globalData)
-				pendingGlobalData = globalData
-				tryCreateShop()
-			end)
-
-			receivePlayerDataConnection = Zap.PlayerstoreDataResponse.On(function(playerData)
-				pendingPlayerData = playerData
-				tryCreateShop()
-			end)
-
-			Zap.RequestGlobalstoreData.Fire()
-			Zap.RequestPlayerstoreData.Fire()
-
+			ShopMenu.ToggleShopScreenGui(true)
 			SelectionState.ApplySelectionLocks()
 		end, nil)
 	end)

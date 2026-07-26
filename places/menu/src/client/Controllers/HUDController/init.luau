@@ -10,6 +10,7 @@ local Zap = require(StarterPlayerScripts.Client.zap)
 -- Components
 local CreateTopBar = require(script.Components.Global.TopBar)
 local StageSelectionMenu = require(script.Components.Stages.StageSelectionMenu)
+local HandleLoadingScreen = require(script.Components.Global.LoadingScreen.HandleLoadingScreen)
 local ShopFrame = require(script.Components.Shop.Shop_Frame)
 
 local HUDController = {}
@@ -17,6 +18,8 @@ local HUDController = {}
 --- Called when the controller starts
 function HUDController.OnStart()
 	CreateTopBar()
+
+	HandleLoadingScreen()
 
 	-- Listens to purchase success events from the server and updates the shop UI accordingly
 	Zap.PurchaseResponse.On(function(purchaseData)
@@ -50,6 +53,40 @@ function HUDController.OnStart()
 	end)
 end
 
+local function createShopFrame(shopScreenGui)
+	local pendingGlobalData
+	local pendingPlayerData
+	local receiveGlobalDataConnection
+	local receivePlayerDataConnection
+
+	local function tryCreateShopFrame()
+		if not pendingGlobalData or not pendingPlayerData or not shopScreenGui then
+			return
+		end
+
+		if not shopScreenGui:FindFirstChild("UI_Shop_Frame", true) then
+			ShopFrame.CreateShopFrame("CharacterShop", pendingGlobalData.Shops["CharacterShop"], pendingPlayerData).Parent =
+				shopScreenGui
+		end
+
+		receiveGlobalDataConnection()
+		receivePlayerDataConnection()
+	end
+
+	receiveGlobalDataConnection = Zap.GlobalstoreDataResponse.On(function(globalData)
+		pendingGlobalData = globalData
+		tryCreateShopFrame()
+	end)
+
+	receivePlayerDataConnection = Zap.PlayerstoreDataResponse.On(function(playerData)
+		pendingPlayerData = playerData
+		tryCreateShopFrame()
+	end)
+
+	Zap.RequestGlobalstoreData.Fire()
+	Zap.RequestPlayerstoreData.Fire()
+end
+
 --- Initializes the HUDController
 function HUDController.Init()
 	-- Create a screen GUI for the player if it doesn't exist
@@ -68,9 +105,11 @@ function HUDController.Init()
 		shopScreenGui.Parent = playerGui
 		shopScreenGui.ScreenInsets = Enum.ScreenInsets.None
 		shopScreenGui.DisplayOrder = 2
+		shopScreenGui.Enabled = false
 	end
 
-	local globalScreenGui = playerGui:FindFirstChild("Global_ScreenGui", true)
+	local shopScreenGui = playerGui:FindFirstChild("Shop_ScreenGui", true)
+	createShopFrame(shopScreenGui)
 
 	-- Initialize the stage selection menu
 	StageSelectionMenu.InitStageSelectionMenu()

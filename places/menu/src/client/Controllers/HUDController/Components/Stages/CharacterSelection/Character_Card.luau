@@ -41,6 +41,11 @@ local function createCharacterCard(owned: boolean, charName: string, charLevel: 
 	characterFrame.Size = UDim2.fromScale(0.23, 0.23)
 	characterFrame.ZIndex = 10
 
+	local levelValue = Instance.new("IntValue")
+	levelValue.Name = "LevelValue"
+	levelValue.Value = if charLevel then charLevel else 0
+	levelValue.Parent = characterFrame
+
 	local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 	uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
 	uIAspectRatioConstraint.Parent = characterFrame

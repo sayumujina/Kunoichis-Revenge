@@ -171,6 +171,8 @@ end
 
 --- Called when the controller starts
 function HUDController.OnStart()
+	CreateTopBar()
+
 	-- Normalise the turn queue once all characters are spawned and the battle is ready to proceed
 	Zap.SpawnFinished.On(function(spawnData)
 		-- Normalize the turn queue
@@ -756,8 +758,6 @@ end
 
 --- Initializes the HUD for the player
 function HUDController.Init()
-	CreateTopBar()
-
 	-- Create a global screen GUI for the player if it doesn't exist
 	if not playerGui:FindFirstChild("Global_ScreenGui", true) then
 		local hud = Instance.new("ScreenGui")

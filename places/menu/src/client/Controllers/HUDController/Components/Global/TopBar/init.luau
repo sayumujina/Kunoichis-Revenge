@@ -6,5 +6,5 @@ return function()
 	CreateCampaignButton.CreateCampaignButton()
 
 	-- Open the shop button by default when the game starts
-	CreateShopButton.ToggleShopButton(true)
+	CreateCampaignButton.ToggleCampaignButton(true)
 end

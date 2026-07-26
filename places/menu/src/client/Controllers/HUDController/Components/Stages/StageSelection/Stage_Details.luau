@@ -87,7 +87,6 @@ local function createObjectiveList(worldId: string, stageId: string, passedObjec
 
 	local stageInfo = Stages[worldId].stages[stageId]
 	local objectiveList = stageInfo.extraObjectives
-	warn(objectiveList)
 	local function createObjectiveFrame(objectiveId: string, passed: boolean)
 		local objective = Instance.new("Frame")
 		objective.Name = objectiveId
@@ -262,6 +261,13 @@ local function createStageDetailsFrame(
 	stageCleared: boolean,
 	passedObjectives: { string }
 )
+	-- Destroy the existing stage details frame if it exists
+	local playerGui = game.Players.LocalPlayer.PlayerGui
+	local existingStageDetailsFrame = playerGui:FindFirstChild("UI_StageDetails_Frame", true)
+	if existingStageDetailsFrame then
+		existingStageDetailsFrame:Destroy()
+	end
+
 	local stageDetailsFrame = Instance.new("Frame")
 	stageDetailsFrame.Name = "UI_StageDetails_Frame"
 	stageDetailsFrame.BackgroundTransparency = 1

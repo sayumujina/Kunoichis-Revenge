@@ -44,6 +44,52 @@ end
 
 local cardFramesByName = {} :: { [string]: Frame }
 
+local function compactSelectedIndexes()
+	local orderedSelectedChars = {}
+
+	for i = 1, 3 do
+		if selectedIndexes[i] then
+			table.insert(orderedSelectedChars, selectedIndexes[i])
+		end
+	end
+
+	for i = 1, 3 do
+		selectedIndexes[i] = orderedSelectedChars[i]
+	end
+end
+
+local function rebuildSelectionOverlays()
+	compactSelectedIndexes()
+	local removedMissingSelection = false
+
+	for _, cardFrame in cardFramesByName do
+		local selectionOverlay = cardFrame:FindFirstChild("Selection_Overlay")
+		if selectionOverlay then
+			selectionOverlay:Destroy()
+		end
+	end
+
+	for i = 1, 3 do
+		local charName = selectedIndexes[i]
+		if not charName then
+			continue
+		end
+
+		local characterFrame = cardFramesByName[charName]
+		if characterFrame then
+			CharacterCard.CreateSelectedOverlay(i).Parent = characterFrame
+		else
+			selectedIndexes[i] = nil
+			removedMissingSelection = true
+		end
+	end
+
+	if removedMissingSelection then
+		compactSelectedIndexes()
+		rebuildSelectionOverlays()
+	end
+end
+
 -- Toggle the selection of a character card
 local function toggleSelection(charName: string)
 	local stageSelectionScreenGui = playerGui.StageSelection_ScreenGui
@@ -254,13 +300,11 @@ local function createCharacterSelectionFrame(chars: { Name: string, Level: numbe
 			local selectedStageValue =
 				playerGui.StageSelection_ScreenGui.Stages[selectedWorldFrameName].SelectedStage.Value
 			--
-			local isCleared = playerGui.StageSelection_ScreenGui.UI_StageDetails_Frame.StageCleared_Value.Value
 
-			warn(selectedStageValue, selectedWorldValue, spawnChars, isCleared, clearedObjectives)
 			Zap.RequestSpawn.Fire({
 				stageId = selectedStageValue,
 				worldId = selectedWorldValue,
-				chars = spawnChars :: { string },
+				chars = spawnChars,
 			})
 		end)
 	end)
@@ -279,7 +323,52 @@ local function createCharacterSelectionFrame(chars: { Name: string, Level: numbe
 	return stageCharacterSelectionFrame
 end
 
+--- Updates the character selection frame with the given characters
+--- @param stageCharacterSelectionFrame -- The character selection frame to update
+--- @param chars -- The list of characters to display in the selection frame
+local function updateCharacterSelectionFrame(
+	stageCharacterSelectionFrame: Frame,
+	chars: { Name: string, Level: number?, Owned: boolean }
+)
+	local characterList = stageCharacterSelectionFrame:FindFirstChild("Character_List")
+	if not characterList or not characterList:IsA("ScrollingFrame") then
+		return
+	end
+
+	local ownedCharacters = {}
+	for _, char in chars do
+		if char.Owned then
+			ownedCharacters[char.Name] = true
+		end
+	end
+
+	for i = 1, 3 do
+		local selectedChar = selectedIndexes[i]
+		if selectedChar and not ownedCharacters[selectedChar] then
+			selectedIndexes[i] = nil
+		end
+	end
+	compactSelectedIndexes()
+
+	for _, child in characterList:GetChildren() do
+		if child:IsA("Frame") and child.Name:match("^Character_Frame_") then
+			child:Destroy()
+		end
+	end
+
+	table.clear(cardFramesByName)
+
+	for _, char in chars do
+		local characterCard = CharacterCard.CreateCharacterCard(char.Owned, char.Name, char.Level, toggleSelection)
+		cardFramesByName[char.Name] = characterCard
+		characterCard.Parent = characterList
+	end
+
+	rebuildSelectionOverlays()
+end
+
 return {
 	CreateCharacterSelectionFrame = createCharacterSelectionFrame,
+	UpdateCharacterSelectionFrame = updateCharacterSelectionFrame,
 	ExitCharacterSelection = exitCharacterSelection,
 }

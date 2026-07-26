@@ -198,7 +198,9 @@ local function createStageCard(
 						stageSelectionGui
 
 					-- Disconnect the connection after receiving the data
-					requestDataConnection()
+					if requestDataConnection then
+						requestDataConnection()
+					end
 				end)
 			end)
 		else

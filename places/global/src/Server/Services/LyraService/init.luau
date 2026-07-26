@@ -124,7 +124,6 @@ function LyraService.OnStart()
 
 	Zap.RequestPlayerstoreData.On(function(player)
 		local playerData = store:getAsync(player)
-		warn("[LyraService] Player Data:", playerData)
 		--
 		Zap.PlayerstoreDataResponse.Fire(player, playerData)
 	end)

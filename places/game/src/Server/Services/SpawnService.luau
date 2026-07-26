@@ -47,9 +47,17 @@ function SpawnService.OnStart()
 	end)
 end
 
-function SpawnService.Spawn(player: _TYPES.RobloxPlayerType, chars: { string }, stageId: string, worldId: string)
-	local playables = chars :: { string }
-	local npcs = StagesData[worldId].stages[stageId].enemies :: { string }
+function SpawnService.Spawn(
+	player: _TYPES.RobloxPlayerType,
+	chars: { { name: string, level: number } },
+	stageId: string,
+	worldId: string
+)
+	local playables = chars
+	local npcs = {}
+	for _, charName in pairs(StagesData[worldId].stages[stageId].enemies :: { string }) do
+		table.insert(npcs, { name = charName, level = 20 }) -- Default level for NPCs is 20
+	end
 
 	-- Initialise the player entry in the turn system
 	if not TurnService.GetPlayerTurnData(player :: _TYPES.RobloxPlayerType) then
@@ -79,7 +87,6 @@ end
 --- Spawns a character into the game
 --- @within SpawnService
 --- @param player -- The player associated with the character being spawned
---- @param side -- The side the character belongs to (Playable or NPC)
 --- @param char -- The character model to spawn
 --- @param cframe -- The CFrame position to spawn the character at
 --- @param index -- The index of the character in the side's lineup
@@ -88,6 +95,7 @@ function SpawnService.SpawnCharacter(
 	--
 	side: _TYPES.Sides,
 	char: _TYPES.Character,
+	level: number,
 	cframe: CFrame,
 	index: number
 )
@@ -116,10 +124,9 @@ function SpawnService.SpawnCharacter(
 		end
 	end
 
-	-- Get the character's level from the player's data
-	local playerData = LyraService.GetData(player :: _TYPES.RobloxPlayerType)
-	local characterLevel = playerData.OwnedCharacters[char.Name] and playerData.OwnedCharacters[char.Name].Level or 20
-	char:SetAttribute("Level", characterLevel)
+	char:SetAttribute("Level", level)
+
+	char.Parent = if side == "Playable" then workspace.Characters.Playable else workspace.Characters.NPC
 
 	-- Create a index attribute to mark the character's index
 	-- Used to determine the selected character/enemy index
@@ -171,19 +178,18 @@ end
 --- Spawn all characters of a side
 --- @within SpawnService
 --- @param player -- The player associated with the characters being spawned
---- @param side -- The side the characters belong to (Playable or NPC)
 --- @param charactersToSpawn -- A list of character names to spawn
 function SpawnService.SpawnAllCharactersOfSide(
 	player: _TYPES.RobloxPlayerType,
 	--
 	side: _TYPES.Sides,
-	charactersToSpawn: { string }
+	charactersToSpawn: { { name: string, level: number } }
 )
 	local characterCount = #charactersToSpawn
 	local charModelPath = rep.Shared.Assets.Models[side]
 
-	for count, charName in pairs(charactersToSpawn) do
-		local char = charModelPath:FindFirstChild(charName):Clone() :: _TYPES.Character
+	for count, charData in pairs(charactersToSpawn) do
+		local char = charModelPath:FindFirstChild(charData.name):Clone() :: _TYPES.Character
 
 		-- Calculate spawn position using helper function
 		local spawnPosition =
@@ -193,16 +199,14 @@ function SpawnService.SpawnAllCharactersOfSide(
 		local index
 		if side == "Playable" then
 			index = characterCount - count + 1
-			char.Parent = workspace.Characters.Playable
 		else
 			index = count
-			char.Parent = workspace.Characters.NPC
 			if not char:GetAttribute("Index") then
 				char:SetAttribute("Index", index)
 			end
 		end
 
-		SpawnService.SpawnCharacter(player, side, char, spawnPosition, index)
+		SpawnService.SpawnCharacter(player, side, char, charData.level, spawnPosition, index)
 	end
 end
 

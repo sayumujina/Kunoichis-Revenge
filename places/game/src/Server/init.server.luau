@@ -12,7 +12,8 @@ local Loader = require(rep.Modules.GlobalModules.Loader)
 local Zap = require(Services.Parent.zap)
 -- Contants
 local MENU_PLACE_ID = 87694110914637
-local DEFAULT_SPAWN_CHARACTERS = { "Rin", "Hayumi", "Setsuna" }
+local DEFAULT_SPAWN_CHARACTERS =
+	{ { name = "Tsuyoka", level = 20 }, { name = "Hayumi", level = 20 }, { name = "Setsuna", level = 20 } }
 local DEFAULT_STAGE_ID = "2-1"
 local DEFAULT_WORLD_ID = "World2"
 
@@ -44,7 +45,7 @@ PhysicsService:CollisionGroupSetCollidable("Chars", "Chars", false)
 -- Listens to player adding event
 game.Players.PlayerAdded:Connect(function(player)
 	local tpData = player:GetJoinData().TeleportData :: {
-		chars: { string },
+		chars: { { name: string, level: number } }?,
 		stageId: string,
 		worldId: string,
 	}?
