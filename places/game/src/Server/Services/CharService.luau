@@ -224,14 +224,6 @@ end
 function CharService.UpdateRealCharacterStat(char: _TYPES.Character, statName: string, newValue: number)
 	Chars[char].realStats[statName] = newValue
 
-	warn(
-		"[CharService] UpdateRealCharacterStat: Real stat '"
-			.. statName
-			.. "' for character '"
-			.. char.Name
-			.. "' updated to "
-			.. newValue
-	)
 	-- Fire the event to notify clients about the real stat change
 	EventService.Events.RealStatsChanged:Fire({
 		char = char,

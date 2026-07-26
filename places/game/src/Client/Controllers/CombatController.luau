@@ -7,6 +7,9 @@ local HUDController = require(StarterPlayerScripts.Client.Controllers.HUDControl
 local InputController = require(StarterPlayerScripts.Client.Controllers.InputController)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
+-- Components
+local CurrentActionFrame =
+	require(StarterPlayerScripts.Client.Controllers.HUDController.Components.Combat.CurrentAction.CurrentAction_Frame)
 -- Player
 local localPlayer = game:GetService("Players").LocalPlayer
 -- Packages
@@ -20,6 +23,7 @@ local CombatData: {
 		trove: Trove.Trove, -- A trove for cleaning up connections
 		savedMovePreviewData: {
 			char: _TYPES.Character,
+			moveType: string,
 			selectedSide: "Playable" | "NPC",
 			primaryTargetIndex: number,
 			targetSelectionType: string,
@@ -109,6 +113,7 @@ function CombatController.OnStart()
 		-- Save the move preview data for later use
 		CombatController.SavePreviewData(
 			data.char :: _TYPES.Character,
+			moveList[data.data.moveName].moveType,
 			selectedSide,
 			primaryTargetIndex,
 			targetSelectionType,
@@ -117,6 +122,7 @@ function CombatController.OnStart()
 		-- Update the move preview with the target selection type and mana change value
 		CombatController.UpdateMovePreview(
 			data.char :: _TYPES.Character,
+			moveList[data.data.moveName].moveType,
 			selectedSide,
 			targetSelectionType,
 			primaryTargetIndex,
@@ -205,6 +211,7 @@ end
 --- @param manaChangePreviewValue -- The value to preview the mana change (e.g., +15, -10)
 function CombatController.UpdateMovePreview(
 	char: _TYPES.Character,
+	moveType: string,
 	side: "Playable" | "NPC",
 	targetSelectionType: string,
 	primaryTargetIndex: number,
@@ -215,6 +222,9 @@ function CombatController.UpdateMovePreview(
 
 	-- Update the move preview in the HUD
 	HUDController.UpdateManaPreview(manaChangePreviewValue or 0)
+
+	-- Update the current action text in the HUD
+	CurrentActionFrame.ChangeCurrentActionText(moveType)
 
 	-- Call the character combat controller to update the camera
 	local controller = Utility.GetCharacterCombatController(char)
@@ -228,6 +238,7 @@ end
 --- Store the move preview data for later use
 function CombatController.SavePreviewData(
 	char: _TYPES.Character,
+	moveType: string,
 	selectedSide: "Playable" | "NPC",
 	primaryTargetIndex: number,
 	targetSelectionType: string,
@@ -239,6 +250,7 @@ function CombatController.SavePreviewData(
 
 	CombatData[localPlayer].savedMovePreviewData = {
 		char = char,
+		moveType = moveType,
 		selectedSide = selectedSide,
 		primaryTargetIndex = primaryTargetIndex,
 		targetSelectionType = targetSelectionType,
@@ -259,6 +271,7 @@ function CombatController.ReloadPreviewData()
 
 	CombatController.UpdateMovePreview(
 		savedData.char,
+		savedData.moveType,
 		savedData.selectedSide,
 		savedData.targetSelectionType,
 		savedData.primaryTargetIndex,

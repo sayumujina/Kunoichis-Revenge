@@ -26,7 +26,7 @@ local ui = {
 			UI_CombatHud_HealthFill = "rbxassetid://93013412082634",
 			UI_CombatHud_ObjectiveIcon = "rbxassetid://77234658436074",
 			UI_CombatHud_ShieldBorder = "rbxassetid://83728712714494",
-			UI_CombatHud_UltimateFlash = "rbxassetid://105761982517972",
+			UI_CombatHud_UltimateFlash = "rbxassetid://98494816716220",
 		},
 		Menu = {
 			UI_Menu_CharacterSelection = "rbxassetid://119027730570633",

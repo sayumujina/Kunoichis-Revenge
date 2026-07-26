@@ -12,9 +12,14 @@ return function(charName: string, ultimateName: string)
 	local ultimateFlashFrame = Instance.new("Frame")
 	ultimateFlashFrame.Name = "UI_UltimateFlash_Frame"
 	ultimateFlashFrame.BackgroundTransparency = 1
-	ultimateFlashFrame.Position = UDim2.fromScale(0.58, 0.16)
-	ultimateFlashFrame.Size = UDim2.fromScale(0.42, 0.35)
+	ultimateFlashFrame.Position = UDim2.fromScale(0, 0.16)
+	ultimateFlashFrame.Size = UDim2.fromScale(1, 0.35)
 	ultimateFlashFrame.ZIndex = 2
+
+	local flashRatio = Instance.new("UIAspectRatioConstraint")
+	flashRatio.Name = "UIAspectRatioConstraint"
+	flashRatio.AspectRatio = 6
+	flashRatio.Parent = ultimateFlashFrame
 
 	local ultimateFlash = Instance.new("ImageLabel")
 	ultimateFlash.Name = "UltimateFlash"
@@ -33,8 +38,8 @@ return function(charName: string, ultimateName: string)
 	local characterInfoAvatar = Instance.new("Frame")
 	characterInfoAvatar.Name = "CharacterInfo_Avatar"
 	characterInfoAvatar.BackgroundTransparency = 1
-	characterInfoAvatar.Position = UDim2.fromScale(0.62, 0.18)
-	characterInfoAvatar.Size = UDim2.fromScale(0.8, 0.8)
+	characterInfoAvatar.Position = UDim2.fromScale(0.73, 0.02)
+	characterInfoAvatar.Size = UDim2.fromScale(1.6, 1.6)
 
 	local imageLabel = Instance.new("ImageLabel")
 	imageLabel.Name = "ImageLabel"
@@ -54,8 +59,8 @@ return function(charName: string, ultimateName: string)
 	ultimateNameLabel.BackgroundTransparency = 1
 	ultimateNameLabel.FontFace =
 		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-	ultimateNameLabel.Position = UDim2.fromScale(0.04, 0.695)
-	ultimateNameLabel.Size = UDim2.fromScale(0.57, 0.27)
+	ultimateNameLabel.Position = UDim2.fromScale(0.04, 0.95)
+	ultimateNameLabel.Size = UDim2.fromScale(0.7, 0.4)
 	ultimateNameLabel.Text = ultimateName
 	ultimateNameLabel.TextColor3 = Color3.new(1, 1, 1)
 	ultimateNameLabel.TextScaled = true
@@ -120,7 +125,7 @@ return function(charName: string, ultimateName: string)
 	darkenFrame.BackgroundTransparency = 1
 	darkenFrame.ZIndex = 1
 	darkenFrame.Size = UDim2.fromScale(1, 1)
-	darkenFrame.Parent = playerGui.Combat_ScreenGui
+	darkenFrame.Parent = playerGui.Ultimate_ScreenGui
 
 	-- Tween the darken frame's transparency to create a darkening effect
 	local darkenTween = TweenService:Create(
@@ -142,6 +147,9 @@ return function(charName: string, ultimateName: string)
 		for _, reverseTween in pairs(reverseTransparencyTweens) do
 			reverseTween:Play()
 		end
+		task.delay(0.6, function()
+			darkenFrame:Destroy()
+		end)
 	end)
 
 	return ultimateFlashFrame

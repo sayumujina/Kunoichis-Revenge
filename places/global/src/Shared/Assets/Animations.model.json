@@ -178,42 +178,42 @@
                   "ClassName": "Animation",
                   "Name": "HiddenAssistance_Idle",
                   "Properties": {
-                    "AnimationId": "rbxassetid://126740540448677"
+                    "AnimationId": "rbxassetid://120027318083702"
                   }
                 },
                 {
                   "ClassName": "Animation",
                   "Name": "HiddenAssistance_Execute",
                   "Properties": {
-                    "AnimationId": "rbxassetid://80048522470874"
+                    "AnimationId": "rbxassetid://118723257816220"
                   }
                 },
                 {
                   "ClassName": "Animation",
                   "Name": "CleansingAura_Idle",
                   "Properties": {
-                    "AnimationId": "rbxassetid://126740540448677"
+                    "AnimationId": "rbxassetid://120027318083702"
                   }
                 },
                 {
                   "ClassName": "Animation",
                   "Name": "CleansingAura_Execute",
                   "Properties": {
-                    "AnimationId": "rbxassetid://80048522470874"
+                    "AnimationId": "rbxassetid://111302848313481"
                   }
                 },
                 {
                   "ClassName": "Animation",
                   "Name": "VanguardsCall_Idle",
                   "Properties": {
-                    "AnimationId": "rbxassetid://126740540448677"
+                    "AnimationId": "rbxassetid://120027318083702"
                   }
                 },
                 {
                   "ClassName": "Animation",
                   "Name": "VanguardsCall_Execute",
                   "Properties": {
-                    "AnimationId": "rbxassetid://80048522470874"
+                    "AnimationId": "rbxassetid://125838735503306"
                   }
                 }
               ]

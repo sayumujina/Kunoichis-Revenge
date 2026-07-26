@@ -38,7 +38,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 			{
 				attackCategory = "Heal",
 				scalings = {
-					realStats = { hp = 10 / 100 },
+					realStats = { hp = 7 / 100 },
 				},
 				energyGain = 40,
 				exposureDealt = 0,
@@ -64,17 +64,9 @@ local moves: { [string]: _TYPES.MoveData } = {
 			{
 				attackCategory = "Heal",
 				scalings = {
-					realStats = { hp = 30 / 100 },
+					realStats = { hp = 18 / 100 },
 				},
 				energyGain = 0,
-				exposureDealt = 0,
-			},
-			{
-				attackCategory = "Buff",
-				scalings = {
-					realStats = { atk = 20 / 100 },
-				},
-				energyGain = 20,
 				exposureDealt = 0,
 			},
 		},

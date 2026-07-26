@@ -63,6 +63,7 @@ local Components = {
 			ObjectiveCard = require(ComponentsPath.Combat.Objectives.ObjectiveCard),
 		},
 		BattleEndScreen = { CreateBattleEndScreen = require(ComponentsPath.Combat.BattleEndScreen.BattleEndScreen) },
+		CurrentAction = { CurrentActionFrame = require(ComponentsPath.Combat.CurrentAction.CurrentAction_Frame) },
 	},
 }
 
@@ -807,6 +808,11 @@ function HUDController.Init()
 		elapsedActionValueFrame.Parent = playerUIFolder
 	end
 
+	if not combatScreenGui:FindFirstChild("UI_CurrentAction") then
+		local currentActionFrame = Components.Combat.CurrentAction.CurrentActionFrame.CreateCurrentActionFrame()
+		currentActionFrame.Parent = playerUIFolder
+	end
+
 	-- Create a detailed combat info screen gui for the player if it doesn't exist
 	if not playerGui:FindFirstChild("DetailedCombatInfo_ScreenGui", true) then
 		local hud = Instance.new("ScreenGui")
@@ -839,7 +845,7 @@ function HUDController.Init()
 		end)
 	end
 
-	-- Create a detailed combat info screen gui for the player if it doesn't exist
+	-- Create a battle end combat info screen gui for the player if it doesn't exist
 	if not playerGui:FindFirstChild("BattleEnd_ScreenGui", true) then
 		local hud = Instance.new("ScreenGui")
 		hud.Name = "BattleEnd_ScreenGui"
@@ -849,6 +855,15 @@ function HUDController.Init()
 
 		-- Turn it off by default
 		hud.Enabled = false
+	end
+
+	-- Create a ultimate screen gui for the player if it doesn't exist
+	if not playerGui:FindFirstChild("Ultimate_ScreenGui", true) then
+		local hud = Instance.new("ScreenGui")
+		hud.Name = "Ultimate_ScreenGui"
+		hud.Parent = playerGui
+		hud.IgnoreGuiInset = true
+		hud.DisplayOrder = 100
 	end
 end
 
@@ -889,7 +904,7 @@ end
 function HUDController.DisplayUltimateFlash(char: _TYPES.Character, fullMoveName: string, duration: number?)
 	-- Create an ultimate flash frame for the character and move
 	local ultimateFlashFrame = Components.Combat.UltimateFlash.CreateUltimateFlashFrame(char.Name, fullMoveName)
-	ultimateFlashFrame.Parent = playerGui.Combat_ScreenGui
+	ultimateFlashFrame.Parent = playerGui.Ultimate_ScreenGui
 
 	warn("Displaying ultimate flash for character:", char.Name, "Move:", fullMoveName, "Duration:", duration)
 	-- Delay the removal of the ultimate flash

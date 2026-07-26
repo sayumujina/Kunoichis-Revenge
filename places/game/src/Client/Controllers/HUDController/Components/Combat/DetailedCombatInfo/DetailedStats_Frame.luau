@@ -55,7 +55,7 @@ local function createStatFrame(statKey: string, statName: string, order: number)
 	statValue.Changed:Connect(function()
 		statValueLabel.Text = if STATS_TO_CHECK[statKey] and STATS_TO_CHECK[statKey].isInPercentages
 			then string.format("%.1f%%", statValue.Value) -- Show as percentage
-			else tostring(statValue.Value)
+			else string.format("%d", statValue.Value) -- Do not show decimals
 	end)
 
 	return statFrame

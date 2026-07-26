@@ -145,7 +145,24 @@ local function ExecuteMove(
 
 				-- Play the hurt animation for each target
 				AnimationService.Play(target, "Hurt_Normal")
-			elseif data.attackCategory == "Heal" then
+			end
+		end
+
+		-- Provide energy gain for allies
+		if data.energyGain then
+			ProvideEnergy(char, data.energyGain, false)
+		end
+
+		-- Increment the current attack index for the next hit marker
+		currentAttack += 1
+	end))
+
+	trove:Add(anim:GetMarkerReachedSignal("heal"):Connect(function()
+		-- Retrieve the attack data for the current attack
+		data = attackData.attacks[currentAttack]
+		-- Loop through each target and apply the appropriate effect based on the move category
+		for _, target in pairs(targets) do
+			if data.attackCategory == "Heal" then
 				local healingAmount = CalculateHealing(data.scalings, char, target, moveName)
 				DamageService.Heal(char, target, healingAmount)
 			end
