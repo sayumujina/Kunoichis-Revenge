@@ -24,27 +24,50 @@ return function()
 
 		-- Create a black screen
 		CreateBlackScreen(0.6, 1, 0.4, function()
-			Zap.RequestGlobalstoreData.Fire()
+			local pendingGlobalData
+			local pendingPlayerData
+			local receiveGlobalDataConnection
+			local receivePlayerDataConnection
 
-			local receiveDataConnection
-			receiveDataConnection = Zap.GlobalstoreDataResponse.On(function(globalData)
+			local function tryCreateShop()
+				if not pendingGlobalData or not pendingPlayerData then
+					return
+				end
+
 				local shopScreenGui =
 					game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("Shop_ScreenGui", true)
 				if not shopScreenGui then
 					return
 				end
 
-				-- Create the shop frame with the received global data
+				-- Create the shop frame with the received data
 				local shopFrame = shopScreenGui:FindFirstChild("UI_Shop_Frame", true)
 				if shopFrame then
 					ShopMenu.ToggleShopScreenGui(true)
 				else
-					ShopFrame.CreateShopFrame("CharacterShop", globalData.Shops["CharacterShop"]).Parent = shopScreenGui
+					ShopFrame.CreateShopFrame(
+						"CharacterShop",
+						pendingGlobalData.Shops["CharacterShop"],
+						pendingPlayerData
+					).Parent = shopScreenGui
 				end
 
-				-- Disconnect the event listener after receiving the data
-				receiveDataConnection()
+				receiveGlobalDataConnection()
+				receivePlayerDataConnection()
+			end
+
+			receiveGlobalDataConnection = Zap.GlobalstoreDataResponse.On(function(globalData)
+				pendingGlobalData = globalData
+				tryCreateShop()
 			end)
+
+			receivePlayerDataConnection = Zap.PlayerstoreDataResponse.On(function(playerData)
+				pendingPlayerData = playerData
+				tryCreateShop()
+			end)
+
+			Zap.RequestGlobalstoreData.Fire()
+			Zap.RequestPlayerstoreData.Fire()
 
 			shopIcon:unlock()
 		end, nil)

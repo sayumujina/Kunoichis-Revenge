@@ -90,7 +90,6 @@ local function createStageSelectionMenu(unlockedWorldData: { [string]: { stages:
 		return a.Owned
 	end)
 
-	warn(debug.traceback())
 	local characterSelectionFrame = CharacterSelectionFrame.CreateCharacterSelectionFrame(charactersInfo)
 	characterSelectionFrame.Parent = stageSelectionGui
 end

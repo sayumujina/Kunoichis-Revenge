@@ -9,6 +9,7 @@ local Zap = require(StarterPlayerScripts.Client.zap)
 -- Components
 local CreateTopBar = require(script.Components.Global.TopBar)
 local StageSelectionMenu = require(script.Components.Stages.StageSelectionMenu)
+local ShopFrame = require(script.Components.Shop.Shop_Frame)
 
 local HUDController = {}
 
@@ -38,6 +39,11 @@ function HUDController.OnStart()
 			local ItemFrame = require(script.Components.Shop.Item)
 			ItemFrame.UpdateItemRemainingPurchases(itemId, purchasesLeft)
 		end
+	end)
+
+	Zap.PlayerDatastoreChanged.On(function(playerData)
+		local kobanAmount = playerData.Currencies.Koban or 0
+		ShopFrame.UpdateKobanAmount(kobanAmount)
 	end)
 end
 

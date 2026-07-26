@@ -158,7 +158,7 @@ local function createItemCard(
 	itemFrame.Name = itemId .. "_Item_Frame"
 	itemFrame.BackgroundColor3 = Color3.fromRGB(209, 198, 185)
 	itemFrame.BackgroundTransparency = 0.8
-	itemFrame.Size = UDim2.fromScale(0.23, 0.23)
+	itemFrame.Size = UDim2.fromScale(0.268, 0.268)
 	itemFrame.ZIndex = 3
 	itemFrame.LayoutOrder = itemOrder
 

@@ -9,8 +9,9 @@ local ItemFrame = require(script.Parent.Item)
 local Zap = require(StarterPlayerScripts.Client.zap)
 
 --- Creates the shop frame with the given shop data
---- @param shopData -- The data for the shop, including items and purchased players
-local function createShopFrame(shopId: string, shopData)
+--- @param shopData -- The global shop data containing the available items
+--- @param playerStoreData -- The current player's datastore for purchase counts and currencies
+local function createShopFrame(shopId: string, shopData, playerStoreData)
 	local shopFrame = Instance.new("Frame")
 	shopFrame.Name = "UI_Shop_Frame"
 	shopFrame.BackgroundTransparency = 1
@@ -60,6 +61,54 @@ local function createShopFrame(shopId: string, shopData)
 	--
 	shopNameLabel.Parent = shopFrame
 
+	local kobanFrame = Instance.new("Frame")
+	kobanFrame.Name = "UI_Koban_Frame"
+	kobanFrame.BackgroundColor3 = Color3.fromRGB(209, 198, 185)
+	kobanFrame.Position = UDim2.fromScale(0.616, 0.132)
+	kobanFrame.Size = UDim2.fromScale(0.3, 0.05)
+
+	local uICorner = Instance.new("UICorner")
+	uICorner.Name = "UICorner"
+	uICorner.BottomLeftRadius = UDim.new(0, 16)
+	uICorner.BottomRightRadius = UDim.new(0, 16)
+	uICorner.CornerRadius = UDim.new(0, 16)
+	uICorner.TopLeftRadius = UDim.new(0, 16)
+	uICorner.TopRightRadius = UDim.new(0, 16)
+	uICorner.Parent = kobanFrame
+
+	local currencyImage = Instance.new("ImageLabel")
+	currencyImage.Name = "Currency_Image"
+	currencyImage.AutomaticSize = Enum.AutomaticSize.X
+	currencyImage.BackgroundTransparency = 1
+	currencyImage.Image = "rbxassetid://120649062703664"
+	currencyImage.LayoutOrder = 2
+	currencyImage.Position = UDim2.fromScale(0.02, 0.1)
+	currencyImage.Size = UDim2.fromScale(0.8, 0.8)
+
+	local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+	uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+	uIAspectRatioConstraint.Parent = currencyImage
+
+	currencyImage.Parent = kobanFrame
+
+	local currentKoban = Instance.new("TextLabel")
+	currentKoban.Name = "CurrentKoban_Label"
+	currentKoban.AutomaticSize = Enum.AutomaticSize.X
+	currentKoban.BackgroundTransparency = 1
+	currentKoban.FontFace =
+		Font.new("rbxasset://fonts/families/Balthazar.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+	currentKoban.LayoutOrder = 1
+	currentKoban.Position = UDim2.fromScale(0.17, 0.15)
+	currentKoban.RichText = true
+	currentKoban.Size = UDim2.fromScale(0.7, 0.7)
+	currentKoban.Text = tostring(playerStoreData.Currencies.Koban or 0)
+	currentKoban.TextColor3 = Color3.new()
+	currentKoban.TextScaled = true
+	currentKoban.ZIndex = 4
+	currentKoban.Parent = kobanFrame
+	--
+	kobanFrame.Parent = shopFrame
+
 	local itemList = Instance.new("ScrollingFrame")
 	itemList.Name = "Item_List"
 	itemList.Active = true
@@ -67,10 +116,10 @@ local function createShopFrame(shopId: string, shopData)
 	itemList.BackgroundTransparency = 1
 	itemList.CanvasSize = UDim2.fromScale(0, 1)
 	itemList.LayoutOrder = 3
-	itemList.Position = UDim2.fromScale(0.07, 0.15)
+	itemList.Position = UDim2.fromScale(0.07, 0.2)
 	itemList.ScrollBarImageColor3 = Color3.new()
 	itemList.ScrollingDirection = Enum.ScrollingDirection.Y
-	itemList.Size = UDim2.fromScale(0.88, 0.69)
+	itemList.Size = UDim2.fromScale(0.88, 0.56)
 	itemList.VerticalScrollBarInset = Enum.ScrollBarInset.Always
 
 	local uIListLayout = Instance.new("UIListLayout")
@@ -81,13 +130,13 @@ local function createShopFrame(shopId: string, shopData)
 	uIListLayout.Wraps = true
 	uIListLayout.Parent = itemList
 
-	local player = game.Players.LocalPlayer
-	local playerPurchasedItems = shopData.PurchasedPlayers[tostring(player.UserId)] or {}
+	local purchasedItemsByShop = playerStoreData.PurchasedItemsFromShops or {}
+	local playerPurchasedItems = purchasedItemsByShop[shopId] or {}
 	local sortedItems = {}
 
 	-- Sort the items based on whether the player has purchased them or not, and then by item order
 	for id, item in pairs(shopData.Items) do
-		local purchases = playerPurchasedItems[item.Name] or 0
+		local purchases = playerPurchasedItems[id] or 0
 
 		table.insert(sortedItems, {
 			Id = id,
@@ -172,6 +221,28 @@ local function createShopFrame(shopId: string, shopData)
 	return shopFrame
 end
 
+--- Updates the displayed Koban amount in the shop frame
+--- @param amount -- The new Koban amount to display
+local function updateKobanAmount(amount)
+	local shopScreenGui = game.Players.LocalPlayer.PlayerGui:WaitForChild("Shop_ScreenGui")
+	if not shopScreenGui then
+		return
+	end
+
+	local shopFrame = shopScreenGui:WaitForChild("UI_Shop_Frame", true)
+	if not shopFrame then
+		warn("Shop frame not found in the player's GUI. Cannot update Koban amount.")
+		return
+	end
+
+	local currentKoban = shopFrame:WaitForChild("UI_Koban_Frame"):WaitForChild("CurrentKoban_Label")
+	if currentKoban then
+		warn("Current Koban label found. Updating text to:", amount)
+		currentKoban.Text = tostring(amount)
+	end
+end
+
 return {
 	CreateShopFrame = createShopFrame,
+	UpdateKobanAmount = updateKobanAmount,
 }

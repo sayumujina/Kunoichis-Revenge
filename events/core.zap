@@ -19,6 +19,7 @@ type PlayerDatastore = struct {
     Currencies: struct {
         Koban: f32,
     },
+    PurchasedItemsFromShops: map {[string.utf8]: map {[string.utf8]: u32}},
 }
 
 event PlayerDatastoreChanged = {
@@ -60,7 +61,6 @@ type Item = struct {
 
 type Shop = struct {
     Items: map {[string.utf8]: Item},
-    PurchasedPlayers: map {[string.utf8]: map {[string.utf8]: u32}},
 }
 
 type GlobalDatastore = struct {
