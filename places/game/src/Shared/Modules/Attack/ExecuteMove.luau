@@ -39,8 +39,11 @@ end
 
 --- Creates an attack function based on the provided attack data
 --- @within Modules
---- @param attackData -- The data for the attack to create
---- @param moveToNextTurn -- Whether to move to the next turn after executing the attack
+--- @param char -- The character performing the attack
+--- @param fromSide -- The side from which the attack is performed
+--- @param moveName -- The name of the move being executed
+--- @param attackData -- The data associated with the attack, including targets, attacks, and other relevant information
+--- @param isExtraAction -- Optional boolean indicating if this attack is part of an extra action
 --- @return boolean -- Returns true if the attack was executed successfully, false otherwise
 local function ExecuteMove(
 	char: _TYPES.Character,

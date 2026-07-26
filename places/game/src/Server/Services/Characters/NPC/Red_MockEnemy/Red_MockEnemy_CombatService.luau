@@ -30,7 +30,7 @@ local Chars = {} :: { [_TYPES.Character]: _TYPES_CHAR.NPCServerCharData }
 
 -- Toughened status
 local toughenedStatus = {
-	statusType = { "DmgTakenReduced" } :: { _TYPES.StatusTypes },
+	statusType = { "StatModification" } :: { _TYPES.StatusTypes },
 	--
 	info = {
 		name = "Toughened",
@@ -52,7 +52,7 @@ local toughenedStatus = {
 
 -- Weakened status
 local weakenedStatus = {
-	statusType = { "DmgTakenIncreased" } :: { _TYPES.StatusTypes },
+	statusType = { "StatModification" } :: { _TYPES.StatusTypes },
 	--
 	info = {
 		name = "Weakened",

@@ -10,7 +10,9 @@ local CombatService = require(Services.CombatService)
 local EventService = require(Services.EventService)
 -- Packages
 local Trove = require(rep.Packages.Trove)
-
+local Zap = require(Services.Parent.zap)
+-- Utility
+local CanCastUltimate = require(rep.Shared.Modules.Attack.Utility.CanCastUltimate)
 -- Data
 local MoveInfo = require(rep.Data.Characters.Playable.Setsuna.data_Setsuna_Moves)
 
@@ -18,12 +20,14 @@ local MoveInfo = require(rep.Data.Characters.Playable.Setsuna.data_Setsuna_Moves
 local Handlers = {
 	WeavingBlade = require(script.Parent.Handlers.Setsuna_WeavingBlade),
 	TwinBlades = require(script.Parent.Handlers.Setsuna_TwinBlades),
+	BladeDance = require(script.Parent.Handlers.Setsuna_BladeDance),
 } :: { [string]: (_TYPES.Character, _TYPES_CHAR.ServerCharData) -> boolean }
 
 -- Action to move mapping at the top of the file
 local ActionToMoveMap = {
 	BasicAttack = "WeavingBlade",
 	Skill = "TwinBlades",
+	Ultimate = "BladeDance",
 }
 
 local charName = "Setsuna"
@@ -39,6 +43,7 @@ function Setsuna_CombatService.Init(char: _TYPES.Character)
 		Chars[char] = {
 			Info = {
 				selectedMove = "WeavingBlade",
+				queuedUltimateId = nil,
 			},
 			Trove = Trove.new(),
 		} :: _TYPES_CHAR.ServerCharData
@@ -75,15 +80,9 @@ end
 --- @param char -- The character performing the action
 --- @param inputData -- The input data containing the action and target information
 function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES.InputData)
-	-- Check if the input is for this character
-	local currentTurnChar =
-		TurnService.GetCurrentTurn(PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType)
-	if not currentTurnChar or char :: any ~= currentTurnChar.char then
-		return false
-	end
-
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local action = inputData.action
+	local combatData = CombatService.GetCombatData(player)
 
 	local charData = Chars[char]
 
@@ -96,6 +95,58 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		CombatService.SwitchToNextTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 		return true
+	-- Handle ultimates differently
+	elseif action:find("Ultimate") then
+		-- If the selected move is the ultimate again, execute it
+		if charData.Info.selectedMove == "BladeDance" then
+			-- Reset the queued ultimate ID after executing the ultimate
+			charData.Info.queuedUltimateId = nil
+			-- Reset the selected move to the default after executing the ultimate
+			charData.Info.selectedMove = "WeavingBlade"
+
+			return Handlers.BladeDance(char, charData)
+		end
+
+		-- Check if Tsuyoka's energy is full
+		if not CanCastUltimate(char) then
+			warn("Setsuna's energy is not full. Cannot execute ultimate.")
+			return false
+		end
+
+		-- Store the queued ultimate action ID for later execution
+		if combatData.isProcessingAttack then
+			if charData.Info.queuedUltimateId then
+				return false
+			end
+
+			charData.Info.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
+			return true
+		else
+			if not charData.Info.queuedUltimateId then
+				charData.Info.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
+				TurnService.ExecuteNextExtraAction(player)
+				return true
+			end
+		end
+
+		-- Set the selected move to the ultimate
+		charData.Info.selectedMove = "BladeDance"
+
+		warn("Selected ultimate for Setsuna:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
+
+		-- Update the selection type reference for the new move
+		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
+
+		-- Notify the client that the ultimate has been casted
+		local cinematicInfo = MoveInfo[charData.Info.selectedMove].cinematicInfo
+		local flashDuration = cinematicInfo and cinematicInfo.flashDuration or 1
+		Zap.CastedUltimate.Fire(PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType, {
+			char = char,
+			data = {
+				fullMoveName = MoveInfo[charData.Info.selectedMove].info.name,
+				flashDuration = flashDuration,
+			},
+		})
 	-- Handle the confirm move action
 	elseif action == "ConfirmMove" then
 		-- Handle the input based on the action
@@ -103,9 +154,23 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 			return Handlers.WeavingBlade(char, charData)
 		elseif charData.Info.selectedMove == "TwinBlades" then
 			return Handlers.TwinBlades(char, charData)
+		elseif charData.Info.selectedMove == "BladeDance" then
+			-- Reset the queued ultimate ID after executing the ultimate
+			charData.Info.queuedUltimateId = nil
+
+			-- Reset the selected move to the default after executing the ultimate
+			charData.Info.selectedMove = "WeavingBlade"
+			return Handlers.BladeDance(char, charData)
 		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
+		-- If ultimate is already selected, disallow switching to other moves
+		if charData.Info.selectedMove == "BladeDance" then
+			warn("Ultimate is already selected. Cannot switch to " .. action)
+			return false
+		end
+
+		-- Handle move selection actions
 		local mappedMove = ActionToMoveMap[action]
 
 		-- If the move isn't the same as the currently selected move, it means the player is selecting a new move
@@ -120,13 +185,13 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 
 		-- Handle the input based on the action
 		if charData.Info.selectedMove == "WeavingBlade" then
-			return Handlers.WeavingBlade(char, charData)
+			Handlers.WeavingBlade(char, charData)
 		elseif charData.Info.selectedMove == "TwinBlades" then
-			return Handlers.TwinBlades(char, charData)
+			Handlers.TwinBlades(char, charData)
 		end
 	end
 
-	return false
+	return true
 end
 
 --- Get the attack handlers for Setsuna's combat service

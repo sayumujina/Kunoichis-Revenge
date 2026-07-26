@@ -86,6 +86,20 @@
                   "Properties": {
                     "AnimationId": "rbxassetid://87136944989035"
                   }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "BladeDance_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://116354453812275"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "BladeDance_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://99047368965202"
+                  }
                 }
               ]
             }
@@ -132,6 +146,20 @@
                   "Name": "LightningRain_Execute",
                   "Properties": {
                     "AnimationId": "rbxassetid://80048522470874"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "WeakenFromAfar_Execute_Idle",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://126740540448677"
+                  }
+                },
+                {
+                  "ClassName": "Animation",
+                  "Name": "WeakenFromAfar_Execute",
+                  "Properties": {
+                    "AnimationId": "rbxassetid://106590310202903"
                   }
                 }
               ]

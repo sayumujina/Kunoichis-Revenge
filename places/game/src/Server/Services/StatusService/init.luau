@@ -43,6 +43,7 @@ end
 
 --- Adds a status to a character
 --- @param char - The character to add the status to
+--- @param id - The ID of the status to add
 --- @param status - The status to add
 function StatusService.AddStatus(char: _TYPES.Character, id: string, status: _TYPES.Status)
 	if not char or not status then

@@ -18,6 +18,7 @@ local AttackHandlers = {
 	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow_Handler),
 	LightningRain = require(script.Parent.Handlers.Hayumi_LightningRain_Handler),
 	ArcherysVision = require(script.Parent.Handlers.Hayumi_ArcherysVision_Handler),
+	WeakenFromAfar = require(script.Parent.Handlers.Hayumi_WeakenFromAfar),
 } :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
 
 -- Player

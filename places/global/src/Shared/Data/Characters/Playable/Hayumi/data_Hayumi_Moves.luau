@@ -73,6 +73,54 @@ local moves: { [string]: _TYPES.MoveData } = {
 			description = "A powerful skill that hits multiple enemies in a blast.",
 		},
 	},
+	["WeakenFromAfar"] = {
+		moveType = "Ultimate",
+		--
+		targetSelectionType = "Blast",
+		selectedSide = "NPC",
+		--
+		manaChange = 0,
+		--
+		attacks = {
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 20 / 100 },
+				},
+				energyGain = 5,
+				exposureDealt = 5,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 20 / 100 },
+				},
+				energyGain = 5,
+				exposureDealt = 5,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 20 / 100 },
+				},
+				energyGain = 5,
+				exposureDealt = 5,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 60 / 100 },
+				},
+				energyGain = 5,
+				exposureDealt = 5,
+			},
+		},
+		--
+		info = {
+			name = "Weaken From Afar",
+			description = "Deals damage to multiple enemies in a blast and reduces their attack power.",
+		},
+	},
 }
 
 return moves

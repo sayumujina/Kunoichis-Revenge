@@ -30,7 +30,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 	["TwinBlades"] = {
 		moveType = "Skill",
 		--
-		targetSelectionType = "Blast",
+		targetSelectionType = "Single",
 		selectedSide = "NPC",
 		--
 		manaChange = -40,
@@ -57,6 +57,78 @@ local moves: { [string]: _TYPES.MoveData } = {
 		info = {
 			name = "Twin Blades",
 			description = "A skill that deals blast damage to multiple enemies.",
+		},
+	},
+	["BladeDance"] = {
+		moveType = "Ultimate",
+		--
+		targetSelectionType = "Blast",
+		selectedSide = "NPC",
+		--
+		manaChange = 0,
+		--
+		attacks = {
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 15 / 100 },
+				},
+				energyGain = 3,
+				exposureDealt = 3,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 20 / 100 },
+				},
+				energyGain = 3,
+				exposureDealt = 3,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 25 / 100 },
+				},
+				energyGain = 3,
+				exposureDealt = 3,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 30 / 100 },
+				},
+				energyGain = 3,
+				exposureDealt = 3,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 35 / 100 },
+				},
+				energyGain = 3,
+				exposureDealt = 3,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 40 / 100 },
+				},
+				energyGain = 3,
+				exposureDealt = 3,
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 130 / 100 },
+				},
+				energyGain = 7,
+				exposureDealt = 30,
+			},
+		},
+		--
+		info = {
+			name = "Blade Dance",
+			description = "An ultimate skill that deals damage to multiple enemies.",
 		},
 	},
 }

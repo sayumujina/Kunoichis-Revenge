@@ -140,8 +140,10 @@ local function importCharacterStatsFromSource(char: _TYPES.Character, side: _TYP
 		end
 	end
 
-	-- For hp specifically, always start the character at full health, regardless of the starting stat
-	Chars[char].currentStats["hp"] = Chars[char].realStats["hp"] or 1
+	-- For hp specifically, if no starting stat is provided, we set it to max
+	if not dataSource.startingStats.hp then
+		Chars[char].currentStats.hp = Chars[char].realStats.hp
+	end
 
 	return
 end
@@ -222,6 +224,14 @@ end
 function CharService.UpdateRealCharacterStat(char: _TYPES.Character, statName: string, newValue: number)
 	Chars[char].realStats[statName] = newValue
 
+	warn(
+		"[CharService] UpdateRealCharacterStat: Real stat '"
+			.. statName
+			.. "' for character '"
+			.. char.Name
+			.. "' updated to "
+			.. newValue
+	)
 	-- Fire the event to notify clients about the real stat change
 	EventService.Events.RealStatsChanged:Fire({
 		char = char,
@@ -268,7 +278,7 @@ function CharService.ApplyStatuses(char: _TYPES.Character)
 
 	-- Copy real stats before applying statuses
 	local prevRealStats = TableUtil.Copy(chardata.realStats)
-	local default: any = TableUtil.Copy(chardata.baseStats)
+	local default: any = TableUtil.Copy(chardata.baseStats) -- Copy base stats to avoid modifying the original table
 
 	-- Check if the character has any statuses to apply
 	if not chardata.statuses then

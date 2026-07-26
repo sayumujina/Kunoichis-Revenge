@@ -10,7 +10,9 @@ local PlayerService = require(Services.PlayerService)
 local CombatService = require(Services.CombatService)
 -- Packages
 local Trove = require(rep.Packages.Trove)
-
+local Zap = require(Services.Parent.zap)
+-- Utility
+local CanCastUltimate = require(rep.Shared.Modules.Attack.Utility.CanCastUltimate)
 -- Data
 local MoveInfo = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Moves)
 
@@ -19,6 +21,7 @@ local Handlers = {
 	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow),
 	LightningRain = require(script.Parent.Handlers.Hayumi_LightningRain),
 	ArcherysVision = require(script.Parent.Handlers.Hayumi_ArcherysVision),
+	WeakenFromAfar = require(script.Parent.Handlers.Hayumi_WeakenFromAfar),
 } :: { [string]: (_TYPES.Character, _TYPES_CHAR.ServerCharData) -> boolean }
 
 local charName = "Hayumi"
@@ -28,6 +31,7 @@ local Chars = {} :: { [_TYPES.Character]: _TYPES_CHAR.ServerCharData }
 local ActionToMoveMap = {
 	BasicAttack = "LightningArrow",
 	Skill = "LightningRain",
+	Ultimate = "WeakenFromAfar",
 }
 
 local Hayumi_CombatService = {}
@@ -44,6 +48,7 @@ function Hayumi_CombatService.Init(char: _TYPES.Character)
 				selectedMove = "LightningArrow",
 				archerysVisionTarget = nil,
 				archerysVisionUseCount = 1,
+				queuedUltimateId = nil,
 			},
 			Trove = Trove.new(),
 		} :: _TYPES_CHAR.ServerCharData
@@ -112,7 +117,7 @@ function Hayumi_CombatService.Init(char: _TYPES.Character)
 	EventService.Events.TurnStarted:Connect(function(turnData)
 		if turnData.data.char :: any == char then
 			Chars[char].Info.selectedMove = "LightningArrow"
-			-- Chars[char].Info.queuedUltimateId = nil
+			Chars[char].Info.queuedUltimateId = nil
 		end
 	end)
 end
@@ -123,8 +128,10 @@ end
 function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES.InputData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local action = inputData.action
+	local combatData = CombatService.GetCombatData(player)
 
 	local charData = Chars[char]
+
 	-- Handle target selection actions
 	if action == "PreviousTarget" then
 		CombatService.SwitchToPreviousTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
@@ -134,6 +141,58 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 		CombatService.SwitchToNextTarget(player, MoveInfo[charData.Info.selectedMove].selectedSide)
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 		return true
+	-- Handle ultimates differently
+	elseif action:find("Ultimate") then
+		-- If the selected move is the ultimate again, execute it
+		if charData.Info.selectedMove == "WeakenFromAfar" then
+			-- Reset the queued ultimate ID after executing the ultimate
+			charData.Info.queuedUltimateId = nil
+			-- Reset the selected move to the default after executing the ultimate
+			charData.Info.selectedMove = "LightningArrow"
+
+			return Handlers.WeakenFromAfar(char, charData)
+		end
+
+		-- Check if Hayumi's energy is full
+		if not CanCastUltimate(char) then
+			warn("Hayumi's energy is not full. Cannot execute ultimate.")
+			return false
+		end
+
+		-- Store the queued ultimate action ID for later execution
+		if combatData.isProcessingAttack then
+			if charData.Info.queuedUltimateId then
+				return false
+			end
+
+			charData.Info.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
+			return true
+		else
+			if not charData.Info.queuedUltimateId then
+				charData.Info.queuedUltimateId = TurnService.AddExtraAction(char, "Ultimate")
+				TurnService.ExecuteNextExtraAction(player)
+				return true
+			end
+		end
+
+		-- Set the selected move to the ultimate
+		charData.Info.selectedMove = "WeakenFromAfar"
+
+		warn("Selected ultimate for Hayumi:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
+
+		-- Update the selection type reference for the new move
+		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
+
+		-- Notify the client that the ultimate has been casted
+		local cinematicInfo = MoveInfo[charData.Info.selectedMove].cinematicInfo
+		local flashDuration = cinematicInfo and cinematicInfo.flashDuration or 1
+		Zap.CastedUltimate.Fire(PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType, {
+			char = char,
+			data = {
+				fullMoveName = MoveInfo[charData.Info.selectedMove].info.name,
+				flashDuration = flashDuration,
+			},
+		})
 	-- Handle the confirm move action
 	elseif action == "ConfirmMove" then
 		-- Handle the input based on the action
@@ -141,11 +200,22 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 			return Handlers.LightningArrow(char, charData)
 		elseif charData.Info.selectedMove == "LightningRain" then
 			return Handlers.LightningRain(char, charData)
-		elseif charData.Info.selectedMove == "ArcherysVision" then
-			return Handlers.ArcherysVision(char, charData)
+		elseif charData.Info.selectedMove == "WeakenFromAfar" then
+			-- Reset the queued ultimate ID after executing the ultimate
+			charData.Info.queuedUltimateId = nil
+
+			-- Reset the selected move to the default after executing the ultimate
+			charData.Info.selectedMove = "LightningArrow"
+			return Handlers.WeakenFromAfar(char, charData)
 		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
+		-- If ultimate is already selected, disallow switching to other moves
+		if charData.Info.selectedMove == "WeakenFromAfar" then
+			warn("Ultimate is already selected. Cannot switch to " .. action)
+			return false
+		end
+
 		-- Handle move selection actions
 		local mappedMove = ActionToMoveMap[action]
 
@@ -155,18 +225,19 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 			charData.Info.selectedMove = mappedMove
 			-- Update the selection type reference for the new move
 			CombatService.UpdateMovePreview(player, char, mappedMove)
+
 			return true
 		end
 
 		-- Handle the input based on the action
 		if charData.Info.selectedMove == "LightningArrow" then
-			return Handlers.LightningArrow(char, charData)
+			Handlers.LightningArrow(char, charData)
 		elseif charData.Info.selectedMove == "LightningRain" then
-			return Handlers.LightningRain(char, charData)
+			Handlers.LightningRain(char, charData)
 		end
 	end
 
-	return false
+	return true
 end
 
 --- Get the attack handlers for Hayumi's combat service

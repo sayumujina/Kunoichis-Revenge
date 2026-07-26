@@ -203,7 +203,7 @@ local stages: {
 					unlockCondition = "None",
 					name = "2-1",
 					description = "Unfamiliar Emptiness",
-					enemies = { "MockEnemy", "MockEnemy" },
+					enemies = { "MockEnemy", "Red_MockEnemy", "MockEnemy" },
 					--
 					extraObjectives = {
 						["Objective1"] = {
@@ -252,7 +252,7 @@ local stages: {
 					unlockCondition = "CompletePreviousStage",
 					name = "2-2",
 					description = "Familiar Appearance",
-					enemies = { "MockEnemy", "MockEnemy", "MockEnemy" },
+					enemies = { "MockEnemy", "MockEnemy", "MockEnemy", "Red_MockEnemy" },
 					--
 					extraObjectives = {
 						["Objective1"] = {
@@ -301,7 +301,7 @@ local stages: {
 					unlockCondition = "CompletePreviousStage",
 					name = "2-3",
 					description = "Unveil The Truth",
-					enemies = { "Red_MockEnemy", "MockEnemy", "Red_MockEnemy", "MockEnemy" },
+					enemies = { "Red_MockEnemy", "Red_MockEnemy", "Red_MockEnemy", "Red_MockEnemy", "Red_MockEnemy" },
 					--
 					extraObjectives = {
 						["Objective1"] = {

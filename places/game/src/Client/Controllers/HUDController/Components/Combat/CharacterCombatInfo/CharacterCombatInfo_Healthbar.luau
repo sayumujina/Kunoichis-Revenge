@@ -12,7 +12,7 @@ local function getHPScale(current: number, max: number): number
 		return 0
 	end
 
-	return current / max
+	return math.clamp(current / max, 0, 1)
 end
 
 local FILL_POSITION_OFFSET = 0.008 -- The scale of the healthbar fill relative to the healthbar frame size

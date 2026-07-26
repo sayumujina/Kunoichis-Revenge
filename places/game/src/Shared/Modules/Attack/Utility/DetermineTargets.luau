@@ -37,7 +37,8 @@ return function(char: _TYPES.Character, primaryTargetIndex: number, moveName: st
 		-- Find adjacent targets
 		local charOnTheLeft = findChar(primaryTargetIndex - 1, targetsList)
 		if charOnTheLeft then
-			table.insert(targets, charOnTheLeft)
+			-- This target should be inserted in the first position of the targets list
+			table.insert(targets, 1, charOnTheLeft)
 		end
 
 		local charOnTheRight = findChar(primaryTargetIndex + 1, targetsList)

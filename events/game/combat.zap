@@ -129,7 +129,7 @@ event StatusAdded = {
 		data: struct {
 			id: string.binary,
 			status: struct {
-				statusType: enum { Collapsed, DmgTakenReduced, DmgTakenIncreased }?[],
+				statusType: enum { Collapsed, StatModification}?[],
 				info: struct {
 					name: string.binary,
 					description: string.binary,
@@ -158,7 +158,7 @@ event StatusRemoved = {
 		data: struct {
 			id: string.binary,
 			status: struct {
-				statusType: enum { Collapsed, DmgTakenReduced, DmgTakenIncreased }?[],
+				statusType: enum { Collapsed, StatModification }?[],
 				info: struct {
 					name: string.binary,
 					description: string.binary,

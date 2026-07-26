@@ -4,6 +4,7 @@ export type ServerCharData = _TYPES.CombatCharData<{
 	selectedMove: string,
 	archerysVisionTarget: _TYPES.Character?,
 	archerysVisionUseCount: number,
+	queuedUltimateId: number?,
 }>
 
 return nil
