@@ -1,17 +1,17 @@
 local _TYPES = require(game.ReplicatedStorage.Data.data_Types)
 
 local info = {
-	name = "MockEnemy",
+	name = "Red_MockEnemy",
 	description = "",
 	-- Base stats
 	baseStats = {
-		atk = 600,
+		atk = 460,
 		def = 140,
 		hp = 12000,
-		spd = 60,
+		spd = 170,
 		shield = 0,
 		--
-		exposure = 100,
+		exposure = 130,
 		--
 		critRate = 0,
 		critDmg = 0,

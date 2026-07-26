@@ -31,7 +31,19 @@ local moves: { [string]: _TYPES.MoveData } = {
 			{
 				attackCategory = "Damage",
 				scalings = {
-					realStats = { atk = 200 / 100 },
+					realStats = { atk = 60 / 100 },
+				},
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 60 / 100 },
+				},
+			},
+			{
+				attackCategory = "Damage",
+				scalings = {
+					realStats = { atk = 60 / 100 },
 				},
 			},
 		},

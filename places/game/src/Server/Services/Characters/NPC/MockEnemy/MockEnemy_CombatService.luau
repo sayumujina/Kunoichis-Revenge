@@ -100,7 +100,7 @@ function MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Character)
 	end)
 
 	-- Loop back to the start of the attack pattern if we've reached the end
-	if currentPatternIndex + 1 >= #AttackPattern then
+	if currentPatternIndex + 1 > #AttackPattern then
 		Chars[char].CurrentPatternIndex = 1
 	else
 		Chars[char].CurrentPatternIndex += 1
