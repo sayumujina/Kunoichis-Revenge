@@ -30,9 +30,6 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local primaryTargetIndex = CombatService.GetCombatData(player).selectedNPCIndex
 
-	-- Set energy to 0 after executing the ultimate
-	CharService.UpdateCurrentCharacterStat(char, "energy", 0)
-
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
 		manaChange = moveInfo.manaChange,
@@ -42,8 +39,9 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	} :: _TYPES.AttackData
 
 	if ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, true) then
-		-- Advance the action value of the buffed ally
-		TurnService.AdvanceAction(attackData.targets[1], combatInfo.ultimate.actionAdvanceAmount)
+		-- Set energy to 0 after executing the ultimate
+		CharService.UpdateCurrentCharacterStat(char, "energy", 0)
+
 		return true
 	end
 

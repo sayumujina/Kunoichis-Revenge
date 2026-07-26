@@ -19,17 +19,14 @@ local moveName = "BladeDance"
 local moveInfo = require(rep.Data.Characters.Playable.Setsuna.data_Setsuna_Moves)[moveName]
 
 return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
-	-- Check if Tsuyoka can cast her ultimate before proceeding
+	-- Check if Setsuna can cast her ultimate before proceeding
 	if not CanCastUltimate(char) then
-		warn("Tsuyoka's energy is not full. Cannot execute ultimate.")
+		warn("Setsuna's energy is not full. Cannot execute ultimate.")
 		return false
 	end
 
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local primaryTargetIndex = CombatService.GetCombatData(player).selectedNPCIndex
-
-	-- Set energy to 0 after executing the ultimate
-	CharService.UpdateCurrentCharacterStat(char, "energy", 0)
 
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
@@ -40,6 +37,8 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	} :: _TYPES.AttackData
 
 	if ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, true) then
+		-- Set energy to 0 after executing the ultimate
+		CharService.UpdateCurrentCharacterStat(char, "energy", 0)
 		return true
 	end
 
