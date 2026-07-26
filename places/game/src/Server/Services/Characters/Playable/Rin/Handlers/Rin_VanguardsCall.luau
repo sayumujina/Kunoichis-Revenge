@@ -63,6 +63,9 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	} :: _TYPES.AttackData
 
 	if ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, true) then
+		-- If move ended up successful, play the move success sound
+		Zap.RequestPlaySound.Fire(player :: _TYPES.RobloxPlayerType, "Sound_MoveSuccessful")
+
 		-- Set energy to 0 after executing the ultimate
 		CharService.UpdateCurrentCharacterStat(char, "energy", 0)
 

@@ -2,6 +2,7 @@
 local TweenService = game:GetService("TweenService")
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
 -- Constants
@@ -98,6 +99,9 @@ function WarningController.DisplayWarning(message: string)
 			warningPopup:Destroy()
 		end
 	end)
+
+	-- Play the warning sound
+	SoundController.Play("Sound_Error")
 end
 
 return WarningController

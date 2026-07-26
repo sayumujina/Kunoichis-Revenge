@@ -7,6 +7,8 @@ local PlayerService = require(Services.PlayerService)
 local CombatService = require(Services.CombatService)
 -- Modules
 local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
+-- Packages
+local Zap = require(Services.Parent.zap)
 
 local moveName = "CleansingAura"
 -- Info
@@ -24,5 +26,8 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 		info = moveInfo.info,
 	} :: _TYPES.AttackData
 
-	return ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, false)
+	if ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, false) then
+		-- If move ended up successful, play the move success sound
+		Zap.RequestPlaySound.Fire(player :: _TYPES.RobloxPlayerType, "Sound_MoveSuccessful")
+	end
 end

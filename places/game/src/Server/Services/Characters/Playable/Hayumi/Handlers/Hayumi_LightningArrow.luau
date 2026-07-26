@@ -7,6 +7,8 @@ local PlayerService = require(Services.PlayerService)
 local CombatService = require(Services.CombatService)
 -- Modules
 local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
+-- Packages
+local Zap = require(Services.Parent.zap)
 
 local moveName = "LightningArrow"
 -- Info
@@ -26,6 +28,8 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	} :: _TYPES.AttackData
 
 	if ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, false) then
+		-- If move ended up successful, play the move success sound
+		Zap.RequestPlaySound.Fire(player :: _TYPES.RobloxPlayerType, "Sound_MoveSuccessful")
 		-- Gain one use of Archery's Vision after executing Lightning Rain
 		data.Info.archerysVisionUseCount =
 			math.min(data.Info.archerysVisionUseCount + combatInfo.useCountGainPerMove, combatInfo.maxUseCount)

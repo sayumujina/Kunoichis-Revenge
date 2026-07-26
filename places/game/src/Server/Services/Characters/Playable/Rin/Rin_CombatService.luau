@@ -134,6 +134,9 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 		-- Set the selected move to the ultimate
 		charData.Info.selectedMove = "VanguardsCall"
 
+		-- Play the ultimate cast sound
+		Zap.RequestPlaySound.Fire(player :: _TYPES.RobloxPlayerType, "Sound_UltimateCasted")
+
 		-- Update the selection type reference for the new move
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 

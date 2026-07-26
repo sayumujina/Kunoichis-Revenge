@@ -12,6 +12,8 @@ local ExecuteMove = require(rep.Shared.Modules.Attack.ExecuteMove)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 local moveName = "WeakenFromAfar"
+-- Packages
+local Zap = require(Services.Parent.zap)
 -- Info
 local moveInfo = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_Moves)[moveName]
 local combatInfo = require(rep.Data.Characters.Playable.Hayumi.data_Hayumi_CombatInfo)
@@ -52,6 +54,9 @@ return function(char: _TYPES.Character, data: _TYPES_CHAR.ServerCharData)
 	} :: _TYPES.AttackData
 
 	if ExecuteMove(char, moveInfo.selectedSide, moveName, attackData, true) then
+		-- If move ended up successful, play the move success sound
+		Zap.RequestPlaySound.Fire(player :: _TYPES.RobloxPlayerType, "Sound_MoveSuccessful")
+
 		-- Set energy to 0 after executing the ultimate
 		CharService.UpdateCurrentCharacterStat(char, "energy", 0)
 

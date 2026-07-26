@@ -2,6 +2,7 @@ local rep = game:GetService("ReplicatedStorage")
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local SpawnController = require(StarterPlayerScripts.Client.Controllers.SpawnController)
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Components
 local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 -- Services
@@ -38,6 +39,9 @@ return function(buttonName: "Restart" | "Return")
 				Zap.RequestReturnToMenu.Fire()
 			end)
 		end
+
+		-- Play the button click sound effect
+		SoundController.Play("Sound_UniversalClick")
 	end)
 
 	local uICorner = Instance.new("UICorner")

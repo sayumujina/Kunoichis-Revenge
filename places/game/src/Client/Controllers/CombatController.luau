@@ -2,9 +2,11 @@ local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
-local EffectsController = require(StarterPlayerScripts.Client.Controllers.EffectsController)
-local HUDController = require(StarterPlayerScripts.Client.Controllers.HUDController)
-local InputController = require(StarterPlayerScripts.Client.Controllers.InputController)
+local Controllers = StarterPlayerScripts.Client.Controllers
+local EffectsController = require(Controllers.EffectsController)
+local HUDController = require(Controllers.HUDController)
+local InputController = require(Controllers.InputController)
+local SoundsController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Utility
 local Utility = require(rep.Shared.Modules.Utility)
 -- Components
@@ -233,6 +235,9 @@ function CombatController.UpdateMovePreview(
 			require(controller).UpdateCamera(char, side, primaryTargetIndex)
 		end)
 	end
+
+	-- Play the sound for selecting a target
+	SoundsController.Play("Sound_SelectTarget")
 end
 
 --- Store the move preview data for later use

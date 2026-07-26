@@ -178,6 +178,9 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 		-- Set the selected move to the ultimate
 		charData.Info.selectedMove = "WeakenFromAfar"
 
+		-- Play the ultimate cast sound
+		Zap.RequestPlaySound.Fire(player :: _TYPES.RobloxPlayerType, "Sound_UltimateCasted")
+
 		warn("Selected ultimate for Hayumi:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
 
 		-- Update the selection type reference for the new move

@@ -26,7 +26,10 @@
           },
           "Icons": {
             "$path": "places/global/src/Shared/Asphalt/icons.luau"
-          }
+          },
+          "Sounds": {
+            "$path": "places/global/src/Shared/Asphalt/sounds.luau"
+          } 
         },
         "Animations": {
           "$path": "places/global/src/Shared/Assets/Animations.model.json"
@@ -119,6 +122,9 @@
       }
     },
     "SoundService": {
+      "Sounds": {
+        "$className": "Folder"
+      },
       "$properties": {
         "RespectFilteringEnabled": true
       }
