@@ -2,6 +2,7 @@ local rep = game:GetService("ReplicatedStorage")
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Utility
 local GetAvatarImageForCharacter = require(rep.Shared.GlobalUtility.GetAvatarImageForCharacter)
 
@@ -93,12 +94,14 @@ local function createCharacterCard(owned: boolean, charName: string, charLevel: 
 	invisibleImageButton.Size = UDim2.fromScale(1, 1)
 	invisibleImageButton.ZIndex = characterFrame.ZIndex + 1
 	invisibleImageButton.MouseButton1Click:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		if owned then
 			if onActivated then
 				onActivated(charName)
 			end
 		else
-			WarningController.DisplayWarning("This character is locked.")
+			WarningController.DisplayWarning(false, "This character is locked.")
 		end
 	end)
 	invisibleImageButton.Parent = characterFrame

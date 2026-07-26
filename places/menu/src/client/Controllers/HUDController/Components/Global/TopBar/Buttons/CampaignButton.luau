@@ -3,6 +3,7 @@ local icons = require(rep.Assets.Asphalt.Icons)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local HUDController = StarterPlayerScripts.Client.Controllers.HUDController
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Packages
 local TopBarIcons = require(rep.Packages.topbarplus)
 -- Components
@@ -20,6 +21,7 @@ return function()
 	campaignIcon:align("Right")
 	campaignIcon:modifyTheme({ "IconLabel", "FontFace", Font.new("rbxasset://fonts/families/Balthazar.json") })
 	campaignIcon.selected:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
 		-- Lock the icon
 		campaignIcon:lock()
 
@@ -33,6 +35,7 @@ return function()
 		end, nil)
 	end)
 	campaignIcon.deselected:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
 		-- Hide the stage selection menu when the campaign icon is deselected
 		-- Lock the icon
 		campaignIcon:lock()

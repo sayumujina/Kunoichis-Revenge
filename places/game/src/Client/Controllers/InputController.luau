@@ -6,6 +6,7 @@ local Utility = require(game:GetService("ReplicatedStorage").Shared.Modules.Util
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local Controllers = StarterPlayerScripts.Client.Controllers
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- HUD Components
 local Components = Controllers.HUDController.Components
 local DetailedCombatInfoScrollingFrame = require(Components.Combat.DetailedCombatInfo.DetailedCombatInfo_ScrollingFrame)
@@ -97,6 +98,8 @@ function InputController.OnStart()
 			-- Toggle the detailed combat info menu flag
 			detailedCombatInfoOpened = not detailedCombatInfoOpened
 
+			-- Play the button click sound effect
+			SoundController.Play("Sound_UniversalClick")
 			if detailedCombatInfoOpened then
 				-- Toggle the detailed combat info menu visibility
 				InputController.ToggleHUDVisibility:Fire({

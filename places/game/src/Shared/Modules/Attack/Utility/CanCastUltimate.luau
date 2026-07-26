@@ -22,6 +22,7 @@ return function(char: _TYPES.Character)
 		local player = PlayerService.GetPlayerFromCharacter(char)
 		warn("Player does not have enough energy to cast ultimate.")
 		Zap.Warning.Fire(player :: _TYPES.RobloxPlayerType, {
+			success = false,
 			message = "Insufficient energy",
 		})
 	end

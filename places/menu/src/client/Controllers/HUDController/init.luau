@@ -4,6 +4,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
 -- Components
@@ -25,10 +26,12 @@ function HUDController.OnStart()
 		end
 
 		if not purchaseData.success then
-			WarningController.DisplayWarning("Purchase failed for item: " .. purchaseData.itemId)
+			WarningController.DisplayWarning(false, "Purchase failed for item: " .. purchaseData.itemId)
 			return
 		else
-			WarningController.DisplayWarning("Purchase successful for item: " .. purchaseData.itemId)
+			-- Play the purchase success sound effect
+			SoundController.Play("Sound_PurchaseSuccessful")
+			WarningController.DisplayWarning(true, "Purchase successful for item: " .. purchaseData.itemId)
 		end
 
 		local shopFrame = shopScreenGui:FindFirstChild("UI_Shop_Frame")

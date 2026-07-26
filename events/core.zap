@@ -120,6 +120,7 @@ event Warning = {
 	type: Reliable,
 	call: ManyAsync,
 	data: struct {
+		success: boolean?,
 		message: string.binary,
 	},
 }

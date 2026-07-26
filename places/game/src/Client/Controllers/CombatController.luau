@@ -168,6 +168,18 @@ function CombatController.OnStart()
 			CombatController.ReloadPreviewData()
 		end
 	end)
+
+	-- Listen to battle ended event
+	Zap.BattleEnded.On(function(event)
+		-- Play the battle end sound
+		task.delay(1, function()
+			if event.passed then
+				SoundsController.Play("Sound_DefenseSuccessful")
+			else
+				SoundsController.Play("Sound_DefenseInfiltrated")
+			end
+		end)
+	end)
 end
 
 --- Handle switching primary selected targets.

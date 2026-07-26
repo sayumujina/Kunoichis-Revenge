@@ -3,6 +3,7 @@ local icons = require(rep.Assets.Asphalt.Icons)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local HUDController = StarterPlayerScripts.Client.Controllers.HUDController
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Packages
 local TopBarIcons = require(rep.Packages.topbarplus)
 local Zap = require(StarterPlayerScripts.Client.zap)
@@ -19,6 +20,8 @@ return function()
 	shopIcon:align("Right")
 	shopIcon:modifyTheme({ "IconLabel", "FontFace", Font.new("rbxasset://fonts/families/Balthazar.json") })
 	shopIcon.selected:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		-- Lock the icon
 		shopIcon:lock()
 
@@ -49,7 +52,8 @@ return function()
 						"CharacterShop",
 						pendingGlobalData.Shops["CharacterShop"],
 						pendingPlayerData
-					).Parent = shopScreenGui
+					).Parent =
+						shopScreenGui
 				end
 
 				receiveGlobalDataConnection()
@@ -74,6 +78,8 @@ return function()
 	end)
 
 	shopIcon.deselected:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		-- Lock the icon
 		shopIcon:lock()
 

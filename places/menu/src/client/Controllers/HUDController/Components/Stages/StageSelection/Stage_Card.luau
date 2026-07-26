@@ -3,6 +3,7 @@ local rep = game:GetService("ReplicatedStorage")
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
 local HUDController = StarterPlayerScripts.Client.Controllers.HUDController
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Components
 local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 local StageDetailsScreen = require(HUDController.Components.Stages.StageSelection.Stage_Details)
@@ -141,6 +142,8 @@ local function createStageCard(
 	invisibleButton.Parent = stageOuterFrame
 	-- Clicking on the stage card will set the selected stage value and show the character selection screen
 	invisibleButton.MouseButton1Click:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		if isUnlocked then
 			local playerGui = game.Players.LocalPlayer.PlayerGui
 			local stageListFolder = playerGui.StageSelection_ScreenGui:FindFirstChild("Stages")
@@ -199,7 +202,7 @@ local function createStageCard(
 				end)
 			end)
 		else
-			WarningController.DisplayWarning("This stage is locked.")
+			WarningController.DisplayWarning(false, "This stage is locked.")
 		end
 	end)
 

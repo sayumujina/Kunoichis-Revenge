@@ -1,6 +1,7 @@
 local rep = game:GetService("ReplicatedStorage")
 local _TYPES = require(rep.Data.data_Types)
 --
+local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 local CharacterCard = require(script.Parent.Character_Card)
 local StageDetails = require(script.Parent.Parent.StageSelection.Stage_Details)
 local ui = require(game.ReplicatedStorage.Assets.Asphalt.UI)
@@ -8,9 +9,9 @@ local ui = require(game.ReplicatedStorage.Assets.Asphalt.UI)
 local TeleportService = game:GetService("TeleportService")
 --
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
-local Zap = require(StarterPlayerScripts.Client.zap)
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 --
-local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
+local Zap = require(StarterPlayerScripts.Client.zap)
 --
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
@@ -149,6 +150,8 @@ local function createCharacterSelectionFrame(chars: { Name: string, Level: numbe
 	uIAspectRatioConstraint.Parent = returnButton
 	returnButton.Parent = stageCharacterSelectionFrame
 	returnButton.MouseButton1Click:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		exitCharacterSelection(true)
 	end)
 
@@ -220,6 +223,8 @@ local function createCharacterSelectionFrame(chars: { Name: string, Level: numbe
 	startBattleButton.AutoButtonColor = false
 	-- Upon clicking the start battle button, send a request to the server to spawn the selected characters
 	startBattleButton.MouseButton1Click:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		local spawnChars = {}
 		for _, char in pairs(selectedIndexes) do
 			if char then

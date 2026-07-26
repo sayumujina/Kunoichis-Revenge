@@ -13,7 +13,7 @@ local WarningController = {}
 function WarningController.OnStart()
 	-- Listens to warning events
 	Zap.Warning.On(function(warningEvent)
-		WarningController.DisplayWarning(warningEvent.message)
+		WarningController.DisplayWarning(warningEvent.success, warningEvent.message)
 	end)
 end
 
@@ -60,7 +60,7 @@ local function createWarningLabel(message: string)
 end
 
 --- Displays a warning message to the player
-function WarningController.DisplayWarning(message: string)
+function WarningController.DisplayWarning(success: boolean, message: string)
 	-- If there's already a warning label, remove it before creating a new one
 	local playerGui = game.Players.LocalPlayer.PlayerGui
 	local existingWarningLabel = playerGui:FindFirstChild("Warning_Popup", true)
@@ -101,7 +101,9 @@ function WarningController.DisplayWarning(message: string)
 	end)
 
 	-- Play the warning sound
-	SoundController.Play("Sound_Error")
+	if not success then
+		SoundController.Play("Sound_Error")
+	end
 end
 
 return WarningController

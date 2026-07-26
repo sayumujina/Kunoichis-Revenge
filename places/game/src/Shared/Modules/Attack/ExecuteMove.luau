@@ -79,6 +79,7 @@ local function ExecuteMove(
 	-- Only playable characters have mana change in the move data,  hence the "if attackData.manaChange" condition
 	if attackData.manaChange and not HandleMana.HasEnoughMana(player, attackData.manaChange) then
 		Zap.Warning.Fire(player, {
+			success = false,
 			message = "Insufficient mana",
 		})
 		resetAttackingState(player :: _TYPES.RobloxPlayerType, true)

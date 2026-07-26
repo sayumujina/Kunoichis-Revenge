@@ -3,6 +3,7 @@ local DEFAULT_COLOR = Color3.fromRGB(139, 111, 91)
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Services
 local TweenService = game:GetService("TweenService")
 --
@@ -181,6 +182,8 @@ local function createWorldCard(id: string, name: string, description: string, or
 	invisibleButton.Parent = worldOuterFrame
 	invisibleButton.BackgroundTransparency = if isUnlocked then 1 else 0.4
 	invisibleButton.MouseButton1Click:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		-- Handle the selection logic only if the world is unlocked
 		if isUnlocked then
 			-- Do nothing if this world is already selected
@@ -213,7 +216,7 @@ local function createWorldCard(id: string, name: string, description: string, or
 			previouslySelectedWorldValue.Value = id
 		-- Create a warning popup if the world is locked
 		else
-			WarningController.DisplayWarning("This world is locked.")
+			WarningController.DisplayWarning(false, "This world is locked.")
 		end
 	end)
 

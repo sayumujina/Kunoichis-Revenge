@@ -2,14 +2,19 @@
 -- It is not intended for manual editing.
 local sounds = {
 	combat = {
+		Sound_DefenseInfiltrated = "rbxassetid://88723988085703",
+		Sound_DefenseSuccessful = "rbxassetid://89783785456162",
 		Sound_Error = "rbxassetid://120830722778744",
 		Sound_MoveSuccessful = "rbxassetid://79461502716607",
 		Sound_SelectTarget = "rbxassetid://127315048175421",
-		Sound_UltimateCasted = "rbxassetid://77953577051272",
-		Sound_UltimateCharged = "rbxassetid://82402482901107",
+		Sound_UltimateCasted = "rbxassetid://110501558822963",
+		Sound_UltimateCharged = "rbxassetid://124455902826936",
 	},
 	global = {
 		Sound_UniversalClick = "rbxassetid://129463122887636",
+	},
+	menu = {
+		Sound_PurchaseSuccessful = "rbxassetid://72762751164643",
 	},
 }
 

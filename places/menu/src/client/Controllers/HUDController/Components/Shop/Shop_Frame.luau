@@ -2,6 +2,7 @@
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local HUDController = StarterPlayerScripts.Client.Controllers.HUDController
 local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Components
 local CreateTopInfoBar = require(HUDController.Components.Global.TopInfoBar_Frame)
 local ItemFrame = require(script.Parent.Item)
@@ -185,15 +186,17 @@ local function createShopFrame(shopId: string, shopData, playerStoreData)
 	purchaseButton.TextStrokeTransparency = 0
 	--
 	purchaseButton.MouseButton1Click:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		local selectedItemId = selectedItemValue.Value
 		if selectedItemId == "" then
-			WarningController.DisplayWarning("No item selected for purchase.")
+			WarningController.DisplayWarning(false, "No item selected for purchase.")
 			return
 		end
 
 		local selectedItem = shopData.Items[selectedItemId]
 		if not selectedItem then
-			WarningController.DisplayWarning("Selected item does not exist.")
+			WarningController.DisplayWarning(false, "Selected item does not exist.")
 			return
 		end
 

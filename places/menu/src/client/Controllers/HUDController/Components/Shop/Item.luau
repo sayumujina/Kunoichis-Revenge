@@ -4,6 +4,7 @@ local GetIconImageForItem = require(rep.Shared.GlobalUtility.GetIconImageForItem
 -- Controllers
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
+local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Components
 local ItemDetailsFrame = require(script.Parent.ItemDetails)
 
@@ -208,8 +209,10 @@ local function createItemCard(
 	invisibleImageButton.Size = UDim2.fromScale(1, 1)
 	invisibleImageButton.ZIndex = itemFrame.ZIndex + 1
 	invisibleImageButton.MouseButton1Click:Connect(function()
+		SoundController.Play("Sound_UniversalClick")
+
 		if purchasesLeft <= 0 then
-			WarningController.DisplayWarning("This item is sold out.")
+			WarningController.DisplayWarning(false, "This item is sold out.")
 		else
 			updateSelectedItem(itemId)
 
