@@ -10,6 +10,23 @@ local SoundController = require(GlobalControllers.SoundController)
 HUDController.Init()
 SoundController.Init()
 
+-- Custom reset character behavior
+local resetBindable = Instance.new("BindableEvent")
+resetBindable.Event:Connect(function()
+	return
+end)
+
+-- Override the default reset button behavior
+local getStarterGui = game:GetService("StarterGui")
+local success
+task.spawn(function()
+	while not success do
+		-- Disable the default reset button behavior by setting a no-op function as the callback
+		success = pcall(getStarterGui.SetCore, getStarterGui, "ResetButtonCallback", resetBindable)
+		task.wait(1)
+	end
+end)
+
 -- Load all controllers
 Loader.SpawnAll(
 	Loader.LoadDescendants(Controllers, function(module)

@@ -39,7 +39,6 @@ function Knockback.force(
 	local bv = Instance.new("BodyVelocity")
 	bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
 	bv.Velocity = velocity.Magnitude * dir
-	warn(bv.Velocity)
 
 	-- If applying -Y knockback, lessen its effect the closer the part is to the ground
 	if bv.Velocity.Y < 0 and not (options and options.downward) then
@@ -100,14 +99,6 @@ function Knockback.force(
 		local targetMultiplier = options.decayRate -- e.g., 0.5 means decay to 50% over duration
 
 		decayConnection = RunService.RenderStepped:Connect(function()
-			warn(
-				"Knockback RenderStepped: Velocity:",
-				bv.Velocity,
-				"Original:",
-				originalVelocity,
-				"Target Multiplier:",
-				targetMultiplier
-			)
 			if not bv.Parent or not part.Parent then
 				if decayConnection then
 					decayConnection:Disconnect()
@@ -137,7 +128,6 @@ function Knockback.force(
 
 	-- Clean up the knockback when the knockback duration has ended
 	task.delay(dur, function()
-		warn("Knockback ended for part:", part:GetFullName())
 		bv:Destroy()
 
 		if tween then

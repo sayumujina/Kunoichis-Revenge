@@ -668,12 +668,26 @@ function HUDController.OnStart()
 		turnQueue = {}
 		extraActionLayoutInfoByTurnId = {}
 
-		for _, child in pairs(playerGui:QueryDescendants("Frame")) do
-			child:Destroy()
-		end
+		local screenGuisToCheck = {
+			"BattleEnd_ScreenGui",
+			"Global_ScreenGui",
+			"Combat_ScreenGui",
+			"DetailedCombatInfo_ScreenGui",
+			"Ultimate_ScreenGui",
+		}
 
-		for _, child in pairs(playerGui:QueryDescendants("ScrollingFrame")) do
-			child:Destroy()
+		for _, screenGuiName in pairs(screenGuisToCheck) do
+			local screenGui = playerGui:FindFirstChild(screenGuiName)
+			if screenGui then
+				for _, child in pairs(screenGui:QueryDescendants("Frame")) do
+					child:Destroy()
+				end
+
+				for _, child in pairs(screenGui:QueryDescendants("ScrollingFrame")) do
+					-- Exclude frames
+					child:Destroy()
+				end
+			end
 		end
 	end)
 

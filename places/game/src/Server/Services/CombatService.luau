@@ -357,7 +357,6 @@ function CombatService.OnStart()
 						continue
 					end
 
-					warn(clearedExtraObjectives)
 					table.insert(clearedExtraObjectives, objectiveId)
 
 					-- Add the rewards for the extra objective to the player's currencies
@@ -423,7 +422,6 @@ function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType, s
 
 		-- Do not switch target if it can't be found
 		local newIndex = math.clamp(combatData.selectedPlayableIndex - 1, 1, charsCount)
-		warn(availableIndexes, newIndex)
 		if not table.find(availableIndexes, newIndex) then
 			return
 		end
@@ -457,7 +455,6 @@ function CombatService.SwitchToNextTarget(player: _TYPES.RobloxPlayerType, side:
 
 		-- Do not switch target if it can't be found
 		local newIndex = math.clamp(combatData.selectedPlayableIndex + 1, 1, charsCount)
-		warn(availableIndexes, newIndex)
 		if not table.find(availableIndexes, newIndex) then
 			return
 		end
