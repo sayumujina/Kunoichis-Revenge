@@ -18,6 +18,7 @@ local Helpers = {
 local StagesData = require(rep.Data.data_Stages)
 -- Components
 local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
+local CreateTopBar = require(script.Components.TopBar)
 local ComponentsPath = game.StarterPlayer.StarterPlayerScripts.Client.Controllers.HUDController.Components
 local Components = {
 	Combat = {
@@ -741,6 +742,8 @@ end
 
 --- Initializes the HUD for the player
 function HUDController.Init()
+	CreateTopBar()
+
 	-- Create a global screen GUI for the player if it doesn't exist
 	if not playerGui:FindFirstChild("Global_ScreenGui", true) then
 		local hud = Instance.new("ScreenGui")
