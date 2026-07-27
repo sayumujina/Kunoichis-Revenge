@@ -2,6 +2,9 @@
 local TweenService = game:GetService("TweenService")
 -- Components
 local CreateLoadingScreen = require(script.Parent.LoadingScreen)
+-- Packages
+local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
+local Zap = require(StarterPlayerScripts.Client.zap)
 
 return function()
 	local loadingScreenGui = CreateLoadingScreen()
@@ -12,9 +15,13 @@ return function()
 	loadingScreen.Visible = true
 
 	local loadingText = loadingScreen:WaitForChild("LoadingText")
-	local loadingDuration = 4
-	local finished = false
+	local minimumLoadingDuration = 4
+	local maximumLoadingDuration = 20
+	local minimumLoadingDurationReached = false
+	local startTime = tick()
+	local datastoreLoaded = false
 
+	-- Dynamically update the loading text
 	task.spawn(function()
 		local Dots = {
 			"LOADING IN PROGRESS.",
@@ -24,7 +31,7 @@ return function()
 
 		local Index = 1
 
-		while not finished do
+		while not (minimumLoadingDurationReached and datastoreLoaded) do
 			loadingText.Text = Dots[Index]
 
 			Index += 1
@@ -36,21 +43,44 @@ return function()
 		end
 	end)
 
+	-- Even if the datastore loads quickly, we want to ensure the loading screen is displayed for a minimum duration to avoid abrupt transitions.
 	task.spawn(function()
-		while not finished do
+		while not minimumLoadingDurationReached do
+			if tick() - startTime >= minimumLoadingDuration then
+				minimumLoadingDurationReached = true
+				break
+			end
 			task.wait(0.05)
 		end
 	end)
 
-	task.wait(loadingDuration)
+	local dataStoreLoadedConn
+	dataStoreLoadedConn = Zap.PlayerDatastoreLoaded.On(function()
+		datastoreLoaded = true
+		dataStoreLoadedConn()
+	end)
 
-	finished = true
+	-- If the maximum loading duration is reached, kick the player to prevent them from being stuck on the loading screen indefinitely
+	while not (minimumLoadingDurationReached and datastoreLoaded) do
+		if tick() - startTime >= maximumLoadingDuration then
+			game.Players.LocalPlayer:Kick("Loading failed. Please re-join the experience")
+			break
+		end
 
-	loadingText.Text = "PRESS ANY KEY TO CONTINUE"
+		task.wait(0.05)
+	end
+
+	if minimumLoadingDurationReached and datastoreLoaded then
+		loadingText.Text = "PRESS ANY KEY TO CONTINUE"
+	end
 
 	-- Wait for a key press
 	local UserInputService = game:GetService("UserInputService")
-	UserInputService.InputBegan:Once(function()
+	UserInputService.InputBegan:Connect(function()
+		if not (minimumLoadingDurationReached and datastoreLoaded) then
+			return
+		end
+
 		local fadeTween = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 		for _, object in pairs(loadingScreenGui:GetDescendants()) do

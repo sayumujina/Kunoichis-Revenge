@@ -3,14 +3,11 @@ local rep = game:GetService("ReplicatedStorage")
 local StarterPlayerScripts = game:GetService("StarterPlayer").StarterPlayerScripts
 local WarningController = require(StarterPlayerScripts.Client.GlobalControllers.WarningController)
 local HUDController = StarterPlayerScripts.Client.Controllers.HUDController
+local LyraController = require(StarterPlayerScripts.Client.GlobalControllers.LyraController)
 local SoundController = require(StarterPlayerScripts.Client.GlobalControllers.SoundController)
 -- Components
 local CreateBlackScreen = require(rep.Shared.GlobalUIComponents.BlackScreen)
 local StageDetailsScreen = require(HUDController.Components.Stages.StageSelection.Stage_Details)
--- Packages
-local Zap = require(StarterPlayerScripts.Client.zap)
--- Data
-local Stages = require(rep.Data.data_Stages)
 
 local FADE_IN_DURATION = 0.6
 local FADE_OUT_DURATION = 0.4
@@ -172,36 +169,20 @@ local function createStageCard(
 					characterSelectionFrame.Visible = true
 				end
 
-				Zap.RequestPlayerstoreData.Fire()
+				local stageData = LyraController.GetLocalData().stagesData[worldId][stageId]
+				if not stageData then
+					return
+				end
 
-				local requestDataConnection
-				requestDataConnection = Zap.PlayerstoreDataResponse.On(function(data)
-					if not data then
-						return
-					end
-
-					local passedObjectives = data.UnlockedStages.Worlds[worldId].Stages[stageId].ClearedExtraObjectives
-					if not passedObjectives then
-						return
-					end
-
-					local stageCleared = data.UnlockedStages.Worlds[worldId].Stages[stageId].Cleared
-					-- Create the stage details frame with the new information
-					local stageSelectionGui = playerGui.StageSelection_ScreenGui
-					StageDetailsScreen.CreateStageDetailsFrame(
-						worldId,
-						stageId,
-						description,
-						stageCleared,
-						passedObjectives
-					).Parent =
-						stageSelectionGui
-
-					-- Disconnect the connection after receiving the data
-					if requestDataConnection then
-						requestDataConnection()
-					end
-				end)
+				local stageSelectionGui = playerGui.StageSelection_ScreenGui
+				StageDetailsScreen.CreateStageDetailsFrame(
+					worldId,
+					stageId,
+					description,
+					stageData.stageCleared,
+					stageData.clearedExtraObjectives
+				).Parent =
+					stageSelectionGui
 			end)
 		else
 			WarningController.DisplayWarning(false, "This stage is locked.")
