@@ -14,7 +14,7 @@ local info = {
 		critRate = -100,
 		critDmg = 10,
 		--
-		energy = 0,
+		energy = 120,
 		ultimateGainEfficiency = 120,
 		--
 		manaGainEfficiency = 100,
