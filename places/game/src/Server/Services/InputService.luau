@@ -84,6 +84,7 @@ function InputService.OnStart()
 		if action == "SkipTurn" then
 			if not Players[player].skipTurnSelected then
 				Players[player].skipTurnSelected = true
+				Zap.ChangeCurrentActionText.Fire(player, { action = "SkipTurn" })
 				return
 			end
 

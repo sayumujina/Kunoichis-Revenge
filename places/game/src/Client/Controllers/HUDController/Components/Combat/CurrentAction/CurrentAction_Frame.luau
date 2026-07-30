@@ -2,6 +2,7 @@ local moveTypeToText = {
 	["BasicAttack"] = "Basic Attack",
 	["Skill"] = "Skill",
 	["Ultimate"] = "Ultimate",
+	["SkipTurn"] = "Skip Turn",
 }
 
 local function createCurrentActionFrame()

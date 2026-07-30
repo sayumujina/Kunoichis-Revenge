@@ -180,6 +180,11 @@ function CombatController.OnStart()
 			end
 		end)
 	end)
+
+	-- Listens to change current action text event
+	Zap.ChangeCurrentActionText.On(function(data)
+		CurrentActionFrame.ChangeCurrentActionText(data.action)
+	end)
 end
 
 --- Handle switching primary selected targets.

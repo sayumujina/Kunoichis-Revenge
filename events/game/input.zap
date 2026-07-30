@@ -25,3 +25,12 @@ event ToggleInputAllowance = {
 		allowed: boolean,
 	},
 }
+
+event ChangeCurrentActionText = {
+	from: Server,
+	type: Reliable,
+	call: ManyAsync,
+	data: struct {
+		action: string.binary,
+	},
+}
