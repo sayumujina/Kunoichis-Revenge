@@ -4,7 +4,7 @@ return function()
 	characterInfoFrame.Active = true
 	characterInfoFrame.AnchorPoint = Vector2.new(0, 0.5)
 	characterInfoFrame.BackgroundColor3 = Color3.new()
-	characterInfoFrame.BackgroundTransparency = 0.9
+	characterInfoFrame.BackgroundTransparency = 1
 	characterInfoFrame.BorderSizePixel = 0
 	characterInfoFrame.Position = UDim2.fromScale(0.02, 0.88)
 	characterInfoFrame.Size = UDim2.fromScale(0.8, 0.246)
