@@ -28,6 +28,11 @@ local KeybindsList = {
         desc = "Skip Turn",
         keybinds = { "Z" },
         order = 6
+    },
+    ["OpenStatsMenu"] = {
+        desc = "Open Stats Menu",
+        keybinds = { "C" },
+        order = 7
     }
 }
 
