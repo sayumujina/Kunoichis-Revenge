@@ -4,6 +4,7 @@ local _TYPES = require(rep.Data.data_Types)
 local Server = game:GetService("ServerScriptService").Server
 local Services = Server.Services
 local TeleportService = game:GetService("TeleportService")
+local LoadService = require(Services.LoadService)
 local SpawnService = require(Services.SpawnService)
 -- local GlobalDataStoreService = require(Server.GlobalServices.GlobalDataStoreService)
 -- Modules
@@ -19,6 +20,7 @@ local DEFAULT_SPAWN_CHARACTERS = {
 }
 local DEFAULT_STAGE_ID = "2-1"
 local DEFAULT_WORLD_ID = "World2"
+local DEFAULT_MAP = "Dojo"
 
 -- Disable character autoload
 game.Players.CharacterAutoLoads = false
@@ -58,6 +60,8 @@ game.Players.PlayerAdded:Connect(function(player)
 	-- 	stageId = DEFAULT_STAGE_ID,
 	-- 	worldId = DEFAULT_WORLD_ID,
 	-- }
+
+	LoadService.LoadMap(DEFAULT_MAP)
 
 	task.defer(function()
 		task.delay(2, function()
