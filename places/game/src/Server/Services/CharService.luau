@@ -142,7 +142,7 @@ local function importCharacterStatsFromSource(char: _TYPES.Character, side: _TYP
 
 	-- For hp specifically, if no starting stat is provided, we set it to max
 	if not dataSource.startingStats.hp then
-		Chars[char].currentStats.hp = 1
+		Chars[char].currentStats.hp = Chars[char].realStats.hp
 	end
 
 	return

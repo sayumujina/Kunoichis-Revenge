@@ -101,13 +101,13 @@ function LyraService.OnStart()
 		end)
 
 		-- DEBUG: Reset data for testing
-		store:updateImmutableAsync(player, function(data)
-			if data then
-				warn(template)
-				return template
-			end
-			return false
-		end)
+		-- store:updateImmutableAsync(player, function(data)
+		-- 	if data then
+		-- 		warn(template)
+		-- 		return template
+		-- 	end
+		-- 	return false
+		-- end)
 	end
 
 	-- Listens to player joining event
