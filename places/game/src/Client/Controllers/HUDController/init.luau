@@ -65,7 +65,8 @@ local Components = {
 		},
 		BattleEndScreen = { CreateBattleEndScreen = require(ComponentsPath.Combat.BattleEndScreen.BattleEndScreen) },
 		CurrentAction = { CurrentActionFrame = require(ComponentsPath.Combat.CurrentAction.CurrentAction_Frame) },
-	},
+		KeybindsList = { CreateKeybindsList = require(ComponentsPath.Combat.KeybindsList.KeybindsList) },
+	}
 }
 
 -- Local turn queue to keep track of the order of turns in the battle
@@ -882,6 +883,16 @@ function HUDController.Init()
 		hud.IgnoreGuiInset = true
 		hud.DisplayOrder = 100
 	end
+
+	-- Create a keybinds screen gui for the player if it doesn't exist
+	if not playerGui:FindFirstChild("Keybinds_ScreenGui", true) then
+		local hud = Instance.new("ScreenGui")
+		hud.Name = "Keybinds_ScreenGui"
+		hud.Parent = playerGui
+	end
+
+	local KeybindsScreenGui = playerGui:FindFirstChild("Keybinds_ScreenGui", true)
+	Components.Combat.KeybindsList.CreateKeybindsList().Parent = KeybindsScreenGui
 end
 
 --- Updates the mana preview in the HUD
