@@ -134,6 +134,13 @@ local function updateItemRemainingPurchases(itemId: string, purchasesLeft: numbe
 			remainingPurchasesValue.Value = purchasesLeft
 		end
 	end
+
+	-- Update the item details and update the purchases left label
+	ItemDetailsFrame.UpdateItemDetailsFrame(
+		nil, -- Reuse the existing item name in the item details frame
+		purchasesLeft,
+		nil -- Reuse the existing item description in the item details frame
+	)
 end
 
 --- Creates an item card for the shop with the given item details

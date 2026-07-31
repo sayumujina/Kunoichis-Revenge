@@ -96,7 +96,7 @@ end
 --- @param itemName -- The name of the item to display.
 --- @param purchasesLeft -- The number of purchases left for the item.
 --- @param itemDescription -- The description of the item to display.
-local function updateItemDetailsFrame(itemName: string, purchasesLeft: number, itemDescription: string)
+local function updateItemDetailsFrame(itemName: string?, purchasesLeft: number, itemDescription: string?)
 	local shopScreenGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("Shop_ScreenGui")
 	local itemDetailFrame = shopScreenGui:FindFirstChild("UI_ItemDetail_Frame")
 	if not itemDetailFrame then
@@ -104,15 +104,19 @@ local function updateItemDetailsFrame(itemName: string, purchasesLeft: number, i
 		return
 	end
 
-	local itemNameLabel = itemDetailFrame:FindFirstChild("ItemName_Label")
-	if itemNameLabel and itemNameLabel:IsA("TextLabel") then
-		itemNameLabel.Text = itemName
+	if itemName then
+		local itemNameLabel = itemDetailFrame:FindFirstChild("ItemName_Label")
+		if itemNameLabel and itemNameLabel:IsA("TextLabel") then
+			itemNameLabel.Text = itemName
+		end
 	end
 
-	local itemDescriptionLabel =
-		itemDetailFrame:FindFirstChild("ItemDescription_Frame"):FindFirstChild("ItemDescription_Label")
-	if itemDescriptionLabel and itemDescriptionLabel:IsA("TextLabel") then
-		itemDescriptionLabel.Text = itemDescription
+	if itemDescription then
+		local itemDescriptionLabel =
+			itemDetailFrame:FindFirstChild("ItemDescription_Frame"):FindFirstChild("ItemDescription_Label")
+		if itemDescriptionLabel and itemDescriptionLabel:IsA("TextLabel") then
+			itemDescriptionLabel.Text = itemDescription
+		end
 	end
 
 	local itemPurchaseLimitLabel = itemDetailFrame:FindFirstChild("ItemPurchaseLimit_Label")
