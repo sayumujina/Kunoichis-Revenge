@@ -15,12 +15,12 @@ local Zap = require(Services.Parent.zap)
 -- Data
 local StagesData = require(rep.Data.data_Stages)
 -- Constants
-local DEFAULT_SPAWN_CHARACTERS = { 
+local DEFAULT_SPAWN_CHARACTERS = {
 	{ name = "Tsuyoka", level = 20 }, --
 	{ name = "Hayumi", level = 20 }, --
-	{ name = "Setsuna", level = 20 } 
+	{ name = "Setsuna", level = 20 },
 }
-local DEFAULT_STAGE_ID = "1-3"
+local DEFAULT_STAGE_ID = "1-2"
 local DEFAULT_WORLD_ID = "World1"
 
 --- @class SpawnService

@@ -6,13 +6,13 @@ local info = {
 	-- Base stats
 	baseStats = {
 		atk = 200,
-		def = 1600,
+		def = 2700,
 		hp = 3000,
 		spd = 170,
 		shield = 0,
 		--
-		critRate = -100,
-		critDmg = 10,
+		critRate = 70,
+		critDmg = 140,
 		--
 		energy = 120,
 		ultimateGainEfficiency = 120,

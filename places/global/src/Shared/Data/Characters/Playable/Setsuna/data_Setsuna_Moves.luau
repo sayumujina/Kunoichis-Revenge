@@ -30,7 +30,7 @@ local moves: { [string]: _TYPES.MoveData } = {
 	["TwinBlades"] = {
 		moveType = "Skill",
 		--
-		targetSelectionType = "Single",
+		targetSelectionType = "Blast",
 		selectedSide = "NPC",
 		--
 		manaChange = -40,
