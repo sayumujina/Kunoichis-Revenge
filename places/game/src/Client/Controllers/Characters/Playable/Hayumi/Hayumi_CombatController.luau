@@ -8,11 +8,7 @@ local CombatController = require(Controllers.CombatController)
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
 local Trove = require(rep.Packages.Trove)
--- Handlers
-local Handlers = {
-	Info = require(game:GetService("ReplicatedStorage").Data.Characters.Playable.Hayumi.data_Hayumi_Info),
-	Moves = require(game:GetService("ReplicatedStorage").Data.Characters.Playable.Hayumi.data_Hayumi_Moves),
-}
+
 -- Attack handlers
 local AttackHandlers = {
 	LightningArrow = require(script.Parent.Handlers.Hayumi_LightningArrow_Handler),
@@ -20,9 +16,6 @@ local AttackHandlers = {
 	ArcherysVision = require(script.Parent.Handlers.Hayumi_ArcherysVision_Handler),
 	WeakenFromAfar = require(script.Parent.Handlers.Hayumi_WeakenFromAfar),
 } :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
-
--- Player
-local player = game.Players.LocalPlayer
 
 local Hayumi_CombatController = {}
 

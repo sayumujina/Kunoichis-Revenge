@@ -8,19 +8,13 @@ local CombatController = require(Controllers.CombatController)
 -- Packages
 local Zap = require(StarterPlayerScripts.Client.zap)
 local Trove = require(rep.Packages.Trove)
--- Handlers
-local Handlers = {
-	Info = require(game:GetService("ReplicatedStorage").Data.Characters.Playable.Rin.data_Rin_Info),
-	Moves = require(game:GetService("ReplicatedStorage").Data.Characters.Playable.Rin.data_Rin_Moves),
-}
+
 -- Attack handlers
 local AttackHandlers = {
 	HiddenAssistance = require(script.Parent.Handlers.Rin_HiddenAssistance_Handler),
 	CleansingAura = require(script.Parent.Handlers.Rin_CleansingAura_Handler),
+	VanguardsCall = require(script.Parent.Handlers.Rin_VanguardsCall_Handler),
 } :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
-
--- Player
-local player = game.Players.LocalPlayer
 
 local Rin_CombatController = {}
 

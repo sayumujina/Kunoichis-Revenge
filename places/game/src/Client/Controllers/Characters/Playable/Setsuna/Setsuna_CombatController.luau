@@ -7,21 +7,12 @@ local CameraController = require(Controllers.CameraController)
 -- Packages
 local Trove = require(rep.Packages.Trove)
 
--- Handlers
-local Handlers = {
-	Info = require(game:GetService("ReplicatedStorage").Data.Characters.Playable.Setsuna.data_Setsuna_Info),
-	Moves = require(game:GetService("ReplicatedStorage").Data.Characters.Playable.Setsuna.data_Setsuna_Moves),
-}
-
 -- Attack handlers
 local AttackHandlers = {
 	WeavingBlade = require(script.Parent.Handlers.Setsuna_WeavingBlade_Handler),
 	TwinBlades = require(script.Parent.Handlers.Setsuna_TwinBlades_Handler),
 	BladeDance = require(script.Parent.Handlers.Setsuna_BladeDance_Handler),
 } :: { [string]: (Trove.Trove, AnimationTrack, _TYPES.Character, _TYPES.AttackData) -> number }
-
--- Player
-local player = game.Players.LocalPlayer
 
 local Setsuna_CombatController = {}
 

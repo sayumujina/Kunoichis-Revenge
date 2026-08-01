@@ -66,7 +66,7 @@ local Components = {
 		BattleEndScreen = { CreateBattleEndScreen = require(ComponentsPath.Combat.BattleEndScreen.BattleEndScreen) },
 		CurrentAction = { CurrentActionFrame = require(ComponentsPath.Combat.CurrentAction.CurrentAction_Frame) },
 		KeybindsList = { CreateKeybindsList = require(ComponentsPath.Combat.KeybindsList.KeybindsList) },
-	}
+	},
 }
 
 -- Local turn queue to keep track of the order of turns in the battle

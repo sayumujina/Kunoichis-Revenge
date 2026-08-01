@@ -94,10 +94,9 @@ function InputService.OnStart()
 			Players[player].skipTurnSelected = false
 			return
 		end
+
 		-- Get the character from the input data
 		local char = inputData.origin
-		local activeChar = player.ActiveCharacter.Value
-
 		if not char then
 			warn("No character found for player", player.Name, "when processing input action", action)
 			return
