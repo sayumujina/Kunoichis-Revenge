@@ -47,7 +47,13 @@ local function findNextSelectableTargetIndex(chars: { _TYPES.Character }, curren
 
 	while nextIndex >= 1 and nextIndex <= #chars do
 		for _, char in pairs(chars) do
-			if char:GetAttribute("Index") == nextIndex and not char:GetAttribute("Downed") then
+			-- Skip downed characters
+			if char:GetAttribute("Downed") then
+				continue
+			end
+
+			-- If the character's index matches the next index, return that index
+			if char:GetAttribute("Index") == nextIndex then
 				return nextIndex
 			end
 		end
@@ -282,7 +288,6 @@ function CombatService.OnStart()
 		end
 
 		local deadCharIndex = deadChar:GetAttribute("Index")
-		warn("Character", deadChar.Name, "has died. Index:", deadCharIndex, "Side:", deadChar:GetAttribute("Side"))
 
 		-- If the dead character is the npc, simply destroy it
 		if deadChar:GetAttribute("Side") == "NPC" then
@@ -326,7 +331,6 @@ function CombatService.OnStart()
 
 			-- Set their original index value for the camera to use as reference
 			deadChar:SetAttribute("originalIndex", deadCharIndex)
-
 			-- Set their index to 0 so that they are not selectable as a target
 			deadChar:SetAttribute("Index", 0)
 
@@ -335,7 +339,6 @@ function CombatService.OnStart()
 				warn("Failed to play downed animation for character: " .. deadChar.Name)
 				return
 			end
-
 			anim.Stopped:Connect(function()
 				-- Play the downed loop animation after the downed animation finishes
 				AnimationService.Play(deadChar, "Downed_Loop")
@@ -432,10 +435,28 @@ function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType, s
 	-- Find the next selectable target index
 	local newIndex = findNextSelectableTargetIndex(chars, currentIndex, -1)
 	if not newIndex then
+		warn(
+			"No previous selectable target found for player:",
+			player.Name,
+			"side:",
+			side,
+			"currentIndex:",
+			currentIndex
+		)
 		return
 	end
 
 	if side == "NPC" then
+		warn(
+			"Switching to previous target for player:",
+			player.Name,
+			"side:",
+			side,
+			"currentIndex:",
+			currentIndex,
+			"newIndex:",
+			newIndex
+		)
 		combatData.selectedNPCIndex = newIndex
 	else
 		combatData.selectedPlayableIndex = newIndex
