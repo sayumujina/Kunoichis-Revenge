@@ -189,9 +189,7 @@ function Red_MockEnemy_CombatService.HandleAttackBehaviour(char: _TYPES.Characte
 	end
 
 	-- Execute the attack using the appropriate handler
-	task.delay(1, function()
-		Handlers[attackToExecute](char)
-	end)
+	Handlers[attackToExecute](char)
 
 	-- Loop back to the start of the attack pattern if we've reached the end
 	if currentPatternIndex + 1 > #AttackPattern then

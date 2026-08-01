@@ -122,9 +122,6 @@ function TurnService.OnStart()
 			return
 		end
 
-		-- Normalise the turn queue
-		-- playerData.turnQueue = Utility.NormaliseTurnQueue(playerData.turnQueue).normalisedQueue
-
 		-- Do this at the end of the thread to make sure spawn finished reaches the client first
 		task.defer(function()
 			TurnService.StartTurn(event.player)
@@ -174,10 +171,8 @@ function TurnService.AddActiveCharacter(char: _TYPES.Character, player: _TYPES.R
 
 	-- Add 2 turns for this character to the queue and notify clients about the new turns
 	local actionValue = calculateActionValue(char)
-
 	-- Turn 1
 	addTurnToQueue(char, actionValue)
-
 	-- Turn 2
 	addTurnToQueue(char, actionValue * 2)
 
@@ -264,7 +259,6 @@ function TurnService.CompleteTurn(player: _TYPES.RobloxPlayerType)
 
 	-- Remove the current turn from the queue
 	local completedTurn = table.remove(playerData.turnQueue, 1)
-
 	if not completedTurn then
 		return
 	end
@@ -320,7 +314,18 @@ function TurnService.MoveToNextTurn(player: _TYPES.RobloxPlayerType)
 	end
 
 	-- Start the next turn
-	TurnService.StartTurn(player)
+	-- Delay the turn starting for NPCs by 0.5 second to give players time to notice
+	local delayTime = 0
+	if playerData.turnQueue[1] and playerData.turnQueue[1].side == "NPC" then
+		delayTime = 0.5
+	end
+	task.delay(delayTime, function()
+		-- If at the time it reaches here, there is an extra action queued, it should be executed first before starting the next turn
+		if playerData.currentExtraAction then
+			return
+		end
+		TurnService.StartTurn(player)
+	end)
 end
 
 --- Get the player turn data
@@ -340,6 +345,11 @@ function TurnService.StartTurn(player: _TYPES.RobloxPlayerType)
 
 	-- Return if no turn is available
 	if not playerData.turnQueue[1] then
+		return
+	end
+
+	-- Return if the current turn is already set
+	if playerData.currentTurn then
 		return
 	end
 
@@ -566,7 +576,6 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 
 	-- Remove the current extra action
 	local removedExtraAction = table.remove(playerData.extraActionQueue, 1)
-
 	if not removedExtraAction then
 		return
 	end
@@ -587,7 +596,8 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 	-- Else, return the active character to the current turn's character
 	local currentTurn = playerData.currentTurn
 	if not currentTurn then
-		TurnService.MoveToNextTurn(player)
+		-- warn("No current turn exists for player:", player.Name, "moving to the next turn.")
+		-- TurnService.MoveToNextTurn(player)
 		return
 	end
 

@@ -15,7 +15,6 @@ return function(char: _TYPES.Character)
 	local player = PlayerService.GetPlayerFromCharacter(char) :: _TYPES.RobloxPlayerType
 	local primaryTargetIndex = CombatService.GetCombatData(player).selectedPlayableIndex
 
-	warn("MockEnemy is executing BasicAttack on target index: " .. primaryTargetIndex)
 	local attackData = {
 		primaryTargetIndex = primaryTargetIndex,
 		manaChange = moveInfo.manaChange,
