@@ -42,6 +42,22 @@ local CombatData: {
 } =
 	{}
 
+local function findNextSelectableTargetIndex(chars: { _TYPES.Character }, currentIndex: number, step: number): number?
+	local nextIndex = currentIndex + step
+
+	while nextIndex >= 1 and nextIndex <= #chars do
+		for _, char in pairs(chars) do
+			if char:GetAttribute("Index") == nextIndex and not char:GetAttribute("Downed") then
+				return nextIndex
+			end
+		end
+
+		nextIndex += step
+	end
+
+	return nil
+end
+
 --- Called when the service starts
 function CombatService.OnStart()
 	-- Listens to spawn finished event to initialise combat data for the player
@@ -266,6 +282,7 @@ function CombatService.OnStart()
 		end
 
 		local deadCharIndex = deadChar:GetAttribute("Index")
+		warn("Character", deadChar.Name, "has died. Index:", deadCharIndex, "Side:", deadChar:GetAttribute("Side"))
 
 		-- If the dead character is the npc, simply destroy it
 		if deadChar:GetAttribute("Side") == "NPC" then
@@ -339,6 +356,8 @@ function CombatService.OnStart()
 		-- If one side has no more characters, the stage is completed
 		if combatData.downedCharacters == #combatData.playables or #combatData.npcs == 0 then
 			combatData.battleFinished = true
+		else
+			return
 		end
 
 		if #combatData.npcs == 0 then
@@ -362,10 +381,10 @@ function CombatService.OnStart()
 					successfulExtraObjectives = successfulObjectives,
 				},
 			})
-		elseif combatData.downedCharacters == #combatData.playables then
+
 			-- Update the stage data store for the player with the previously cleared extra objectives
 			updateStageDataStore(player, combatData.currentStageData.previouslyClearedExtraObjectives or {})
-
+		elseif combatData.downedCharacters == #combatData.playables then
 			-- Fire the BattleEnded event to notify the client that the player has completed the stage
 			EventService.Events.BattleEnded:Fire({
 				player = player,
@@ -407,22 +426,18 @@ function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType, s
 		return
 	end
 
-	-- Collect all the available indexes
-	if side == "NPC" then
-		combatData.selectedNPCIndex = math.clamp(combatData.selectedNPCIndex - 1, 1, charsCount)
-	else
-		local availableIndexes = {}
-		for _, char in pairs(combatData.playables) do
-			if not char:GetAttribute("Downed") then
-				table.insert(availableIndexes, char:GetAttribute("Index"))
-			end
-		end
+	local chars = if side == "Playable" then combatData.playables else combatData.npcs
+	local currentIndex = if side == "Playable" then combatData.selectedPlayableIndex else combatData.selectedNPCIndex
 
-		-- Do not switch target if it can't be found
-		local newIndex = math.clamp(combatData.selectedPlayableIndex - 1, 1, charsCount)
-		if not table.find(availableIndexes, newIndex) then
-			return
-		end
+	-- Find the next selectable target index
+	local newIndex = findNextSelectableTargetIndex(chars, currentIndex, -1)
+	if not newIndex then
+		return
+	end
+
+	if side == "NPC" then
+		combatData.selectedNPCIndex = newIndex
+	else
 		combatData.selectedPlayableIndex = newIndex
 	end
 end
@@ -441,21 +456,18 @@ function CombatService.SwitchToNextTarget(player: _TYPES.RobloxPlayerType, side:
 		return
 	end
 
-	if side == "NPC" then
-		combatData.selectedNPCIndex = math.clamp(combatData.selectedNPCIndex + 1, 1, charsCount)
-	else
-		local availableIndexes = {}
-		for _, char in pairs(combatData.playables) do
-			if not char:GetAttribute("Downed") then
-				table.insert(availableIndexes, char:GetAttribute("Index"))
-			end
-		end
+	local chars = if side == "Playable" then combatData.playables else combatData.npcs
+	local currentIndex = if side == "Playable" then combatData.selectedPlayableIndex else combatData.selectedNPCIndex
 
-		-- Do not switch target if it can't be found
-		local newIndex = math.clamp(combatData.selectedPlayableIndex + 1, 1, charsCount)
-		if not table.find(availableIndexes, newIndex) then
-			return
-		end
+	-- Find the next selectable target index
+	local newIndex = findNextSelectableTargetIndex(chars, currentIndex, 1)
+	if not newIndex then
+		return
+	end
+
+	if side == "NPC" then
+		combatData.selectedNPCIndex = newIndex
+	else
 		combatData.selectedPlayableIndex = newIndex
 	end
 end

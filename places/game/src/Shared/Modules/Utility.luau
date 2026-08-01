@@ -346,4 +346,46 @@ function Utility.RepositionCharactersOfSide(side: _TYPES.Sides)
 	end
 end
 
+--- Determines the targets for a move based on the move's target selection type and the primary target index.
+--- @param targetSelectionType -- The type of target selection (e.g., "Single", "Blast", "AoE")
+--- @param primaryTargetIndex -- The index of the primary target for the move
+--- @param targetsList -- The folder containing the potential targets (e.g., workspace.Characters.Playable or workspace.Characters.NPC)
+--- @return { _TYPES.Character } -- A list of characters that are the targets of the move
+function Utility.DetermineTargetList(
+	targetSelectionType: string,
+	primaryTargetIndex: number,
+	targetsList: Folder
+): { _TYPES.Character }
+	local targets = {} :: { _TYPES.Character }
+	local findChar = Utility.FindCharacterWithIndex
+
+	-- Determine the indexes first
+	if targetSelectionType == "Single" then -- Select a single target.
+		table.insert(targets, findChar(primaryTargetIndex, targetsList) :: _TYPES.Character)
+	elseif targetSelectionType == "Blast" then -- Select a main target and 2 targets around them (if they exist).
+		-- Insert the primary target first
+		table.insert(targets, findChar(primaryTargetIndex, targetsList) :: _TYPES.Character)
+
+		-- Find adjacent targets
+		local charOnTheLeft = findChar(primaryTargetIndex - 1, targetsList)
+		if charOnTheLeft and not charOnTheLeft:GetAttribute("Downed") then
+			-- This target should be inserted in the first position of the targets list
+			table.insert(targets, 1, charOnTheLeft)
+		end
+
+		local charOnTheRight = findChar(primaryTargetIndex + 1, targetsList)
+		if charOnTheRight and not charOnTheRight:GetAttribute("Downed") then -- Ignore downed characters
+			table.insert(targets, charOnTheRight)
+		end
+	elseif targetSelectionType == "AoE" then -- Select all targets on the field.
+		for _, target in pairs(targetsList:GetChildren()) do
+			if not target:GetAttribute("Downed") then -- Ignore downed characters
+				table.insert(targets, target :: _TYPES.Character)
+			end
+		end
+	end
+
+	return targets
+end
+
 return Utility

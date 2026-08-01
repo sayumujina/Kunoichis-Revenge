@@ -199,27 +199,7 @@ function CombatController.DetermineSelectedTargets(
 	local targetsFolder = side == "Playable" and game.Workspace.Characters.Playable or game.Workspace.Characters.NPC
 
 	-- Get the list of selected enemies based on the selection type
-	local selectedTargets
-	local findChar = Utility.FindCharacterWithIndex
-
-	if targetSelectionType == "Single" then -- Select a single enemy.
-		selectedTargets = { findChar(primaryIndex, targetsFolder) :: _TYPES.Character }
-	elseif targetSelectionType == "Blast" then -- Select a main enemy and 2 enemies around them (if they exist).
-		selectedTargets = { findChar(primaryIndex, targetsFolder) :: _TYPES.Character }
-
-		-- Find adjacent targets
-		local charOnTheLeft = findChar(primaryIndex - 1, targetsFolder)
-		if charOnTheLeft then
-			table.insert(selectedTargets, charOnTheLeft)
-		end
-
-		local charOnTheRight = findChar(primaryIndex + 1, targetsFolder)
-		if charOnTheRight then
-			table.insert(selectedTargets, charOnTheRight)
-		end
-	elseif targetSelectionType == "AoE" then -- Select all enemies on the field.
-		selectedTargets = targetsFolder:GetChildren()
-	end
+	local selectedTargets = Utility.DetermineTargetList(targetSelectionType, primaryIndex, targetsFolder)
 
 	-- Notify EffectsController to update selection marks
 	EffectsController.EnableTargetsSelectionMark(side, selectedTargets, primaryIndex)

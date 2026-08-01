@@ -94,7 +94,6 @@ return function(size: UDim2?, position: UDim2?)
 			energyPulse.Size = UDim2.fromScale(1, 1)
 			energyPulse.Position = UDim2.fromScale(0.5, 0.5)
 			energyPulse.AnchorPoint = Vector2.new(0.5, 0.5)
-			warn("Energy is full! Triggering energy fill animation!")
 
 			-- Fade the energy fill duplicate to full, and then tween it back to a lower transparency after a short delay
 			-- 1. Enlarge the duplicate to 1.02x its size and set its transparency to 0
