@@ -723,7 +723,7 @@ function HUDController.OnStart()
 			warn(battleEndedEvent.previouslyClearedExtraObjectives)
 			local battleEndScreen = Components.Combat.BattleEndScreen.CreateBattleEndScreen(
 				battleEndedEvent.passed,
-				false,
+				battleEndedEvent.isFirstClear,
 				battleEndedEvent.worldId,
 				battleEndedEvent.stageId,
 				battleEndedEvent.successfulExtraObjectives or {},
