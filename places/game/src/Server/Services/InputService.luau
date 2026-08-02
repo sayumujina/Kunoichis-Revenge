@@ -25,13 +25,6 @@ local DisallowedActionsDuringAttack = {
 	"SkipTurn",
 }
 
--- A list of allowed inputs outside of the character's turn
-local AllowedInputsOutsideOfTurn = {
-	"Ultimate1",
-	"Ultimate2",
-	"Ultimate3",
-}
-
 -- Helper function to check if an action is allowed based on the current state
 local function isActionAllowed(player: _TYPES.RobloxPlayerType, actionName: string): boolean
 	-- If the player is in the middle of an attack, only allow certain actions
@@ -75,7 +68,6 @@ function InputService.OnStart()
 		-- Check if the action is allowed
 		local action = inputData.action
 		if not isActionAllowed(player :: _TYPES.RobloxPlayerType, action) then
-			warn("Action", action, "is not allowed at this time.")
 			return
 		end
 

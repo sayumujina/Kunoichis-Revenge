@@ -155,7 +155,6 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 
 		-- Check if Hayumi's energy is full
 		if not CanCastUltimate(char) then
-			warn("Hayumi's energy is not full. Cannot execute ultimate.")
 			return false
 		end
 
@@ -181,8 +180,6 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 		-- Play the ultimate cast sound
 		Zap.RequestPlaySound.Fire(player :: _TYPES.RobloxPlayerType, "Sound_UltimateCasted")
 
-		warn("Selected ultimate for Hayumi:", char.Name, "with queued ID:", charData.Info.queuedUltimateId)
-
 		-- Update the selection type reference for the new move
 		CombatService.UpdateMovePreview(player, char, charData.Info.selectedMove)
 
@@ -198,6 +195,10 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 		})
 	-- Handle the confirm move action
 	elseif action == "ConfirmMove" then
+		if combatData.isProcessingAttack then
+			return false
+		end
+
 		-- Handle the input based on the action
 		if charData.Info.selectedMove == "LightningArrow" then
 			return Handlers.LightningArrow(char, charData)
@@ -213,9 +214,12 @@ function Hayumi_CombatService.HandleInput(char: _TYPES.Character, inputData: _TY
 		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
+		if combatData.isProcessingAttack then
+			return false
+		end
+
 		-- If ultimate is already selected, disallow switching to other moves
 		if charData.Info.selectedMove == "WeakenFromAfar" then
-			warn("Ultimate is already selected. Cannot switch to " .. action)
 			return false
 		end
 

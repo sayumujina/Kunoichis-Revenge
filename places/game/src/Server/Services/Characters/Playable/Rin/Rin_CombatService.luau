@@ -111,7 +111,6 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 
 		-- Check if Rin can cast her ultimate before proceeding
 		if not CanCastUltimate(char) then
-			warn("Rin's energy is not full. Cannot execute ultimate.")
 			return false
 		end
 
@@ -152,6 +151,10 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 		})
 	-- Handle the confirm move action
 	elseif action == "ConfirmMove" then
+		if combatData.isProcessingAttack then
+			return false
+		end
+
 		-- Handle the input based on the action
 		if charData.Info.selectedMove == "HiddenAssistance" then
 			return Handlers.HiddenAssistance(char, charData)
@@ -167,9 +170,12 @@ function Rin_CombatService.HandleInput(char: _TYPES.Character, inputData: _TYPES
 		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
+		if combatData.isProcessingAttack then
+			return false
+		end
+
 		-- If ultimate is already selected, disallow switching to other moves
 		if charData.Info.selectedMove == "VanguardsCall" then
-			warn("Ultimate is already selected. Cannot switch to " .. action)
 			return false
 		end
 

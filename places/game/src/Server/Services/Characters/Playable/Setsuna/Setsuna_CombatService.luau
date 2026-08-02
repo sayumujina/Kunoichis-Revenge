@@ -109,7 +109,6 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 
 		-- Check if Tsuyoka's energy is full
 		if not CanCastUltimate(char) then
-			warn("Setsuna's energy is not full. Cannot execute ultimate.")
 			return false
 		end
 
@@ -152,6 +151,10 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		})
 	-- Handle the confirm move action
 	elseif action == "ConfirmMove" then
+		if combatData.isProcessingAttack then
+			return false
+		end
+
 		-- Handle the input based on the action
 		if charData.Info.selectedMove == "WeavingBlade" then
 			return Handlers.WeavingBlade(char, charData)
@@ -167,9 +170,12 @@ function Setsuna_CombatService.HandleInput(char: _TYPES.Character, inputData: _T
 		end
 	-- Handle move selection actions
 	elseif ActionToMoveMap[action] then
+		if combatData.isProcessingAttack then
+			return false
+		end
+
 		-- If ultimate is already selected, disallow switching to other moves
 		if charData.Info.selectedMove == "BladeDance" then
-			warn("Ultimate is already selected. Cannot switch to " .. action)
 			return false
 		end
 
