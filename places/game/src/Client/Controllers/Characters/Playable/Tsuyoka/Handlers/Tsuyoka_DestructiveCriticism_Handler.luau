@@ -14,7 +14,13 @@ return function(
 	local originalCFrame = char.HumanoidRootPart.CFrame
 
 	-- Offset the position be in front of the middle target
-	local cframeToLerpTo = attackData.targets[2].HumanoidRootPart.CFrame
+	local targetToTelepotTo
+	if #attackData.targets > 2 then
+		targetToTelepotTo = attackData.targets[2]
+	else
+		targetToTelepotTo = attackData.targets[1]
+	end
+	local cframeToLerpTo = targetToTelepotTo.HumanoidRootPart.CFrame
 		* CFrame.new(0, 0, -6)
 		* CFrame.Angles(0, math.rad(180), 0)
 
