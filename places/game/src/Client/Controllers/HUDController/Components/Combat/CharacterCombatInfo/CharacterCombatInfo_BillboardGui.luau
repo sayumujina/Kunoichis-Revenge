@@ -13,6 +13,10 @@ return function(char: _TYPES.Character, playerGui: PlayerGui)
 	billboardGui.Name = char.Name .. "_BillboardGui"
 	billboardGui.Parent = playerGui:FindFirstChild("UI_BillboardGui_Folder", true)
 	billboardGui.Adornee = char:WaitForChild("HumanoidRootPart")
+	--
+	char.Destroying:Connect(function()
+		billboardGui:Destroy()
+	end)
 
 	-- Set the size and offset of the billboard gui to be above the character's head
 	billboardGui.Size = UDim2.fromScale(6, 0.841)

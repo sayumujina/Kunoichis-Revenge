@@ -22,7 +22,7 @@ end
 
 return function(target: _TYPES.Character, isCrit: boolean, damage: number, isShield: boolean)
 	local billboardGui = Instance.new("BillboardGui")
-	billboardGui.Name = "BillboardGui"
+	billboardGui.Name = "Damage_BillboardGui"
 	billboardGui.Active = true
 	billboardGui.ClipsDescendants = true
 	billboardGui.AlwaysOnTop = true
