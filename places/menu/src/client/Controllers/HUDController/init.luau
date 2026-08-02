@@ -29,12 +29,12 @@ function HUDController.OnStart()
 		end
 
 		if not purchaseData.success then
-			WarningController.DisplayWarning(false, "Purchase failed for item: " .. purchaseData.itemId)
+			-- WarningController.DisplayWarning(false, "Purchase failed for item: " .. purchaseData.itemId)
 			return
 		else
 			-- Play the purchase success sound effect
 			SoundController.Play("Sound_PurchaseSuccessful")
-			WarningController.DisplayWarning(true, "Purchase successful for item: " .. purchaseData.itemId)
+			-- WarningController.DisplayWarning(true, "Purchase successful for item: " .. purchaseData.itemId)
 		end
 
 		local shopFrame = shopScreenGui:FindFirstChild("UI_Shop_Frame")
