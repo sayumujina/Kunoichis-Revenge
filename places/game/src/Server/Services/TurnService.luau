@@ -460,6 +460,10 @@ function TurnService.ExecuteNextExtraAction(player: _TYPES.RobloxPlayerType)
 		return false
 	end
 
+	if playerData.currentExtraAction then
+		return false
+	end
+
 	local extraAction = playerData.extraActionQueue[1]
 	playerData.currentExtraAction = extraAction
 
