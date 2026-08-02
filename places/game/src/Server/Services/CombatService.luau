@@ -387,7 +387,7 @@ function CombatService.OnStart()
 			})
 
 			-- Update the stage data store for the player with the previously cleared extra objectives
-			updateStageDataStore(player, combatData.currentStageData.previouslyClearedExtraObjectives or {})
+			updateStageDataStore(player, successfulObjectives or {})
 		elseif combatData.downedCharacters == #combatData.playables then
 			-- Fire the BattleEnded event to notify the client that the player has completed the stage
 			EventService.Events.BattleEnded:Fire({
