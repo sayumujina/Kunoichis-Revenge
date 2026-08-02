@@ -42,19 +42,19 @@ end
 
 function GlobalDataStoreService.OnStart()
 	-- Listen for player leaving to save global data if needed
-	-- game.Players.PlayerRemoving:Connect(function(_)
-	-- 	-- DEBUG: Reset the global data to the template on server shutdown for testing purposes.
-	-- 	local success, updatedStore = pcall(function()
-	-- 		return globalStore:UpdateAsync(DATASTORE_VERSION, function(_)
-	-- 			return template
-	-- 		end)
-	-- 	end)
-	-- 	if success then
-	-- 		warn("Global data saved successfully.", updatedStore)
-	-- 	else
-	-- 		warn("Failed to save global data: " .. tostring(updatedStore))
-	-- 	end
-	-- end)
+	game.Players.PlayerRemoving:Connect(function(_)
+		-- DEBUG: Reset the global data to the template on server shutdown for testing purposes.
+		-- local success, updatedStore = pcall(function()
+		-- 	return globalStore:UpdateAsync(DATASTORE_VERSION, function(_)
+		-- 		return template
+		-- 	end)
+		-- end)
+		-- if success then
+		-- 	warn("Global data saved successfully.", updatedStore)
+		-- else
+		-- 	warn("Failed to save global data: " .. tostring(updatedStore))
+		-- end
+	end)
 
 	-- Listen for requests to fetch global data from clients
 	Zap.RequestGlobalstoreData.On(function(player)
@@ -119,6 +119,8 @@ function GlobalDataStoreService.OnStart()
 				success = false,
 				purchasesLeft = purchasesLeft,
 			})
+
+			Zap.Warning.Fire(player, { message = "Insufficient funds", success = false })
 		-- Else, update the player's currency and shop purchase history in the player store
 		else
 			local playerStore = LyraService.GetPlayerStore()
@@ -158,6 +160,8 @@ function GlobalDataStoreService.OnStart()
 					success = true,
 					purchasesLeft = purchasesLeft - 1,
 				})
+
+				Zap.Warning.Fire(player, { message = "Purchase successful", success = true })
 			else
 				-- If the update to the global data store failed, send a failure response back to the player
 				Zap.PurchaseResponse.Fire(player, {
@@ -165,6 +169,7 @@ function GlobalDataStoreService.OnStart()
 					success = false,
 					purchasesLeft = purchasesLeft,
 				})
+				Zap.Warning.Fire(player, { message = "Purchase failed", success = false })
 			end
 		end
 	end)
