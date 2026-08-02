@@ -16,7 +16,6 @@ return function(
 	-- Offset the position be in front of the target
 	local middleTarget = attackData.targets[2]
 	local defaultTarget = attackData.targets[1] -- In case the attack lands on 1 target only
-	warn(middleTarget, defaultTarget)
 	local cframeToLerpTo = if middleTarget
 		then middleTarget.HumanoidRootPart.CFrame * CFrame.new(0, 0, -6) * CFrame.Angles(0, math.rad(180), 0)
 		else defaultTarget.HumanoidRootPart.CFrame * CFrame.new(0, 0, -6) * CFrame.Angles(0, math.rad(180), 0)
