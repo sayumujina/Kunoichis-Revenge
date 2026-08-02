@@ -200,7 +200,7 @@ local function ExecuteMove(
 
 	-- Move to the next turn after the attack animation is complete
 	trove:Add(anim.Stopped:Connect(function()
-		local cleanupDelay = 0
+		local cleanupDelay = 0.5
 		if deadTargets and #deadTargets > 0 then
 			for _, target in pairs(deadTargets) do
 				-- Fire the death event for each dead target
@@ -209,7 +209,7 @@ local function ExecuteMove(
 					origin = char,
 				})
 			end
-			cleanupDelay = 1 -- Delay to allow death animations to play before moving to the next turn
+			cleanupDelay = 1.5 -- Delay to allow death animations to play before moving to the next turn
 		end
 
 		local function cleanup()

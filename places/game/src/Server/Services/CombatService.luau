@@ -276,6 +276,7 @@ function CombatService.OnStart()
 	EventService.Events.Death:Connect(function(deathEvent)
 		-- Get the player who owns the dead character
 		local deadChar = deathEvent.char
+		local deadCharSide = deadChar:GetAttribute("Side")
 		local player = PlayerService.GetPlayerFromCharacter(deadChar)
 
 		if not player then
@@ -290,7 +291,7 @@ function CombatService.OnStart()
 		local deadCharIndex = deadChar:GetAttribute("Index")
 
 		-- If the dead character is the npc, simply destroy it
-		if deadChar:GetAttribute("Side") == "NPC" then
+		if deadCharSide == "NPC" then
 			deadChar:Destroy()
 
 			-- Update the indexes of the remaining npcs
@@ -304,7 +305,7 @@ function CombatService.OnStart()
 			end
 
 			-- Reposition the remaining characters of the side
-			Utility.RepositionCharactersOfSide(deadChar:GetAttribute("Side") :: _TYPES.Sides)
+			Utility.RepositionCharactersOfSide(deadCharSide :: _TYPES.Sides)
 			-- If the dead character is a playable, play the downed animation but do not destroy it
 		else
 			-- Mark the character as downed
@@ -315,10 +316,10 @@ function CombatService.OnStart()
 
 			-- Check if the player has failed the downed characters objective
 			for objectiveId, objective in pairs(combatData.currentStageData.extraObjectives or {}) do
-				if objective.conditionType ~= "DownedCharacters" or objective.failed then
+				if objective.objectiveInfo.conditionType ~= "DownedCharacters" or objective.failed then
 					continue
 				end
-				if combatData.downedCharacters > objective.value then
+				if combatData.downedCharacters > objective.objectiveInfo.value then
 					objective.failed = true
 
 					-- Fire the ObjectiveFailed event to notify the client that the player has failed the objective
@@ -346,13 +347,13 @@ function CombatService.OnStart()
 		end
 
 		-- If the dead character was the primary selected target, switch to the previous target if that index is no longer there
-		if deadChar:GetAttribute("Side") == "NPC" then
+		if deadCharSide == "NPC" then
 			if deadCharIndex > #combatData.npcs then
-				CombatService.SwitchToPreviousTarget(player, deadChar:GetAttribute("Side") :: _TYPES.Sides)
+				CombatService.SwitchToPreviousTarget(player, deadCharSide :: _TYPES.Sides)
 			end
 		else
 			if deadCharIndex > #combatData.playables then
-				CombatService.SwitchToPreviousTarget(player, deadChar:GetAttribute("Side") :: _TYPES.Sides)
+				CombatService.SwitchToPreviousTarget(player, deadCharSide :: _TYPES.Sides)
 			end
 		end
 
@@ -435,28 +436,10 @@ function CombatService.SwitchToPreviousTarget(player: _TYPES.RobloxPlayerType, s
 	-- Find the next selectable target index
 	local newIndex = findNextSelectableTargetIndex(chars, currentIndex, -1)
 	if not newIndex then
-		warn(
-			"No previous selectable target found for player:",
-			player.Name,
-			"side:",
-			side,
-			"currentIndex:",
-			currentIndex
-		)
 		return
 	end
 
 	if side == "NPC" then
-		warn(
-			"Switching to previous target for player:",
-			player.Name,
-			"side:",
-			side,
-			"currentIndex:",
-			currentIndex,
-			"newIndex:",
-			newIndex
-		)
 		combatData.selectedNPCIndex = newIndex
 	else
 		combatData.selectedPlayableIndex = newIndex
