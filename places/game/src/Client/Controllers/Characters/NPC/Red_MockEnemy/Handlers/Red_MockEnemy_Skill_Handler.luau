@@ -10,6 +10,8 @@ local CameraController = require(StarterPlayerScripts.Client.Controllers.CameraC
 -- Move info
 local moveInfo =
 	require(game:GetService("ReplicatedStorage").Data.Characters.NPC.Red_MockEnemy.data_Red_MockEnemy_Moves).Skill
+-- Utility
+local Utility = require(rep.Shared.Modules.Utility)
 
 return function(
 	trove: Trove.Trove,
@@ -22,11 +24,12 @@ return function(
 	local originalCFrame = char.HumanoidRootPart.CFrame
 
 	-- Offset the position be in front of the target
-	local targetToTelepotTo
-	if #attackData.targets > 2 then
-		targetToTelepotTo = attackData.targets[2]
-	else
-		targetToTelepotTo = attackData.targets[1]
+	-- Offset the position be in front of the target
+	local targetToTelepotTo =
+		Utility.FindCharacterWithIndex(attackData.primaryTargetIndex, workspace.Characters.Playable)
+	if not targetToTelepotTo then
+		warn("No target found for index: " .. attackData.primaryTargetIndex)
+		return 0
 	end
 	local cframeToLerpTo = targetToTelepotTo.HumanoidRootPart.CFrame
 		* CFrame.new(0, 0, -6)

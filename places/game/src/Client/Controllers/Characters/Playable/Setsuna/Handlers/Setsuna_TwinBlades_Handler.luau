@@ -4,6 +4,8 @@ local Trove = require(rep.Packages.Trove)
 --
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+-- Utility
+local Utility = require(rep.Shared.Modules.Utility)
 
 return function(
 	trove: Trove.Trove,
@@ -14,8 +16,15 @@ return function(
 	local originalCFrame = char.HumanoidRootPart.CFrame
 
 	-- Offset the position be in front of the target
-	local target = attackData.targets[1]
-	local cframeToLerpTo = target.HumanoidRootPart.CFrame * CFrame.new(0, 0, -6) * CFrame.Angles(0, math.rad(180), 0)
+	-- Offset the position be in front of the target
+	local targetToTelepotTo = Utility.FindCharacterWithIndex(attackData.primaryTargetIndex, workspace.Characters.NPC)
+	if not targetToTelepotTo then
+		warn("No target found for index: " .. attackData.primaryTargetIndex)
+		return 0
+	end
+	local cframeToLerpTo = targetToTelepotTo.HumanoidRootPart.CFrame
+		* CFrame.new(0, 0, -6)
+		* CFrame.Angles(0, math.rad(180), 0)
 
 	-- Create a tween to move the character to the position in front of the target
 	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
