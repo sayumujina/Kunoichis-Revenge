@@ -286,6 +286,11 @@ function TurnService.MoveToNextTurn(player: _TYPES.RobloxPlayerType)
 		return
 	end
 
+	-- Return if there already is a current turn
+	if playerData.currentTurn then
+		return
+	end
+
 	local char = playerData.previousTurn and playerData.previousTurn.char or nil
 	if char then
 		-- Reduce the duration of all statuses for the character whose turn just completed
@@ -601,7 +606,7 @@ function TurnService.EndCurrentExtraAction(player: _TYPES.RobloxPlayerType)
 	local currentTurn = playerData.currentTurn
 	if not currentTurn then
 		-- warn("No current turn exists for player:", player.Name, "moving to the next turn.")
-		-- TurnService.MoveToNextTurn(player)
+		TurnService.MoveToNextTurn(player)
 		return
 	end
 
